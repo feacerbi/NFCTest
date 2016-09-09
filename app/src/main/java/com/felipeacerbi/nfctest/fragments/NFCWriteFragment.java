@@ -1,16 +1,18 @@
-package com.felipeacerbi.nfctest;
+package com.felipeacerbi.nfctest.fragments;
 
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
+
+import com.felipeacerbi.nfctest.R;
 
 import java.nio.charset.Charset;
 import java.util.Locale;
@@ -40,13 +42,6 @@ public class NFCWriteFragment extends Fragment {
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        fab.setImageResource(R.drawable.ic_file_upload_white_24dp);
     }
 
     private void registerPushNFCTag(String payload) {
@@ -89,16 +84,17 @@ public class NFCWriteFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_write_nfc, container, false);
 
-        //EditText tagValue = (EditText) rootView.findViewById(R.id.tag_value);
+        EditText tagValue = (EditText) rootView.findViewById(R.id.tag_value);
+        EditText tagId = (EditText) rootView.findViewById(R.id.tag_id_value);
         final EditText tagMessages = (EditText) rootView.findViewById(R.id.tag_messages_value);
-        //EditText tagId = (EditText) rootView.findViewById(R.id.tag_id_value);
-        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
 
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
+                Snackbar.make(view, "Place device near an NFC Tag", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
                 registerPushNFCTag((tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
             }
         });

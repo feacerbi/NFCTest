@@ -1,4 +1,4 @@
-package com.felipeacerbi.nfctest;
+package com.felipeacerbi.nfctest.fragments;
 
 import android.content.Intent;
 import android.nfc.NdefMessage;
@@ -14,6 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.felipeacerbi.nfctest.models.NFCTag;
+import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.interfaces.NFCLaunchableActivity;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -47,13 +51,6 @@ public class NFCReadFragment extends Fragment {
         return fragment;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        fab.setImageResource(R.drawable.plus_sign);
-    }
-
     private NFCTag getNFCTag(Intent nfcIntent) {
         NFCTag nfcTag = null;
         if (nfcIntent != null) {
@@ -72,10 +69,10 @@ public class NFCReadFragment extends Fragment {
                 }
 
                 // Retrieve Tag object.
-                nfcTag.setTag((Tag) nfcIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG));
+                //nfcTag.setTag((Tag) nfcIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG));
 
                 // Retrieve Tag id.
-                nfcTag.setId(Integer.valueOf(nfcIntent.getParcelableExtra(NfcAdapter.EXTRA_ID).toString()));
+                //nfcTag.setId(Integer.valueOf(nfcIntent.getParcelableExtra(NfcAdapter.EXTRA_ID).toString()));
 
             } else if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(nfcIntent.getAction())) {
                 Toast.makeText(getActivity(), "NFC Tag technology not supported", Toast.LENGTH_SHORT).show();
@@ -99,13 +96,14 @@ public class NFCReadFragment extends Fragment {
         tagValue = (TextView) rootView.findViewById(R.id.tag_value);
         tagMessages = (TextView) rootView.findViewById(R.id.tag_messages_value);
         tagId = (TextView) rootView.findViewById(R.id.tag_id_value); // Get NFC Tag from Intent (nullable).
-        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
 
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
+                Snackbar.make(view, "Place device near an NFC Tag", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
                 NFCTag nfcTag = getNFCTag(((NFCLaunchableActivity) getActivity()).getNFCIntent());
 
                 // Print Tag info.

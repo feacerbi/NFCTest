@@ -1,4 +1,4 @@
-package com.felipeacerbi.nfctest;
+package com.felipeacerbi.nfctest.interfaces;
 
 import android.content.Intent;
 

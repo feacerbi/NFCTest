@@ -1,4 +1,4 @@
-package com.felipeacerbi.nfctest;
+package com.felipeacerbi.nfctest.models;
 
 import android.nfc.NdefMessage;
 import android.nfc.Tag;

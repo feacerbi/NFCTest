@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".NFCWriteFragment">
+    tools:context=".fragments.NFCWriteFragment">
 
     <TextView
         android:id="@+id/tag_title"
@@ -26,10 +26,10 @@
         android:id="@+id/tag_messages"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tag_value"
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:text="TAG Messages" />
+    <!-- android:layout_below="@id/tag_value" -->
 
     <EditText
         android:id="@+id/tag_messages_value"
