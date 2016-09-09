@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".NFCReadFragment">
+
+    <TextView
+        android:id="@+id/tag_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:text="TAG" />
+
+    <TextView
+        android:id="@+id/tag_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tag_title"
+        android:text="Test TAG" />
+
+    <TextView
+        android:id="@+id/tag_messages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tag_value"
+        android:layout_marginTop="16dp"
+        android:textSize="16sp"
+        android:text="TAG Messages" />
+
+    <TextView
+        android:id="@+id/tag_messages_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tag_messages"
+        android:text="Test TAG message" />
+
+    <TextView
+        android:id="@+id/tag_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tag_messages_value"
+        android:layout_marginTop="16dp"
+        android:textSize="16sp"
+        android:text="TAG ID" />
+
+    <TextView
+        android:id="@+id/tag_id_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tag_id"
+        android:text="Test ID" />
+
+</RelativeLayout>
