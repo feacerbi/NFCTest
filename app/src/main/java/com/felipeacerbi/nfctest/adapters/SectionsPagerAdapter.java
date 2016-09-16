@@ -1,17 +1,25 @@
-package com.felipeacerbi.nfctest;
+package com.felipeacerbi.nfctest.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 
-/**
- * Created by feaac on 9/8/2016.
- */
-public class SectionsPagerAdapter extends FragmentPagerAdapter implements ViewPager.OnPageChangeListener {
+import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.fragments.NFCReadFragment;
+import com.felipeacerbi.nfctest.fragments.NFCWriteFragment;
 
-    public SectionsPagerAdapter(FragmentManager fm) {
+import java.util.Arrays;
+import java.util.List;
+
+public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+    private static final int TABS_NUMBER = 2;
+    private final String[] tabTitles;
+
+    public SectionsPagerAdapter(FragmentManager fm, String[] tabTitles) {
         super(fm);
+        this.tabTitles = tabTitles;
     }
 
     @Override
@@ -31,32 +39,11 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter implements ViewPa
     @Override
     public int getCount() {
         // Show 2 total pages.
-        return 2;
+        return TABS_NUMBER;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        switch (position) {
-            case 0:
-                return "READ";
-            case 1:
-                return "WRITE";
-        }
-        return null;
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        getItem(position).onResume();
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
+        return tabTitles[position];
     }
 }

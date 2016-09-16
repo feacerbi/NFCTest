@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="tab_titles">
+        <item>READ</item>
+        <item>WRITE</item>
+    </string-array>
+
+    <array name="fab_icons">
+        <item>@drawable/plus_sign</item>
+        <item>@drawable/ic_file_upload_white_24dp</item>
+    </array>
+
+</resources>

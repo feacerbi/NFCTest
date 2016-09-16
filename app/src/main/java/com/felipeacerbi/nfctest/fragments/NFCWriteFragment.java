@@ -1,16 +1,22 @@
-package com.felipeacerbi.nfctest;
+package com.felipeacerbi.nfctest.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
+
+import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.activities.WaitTagActivity;
+import com.felipeacerbi.nfctest.models.NFCTag;
 
 import java.nio.charset.Charset;
 import java.util.Locale;
@@ -25,7 +31,9 @@ public class NFCWriteFragment extends Fragment {
      * fragment.
      */
     private static final String ARG_SECTION_NUMBER = "section_number";
+    private static final int START_WAIT_WRITE_TAG_INTENT = 3;
     private FloatingActionButton fab;
+    private EditText tagMessages;
 
     public NFCWriteFragment() {
     }
@@ -43,17 +51,23 @@ public class NFCWriteFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == START_WAIT_WRITE_TAG_INTENT && resultCode == Activity.RESULT_OK) {
+            Snackbar.make(
+                    getView().findViewById(R.id.nfc_write_layout),
+                    "TAG read successfully",
+                    Snackbar.LENGTH_LONG).show();
 
-        fab.setImageResource(R.drawable.ic_file_upload_white_24dp);
+            registerPushNFCTag((tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
+        }
     }
 
     private void registerPushNFCTag(String payload) {
 
         NdefMessage ndefMessage = new NdefMessage(
                 createTextRecord(payload, Locale.getDefault(), true),   // Create a TNF_WELL_KNOWN NDEF Record
-                NdefRecord.createApplicationRecord(getActivity().getPackageName())); // Android Application Record (AAR)
+                NdefRecord.createApplicationRecord(getActivity().getPackageName())); // Include Android Application Record (AAR)
 
         // Register NFC push message.
         NfcAdapter.getDefaultAdapter(getActivity()).setNdefPushMessage(ndefMessage, getActivity());
@@ -90,16 +104,15 @@ public class NFCWriteFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_write_nfc, container, false);
 
         //EditText tagValue = (EditText) rootView.findViewById(R.id.tag_value);
-        final EditText tagMessages = (EditText) rootView.findViewById(R.id.tag_messages_value);
         //EditText tagId = (EditText) rootView.findViewById(R.id.tag_id_value);
-        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        tagMessages = (EditText) rootView.findViewById(R.id.tag_messages_value);
 
+        fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
-                registerPushNFCTag((tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
+                Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
+                startActivityForResult(startReadIntent, START_WAIT_WRITE_TAG_INTENT);
             }
         });
 
