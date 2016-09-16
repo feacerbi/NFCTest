@@ -2,4 +2,7 @@
     <string name="app_name">NFCTest</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="cancel">CANCEL</string>
+    <string name="nfc_logo_title">Place the device near an NFC Tag</string>
+    <string name="nfc_logo_description">NFC Logo</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.felipeacerbi.nfctest.activities;
 
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.nfc.NfcAdapter;
 import android.support.design.widget.FloatingActionButton;
@@ -8,7 +7,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.Menu;
@@ -18,13 +16,11 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.SectionsPagerAdapter;
-import com.felipeacerbi.nfctest.interfaces.NFCLaunchableActivity;
 
-public class NFCManager extends AppCompatActivity implements NFCLaunchableActivity, ViewPager.OnPageChangeListener {
+public class NFCManager extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
-    private TypedArray fabIcons;
-    private Intent nfcIntent;
     private FloatingActionButton fab;
+    private TypedArray fabIcons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,19 +54,6 @@ public class NFCManager extends AppCompatActivity implements NFCLaunchableActivi
             finish();
         }
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Retrieve NFC Intent.
-        nfcIntent = getIntent();
-    }
-
-    @Override
-    public Intent getNFCIntent() {
-        return nfcIntent;
     }
 
     @Override

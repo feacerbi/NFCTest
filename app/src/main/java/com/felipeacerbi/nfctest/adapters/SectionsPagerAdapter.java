@@ -14,7 +14,8 @@ import java.util.List;
 
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    private String[] tabTitles;
+    private static final int TABS_NUMBER = 2;
+    private final String[] tabTitles;
 
     public SectionsPagerAdapter(FragmentManager fm, String[] tabTitles) {
         super(fm);
@@ -38,7 +39,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         // Show 2 total pages.
-        return 2;
+        return TABS_NUMBER;
     }
 
     @Override

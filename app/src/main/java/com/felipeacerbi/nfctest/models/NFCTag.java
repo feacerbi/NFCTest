@@ -3,7 +3,9 @@ package com.felipeacerbi.nfctest.models;
 import android.nfc.NdefMessage;
 import android.nfc.Tag;
 
-public class NFCTag {
+import java.io.Serializable;
+
+public class NFCTag implements Serializable {
 
     private Tag tag;
     private NdefMessage[] ndefMessages;
