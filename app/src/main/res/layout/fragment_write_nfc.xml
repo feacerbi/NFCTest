@@ -9,20 +9,6 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".fragments.NFCWriteFragment">
 
-    <!-- <TextView
-        android:id="@+id/tag_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="TAG" />
-
-    <EditText
-        android:id="@+id/tag_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_title"
-        android:minEms="10"/> -->
-
     <TextView
         android:id="@+id/tag_messages"
         android:layout_width="wrap_content"
@@ -30,7 +16,6 @@
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:text="TAG Messages" />
-    <!-- android:layout_below="@id/tag_value" -->
 
     <EditText
         android:id="@+id/tag_messages_value"
@@ -39,21 +24,5 @@
         android:layout_below="@id/tag_messages"
         android:hint="Insert content"
         android:minEms="10" />
-
-    <!-- <TextView
-        android:id="@+id/tag_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_messages_value"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:text="TAG ID" />
-
-    <EditText
-        android:id="@+id/tag_id_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_id"
-        android:minEms="10" /> -->
 
 </RelativeLayout>

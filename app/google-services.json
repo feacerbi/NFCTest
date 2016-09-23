@@ -1,0 +1,50 @@
+{
+  "project_info": {
+    "project_number": "80974609362",
+    "firebase_url": "https://nfctest-b7d5f.firebaseio.com",
+    "project_id": "nfctest-b7d5f",
+    "storage_bucket": "nfctest-b7d5f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80974609362:android:665ffafd6ad1f4a4",
+        "android_client_info": {
+          "package_name": "com.felipeacerbi.nfctest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "80974609362-gglvlovhi5acfmepbg86v4usgo5eehi1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.felipeacerbi.nfctest",
+            "certificate_hash": "A28C0917AEDE7856E13D137E5C67E4F3B1BC0C8E"
+          }
+        },
+        {
+          "client_id": "80974609362-q48riru16h7108bcf4t0oo9mnqeearca.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDanB_A1DEVkT99bePUbaiTR5ZZQzSB8mc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

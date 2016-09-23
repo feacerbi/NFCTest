@@ -49,9 +49,9 @@
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
             </android.support.v7.widget.Toolbar>
-
         </android.support.design.widget.AppBarLayout>
 
         <include layout="@layout/content_wait_tag"/>
+
     </android.support.design.widget.CoordinatorLayout>
 </RelativeLayout>

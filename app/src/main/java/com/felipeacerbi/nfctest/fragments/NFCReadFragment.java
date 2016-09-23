@@ -20,18 +20,10 @@ import android.widget.Toast;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.utils.Constants;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class NFCReadFragment extends Fragment {
 
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    private static final String ARG_SECTION_NUMBER = "section_number";
-    private static final int START_WAIT_READ_TAG_INTENT = 2;
     private TextView tagValue;
     private TextView tagId;
     private TextView tagMessages;
@@ -40,14 +32,10 @@ public class NFCReadFragment extends Fragment {
     public NFCReadFragment() {
     }
 
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
     public static NFCReadFragment newInstance(int sectionNumber) {
         NFCReadFragment fragment = new NFCReadFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+        args.putInt(Constants.ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,12 +43,22 @@ public class NFCReadFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == START_WAIT_READ_TAG_INTENT && resultCode == Activity.RESULT_OK) {
-            Snackbar.make(
-                    getView().findViewById(R.id.nfc_read_layout),
-                    "TAG read successfully",
-                    Snackbar.LENGTH_LONG).show();
-            setNFCFields((NFCTag) data.getExtras().getSerializable("nfc_tag"));
+
+        // Handle response from WaitTagActivity
+        if(requestCode == Constants.START_WAIT_READ_TAG_INTENT) {
+            if (resultCode == Activity.RESULT_OK) {
+                Snackbar.make(
+                        getView().findViewById(R.id.nfc_read_layout),
+                        "TAG read successfully",
+                        Snackbar.LENGTH_LONG).show();
+                // Set text fields with Tag information
+                setNFCFields((NFCTag) data.getExtras().getSerializable("nfc_tag"));
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Snackbar.make(
+                        getView().findViewById(R.id.nfc_read_layout),
+                        "TAG read canceled",
+                        Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -83,8 +81,9 @@ public class NFCReadFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Start the activity to wait for Tag interactivity
                 Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
-                startActivityForResult(startReadIntent, START_WAIT_READ_TAG_INTENT);
+                startActivityForResult(startReadIntent, Constants.START_WAIT_READ_TAG_INTENT);
             }
         });
 

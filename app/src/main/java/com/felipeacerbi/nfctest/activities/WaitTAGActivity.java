@@ -34,9 +34,11 @@ public class WaitTagActivity extends AppCompatActivity {
     public void onContentChanged() {
         super.onContentChanged();
 
+        // Background logo
         nfcLogo = (ImageView) findViewById(R.id.nfc_logo);
         nfcLogo.setImageResource(R.drawable.nfc_logo_fail);
 
+        // Button to cancel read/write action
         final TextView cancelButton = (TextView) findViewById(R.id.cancel_button);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override

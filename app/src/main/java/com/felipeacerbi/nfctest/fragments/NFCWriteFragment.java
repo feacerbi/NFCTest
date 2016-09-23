@@ -17,35 +17,23 @@ import android.widget.EditText;
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
 import com.felipeacerbi.nfctest.models.NFCTag;
+import com.felipeacerbi.nfctest.utils.Constants;
 
 import java.nio.charset.Charset;
 import java.util.Locale;
 
-/**
- * A placeholder fragment containing a simple view.
- */
 public class NFCWriteFragment extends Fragment {
 
-    /**
-     * The fragment argument representing the section number for this
-     * fragment.
-     */
-    private static final String ARG_SECTION_NUMBER = "section_number";
-    private static final int START_WAIT_WRITE_TAG_INTENT = 3;
     private FloatingActionButton fab;
     private EditText tagMessages;
 
     public NFCWriteFragment() {
     }
 
-    /**
-     * Returns a new instance of this fragment for the given section
-     * number.
-     */
     public static NFCWriteFragment newInstance(int sectionNumber) {
         NFCWriteFragment fragment = new NFCWriteFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+        args.putInt(Constants.ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,18 +41,27 @@ public class NFCWriteFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == START_WAIT_WRITE_TAG_INTENT && resultCode == Activity.RESULT_OK) {
-            Snackbar.make(
-                    getView().findViewById(R.id.nfc_write_layout),
-                    "TAG read successfully",
-                    Snackbar.LENGTH_LONG).show();
 
-            registerPushNFCTag((tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
+        // Handle response from WaitTagActivity
+        if(requestCode == Constants.START_WAIT_WRITE_TAG_INTENT) {
+            if (resultCode == Activity.RESULT_OK) {
+                Snackbar.make(
+                        getView().findViewById(R.id.nfc_write_layout),
+                        "TAG written successfully",
+                        Snackbar.LENGTH_LONG).show();
+                // Set the content message to send to the Tag
+                registerPushNFCTag((tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Snackbar.make(
+                        getView().findViewById(R.id.nfc_write_layout),
+                        "TAG write canceled",
+                        Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 
     private void registerPushNFCTag(String payload) {
-
+        // Create Ndef message
         NdefMessage ndefMessage = new NdefMessage(
                 createTextRecord(payload, Locale.getDefault(), true),   // Create a TNF_WELL_KNOWN NDEF Record
                 NdefRecord.createApplicationRecord(getActivity().getPackageName())); // Include Android Application Record (AAR)
@@ -103,8 +100,6 @@ public class NFCWriteFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_write_nfc, container, false);
 
-        //EditText tagValue = (EditText) rootView.findViewById(R.id.tag_value);
-        //EditText tagId = (EditText) rootView.findViewById(R.id.tag_id_value);
         tagMessages = (EditText) rootView.findViewById(R.id.tag_messages_value);
 
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
@@ -112,7 +107,7 @@ public class NFCWriteFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
-                startActivityForResult(startReadIntent, START_WAIT_WRITE_TAG_INTENT);
+                startActivityForResult(startReadIntent, Constants.START_WAIT_WRITE_TAG_INTENT);
             }
         });
 

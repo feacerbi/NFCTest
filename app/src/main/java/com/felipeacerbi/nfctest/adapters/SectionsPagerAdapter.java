@@ -8,13 +8,13 @@ import android.support.v4.view.ViewPager;
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.fragments.NFCReadFragment;
 import com.felipeacerbi.nfctest.fragments.NFCWriteFragment;
+import com.felipeacerbi.nfctest.utils.Constants;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    private static final int TABS_NUMBER = 2;
     private final String[] tabTitles;
 
     public SectionsPagerAdapter(FragmentManager fm, String[] tabTitles) {
@@ -25,7 +25,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
         switch (position) {
             case 0:
                 return NFCReadFragment.newInstance(position + 1);
@@ -39,7 +38,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         // Show 2 total pages.
-        return TABS_NUMBER;
+        return Constants.TABS_NUMBER;
     }
 
     @Override
