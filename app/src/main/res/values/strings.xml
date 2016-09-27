@@ -20,4 +20,6 @@
     </string>
     <string name="sign_out">Sign out</string>
     <string name="action_google_sign_in">Sign in with Google</string>
+
+    <string name="web_client_id">80974609362-q48riru16h7108bcf4t0oo9mnqeearca.apps.googleusercontent.com</string>
 </resources>

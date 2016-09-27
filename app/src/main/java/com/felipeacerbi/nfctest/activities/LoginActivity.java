@@ -129,6 +129,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
+                .requestIdToken(getResources().getString(R.string.web_client_id))
                 .build();
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
@@ -158,6 +159,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        showProgress(true);
 
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == Constants.START_RC_SIGN_IN_INTENT) {
@@ -167,6 +169,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
+                showProgress(false);
                 // Google Sign In failed
                 Toast.makeText(this, "LoginActivity: Google Sign In failed", Toast.LENGTH_LONG).show();
             }
@@ -184,6 +187,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
+                            showProgress(false);
                             Toast.makeText(LoginActivity.this, "LoginActivity: Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
@@ -388,7 +392,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_nfcmanager, menu);
+        getMenuInflater().inflate(R.menu.menu_login, menu);
         return true;
     }
 
@@ -401,11 +405,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         switch (id) {
             case R.id.action_settings:
-                return true;
-            case R.id.action_sign_out:
-                Auth.GoogleSignInApi.signOut(googleApiClient);
-                Toast.makeText(LoginActivity.this, "Signed out.",
-                    Toast.LENGTH_SHORT).show();
                 return true;
         }
 

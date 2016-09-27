@@ -36,6 +36,7 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
     private FirebaseUser firebaseUser;
     private String photoUrl;
     private String username;
+    private String email;
     private GoogleApiClient googleApiClient;
 
     @Override
@@ -101,6 +102,13 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
             if (firebaseUser.getPhotoUrl() != null) {
                 photoUrl = firebaseUser.getPhotoUrl().toString();
             }
+            if (firebaseUser.getEmail() != null) {
+                email = firebaseUser.getEmail();
+            }
+
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            toolbar.setTitle("" + email);
+            setSupportActionBar(toolbar);
         }
     }
 
@@ -126,6 +134,7 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
                 Auth.GoogleSignInApi.signOut(googleApiClient);
                 username = "ANONYMOUS";
                 startActivity(new Intent(this, LoginActivity.class));
+                finish();
                 return true;
         }
 
@@ -151,5 +160,17 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(this, "NFCManager: Google Services not available", Toast.LENGTH_LONG).show();
         finish();
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
     }
 }
