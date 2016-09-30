@@ -1,7 +1,6 @@
 package com.felipeacerbi.nfctest.activities;
 
 import android.content.Intent;
-import android.content.res.TypedArray;
 import android.nfc.NfcAdapter;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -18,26 +17,22 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.SectionsPagerAdapter;
+import com.felipeacerbi.nfctest.utils.Constants;
+import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.Drive;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-public class NFCManager extends AppCompatActivity implements ViewPager.OnPageChangeListener, GoogleApiClient.OnConnectionFailedListener {
+public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private FloatingActionButton fab;
-    private TypedArray fabIcons;
+    // Firebase Helper instance
+    private FirebaseHelper firebaseHelper;
 
-    // Firebase instance variables
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser;
-    private String photoUrl;
-    private String username;
-    private String email;
     private GoogleApiClient googleApiClient;
+    private SectionsPagerAdapter sectionsPagerAdapter;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,22 +45,19 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
         checkFirebase();
 
         // Retrieve FAB multi action button
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fabIcons = getResources().obtainTypedArray(R.array.fab_icons);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager(),
-                getResources().getStringArray(R.array.tab_titles));
+        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this, fab);
 
         // Set up the ViewPager with the sections adapter.
-        ViewPager viewPager = (ViewPager) findViewById(R.id.container);
+        viewPager = (ViewPager) findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
-        viewPager.addOnPageChangeListener(this);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+        tabLayout.addOnTabSelectedListener(sectionsPagerAdapter);
 
         // Check for available NFC Adapter.
         if (NfcAdapter.getDefaultAdapter(this) == null) {
@@ -90,25 +82,12 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
     }
 
     private void checkFirebase() {
-        // Initialize Firebase Auth
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = firebaseAuth.getCurrentUser();
-        if (firebaseUser == null) {
+        // Initialize Firebase
+        firebaseHelper = new FirebaseHelper();
+        if (firebaseHelper.getFirebaseUser() == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, LoginActivity.class));
             finish();
-        } else {
-            username = firebaseUser.getDisplayName();
-            if (firebaseUser.getPhotoUrl() != null) {
-                photoUrl = firebaseUser.getPhotoUrl().toString();
-            }
-            if (firebaseUser.getEmail() != null) {
-                email = firebaseUser.getEmail();
-            }
-
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-            toolbar.setTitle("" + email);
-            setSupportActionBar(toolbar);
         }
     }
 
@@ -130,9 +109,8 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
             case R.id.action_settings:
                 return true;
             case R.id.action_sign_out:
-                firebaseAuth.signOut();
+                firebaseHelper.signOut();
                 Auth.GoogleSignInApi.signOut(googleApiClient);
-                username = "ANONYMOUS";
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();
                 return true;
@@ -142,35 +120,20 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
     }
 
     @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        fab.setImageResource(fabIcons.getResourceId(position, 0));
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
-
-    @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Toast.makeText(this, "NFCManager: Google Services not available", Toast.LENGTH_LONG).show();
         finish();
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(Constants.POSITION, tabLayout.getSelectedTabPosition());
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getEmail() {
-        return email;
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        viewPager.setCurrentItem(savedInstanceState.getInt(Constants.POSITION));
     }
 }
