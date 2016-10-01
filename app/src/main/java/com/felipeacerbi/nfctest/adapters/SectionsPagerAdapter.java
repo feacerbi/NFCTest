@@ -1,31 +1,45 @@
 package com.felipeacerbi.nfctest.adapters;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.fragments.NFCReadFragment;
 import com.felipeacerbi.nfctest.fragments.NFCWriteFragment;
+import com.felipeacerbi.nfctest.utils.Constants;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class SectionsPagerAdapter extends FragmentPagerAdapter {
+public class SectionsPagerAdapter extends FragmentPagerAdapter implements TabLayout.OnTabSelectedListener {
 
-    private static final int TABS_NUMBER = 2;
-    private final String[] tabTitles;
+    private final FloatingActionButton fab;
+    private final FragmentManager fm;
+    private Context context;
+    private TypedArray fabIcons;
+    private String[] tabTitles;
 
-    public SectionsPagerAdapter(FragmentManager fm, String[] tabTitles) {
+    public SectionsPagerAdapter(FragmentManager fm, Context context, FloatingActionButton fab) {
         super(fm);
-        this.tabTitles = tabTitles;
+        this.fm = fm;
+        this.context = context;
+        this.fab = fab;
+
+        fabIcons = context.getResources().obtainTypedArray(R.array.fab_icons);
+        tabTitles = context.getResources().getStringArray(R.array.tab_titles);
     }
 
     @Override
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
         switch (position) {
             case 0:
                 return NFCReadFragment.newInstance(position + 1);
@@ -39,11 +53,29 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         // Show 2 total pages.
-        return TABS_NUMBER;
+        return Constants.TABS_NUMBER;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
         return tabTitles[position];
+    }
+
+    @Override
+    public void onTabSelected(TabLayout.Tab tab) {
+        int position = tab.getPosition();
+        Fragment fragment = fm.getFragments().get(position + 1);
+        fab.setImageResource(fabIcons.getResourceId(position, 0));
+        fab.setOnClickListener((View.OnClickListener) fragment);
+    }
+
+    @Override
+    public void onTabUnselected(TabLayout.Tab tab) {
+
+    }
+
+    @Override
+    public void onTabReselected(TabLayout.Tab tab) {
+
     }
 }

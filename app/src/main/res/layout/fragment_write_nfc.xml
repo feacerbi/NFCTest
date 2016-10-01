@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nfc_write_layout"
     android:layout_width="match_parent"
@@ -9,51 +9,24 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".fragments.NFCWriteFragment">
 
-    <!-- <TextView
-        android:id="@+id/tag_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="TAG" />
-
-    <EditText
-        android:id="@+id/tag_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_title"
-        android:minEms="10"/> -->
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <TextView
-        android:id="@+id/tag_messages"
+        android:id="@+id/tag_write_messages"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:text="TAG Messages" />
-    <!-- android:layout_below="@id/tag_value" -->
 
     <EditText
-        android:id="@+id/tag_messages_value"
+        android:id="@+id/tag_write_messages_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tag_messages"
+        android:layout_below="@id/tag_write_messages"
         android:hint="Insert content"
         android:minEms="10" />
+    </RelativeLayout>
 
-    <!-- <TextView
-        android:id="@+id/tag_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_messages_value"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:text="TAG ID" />
-
-    <EditText
-        android:id="@+id/tag_id_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_id"
-        android:minEms="10" /> -->
-
-</RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

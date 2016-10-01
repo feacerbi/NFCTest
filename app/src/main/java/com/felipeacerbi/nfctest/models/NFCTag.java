@@ -11,6 +11,15 @@ public class NFCTag implements Serializable {
     private NdefMessage[] ndefMessages;
     private int id;
 
+    public NFCTag() {
+    }
+
+    public NFCTag(Tag tag, NdefMessage[] ndefMessages, int id) {
+        this.tag = tag;
+        this.ndefMessages = ndefMessages;
+        this.id = id;
+    }
+
     public Tag getTag() {
         return tag;
     }

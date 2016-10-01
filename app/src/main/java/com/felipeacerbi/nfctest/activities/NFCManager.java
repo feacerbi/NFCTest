@@ -1,7 +1,8 @@
 package com.felipeacerbi.nfctest.activities;
 
-import android.content.res.TypedArray;
+import android.content.Intent;
 import android.nfc.NfcAdapter;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -16,11 +17,22 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.SectionsPagerAdapter;
+import com.felipeacerbi.nfctest.utils.Constants;
+import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 
-public class NFCManager extends AppCompatActivity implements ViewPager.OnPageChangeListener {
+public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    private FloatingActionButton fab;
-    private TypedArray fabIcons;
+    // Firebase Helper instance
+    private FirebaseHelper firebaseHelper;
+
+    private GoogleApiClient googleApiClient;
+    private SectionsPagerAdapter sectionsPagerAdapter;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,24 +41,23 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        
+        checkFirebase();
 
         // Retrieve FAB multi action button
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fabIcons = getResources().obtainTypedArray(R.array.fab_icons);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager(),
-                getResources().getStringArray(R.array.tab_titles));
+        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this, fab);
 
         // Set up the ViewPager with the sections adapter.
-        ViewPager viewPager = (ViewPager) findViewById(R.id.container);
+        viewPager = (ViewPager) findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
-        viewPager.addOnPageChangeListener(this);
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+        tabLayout.addOnTabSelectedListener(sectionsPagerAdapter);
 
         // Check for available NFC Adapter.
         if (NfcAdapter.getDefaultAdapter(this) == null) {
@@ -54,6 +65,30 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
             finish();
         }
 
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this /* FragmentActivity */,
+                        this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+    }
+
+    private void checkFirebase() {
+        // Initialize Firebase
+        firebaseHelper = new FirebaseHelper();
+        if (firebaseHelper.getFirebaseUser() == null) {
+            // Not signed in, launch the Sign In activity
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+        }
     }
 
     @Override
@@ -70,26 +105,35 @@ public class NFCManager extends AppCompatActivity implements ViewPager.OnPageCha
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement.
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_sign_out:
+                firebaseHelper.signOut();
+                Auth.GoogleSignInApi.signOut(googleApiClient);
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(this, "NFCManager: Google Services not available", Toast.LENGTH_LONG).show();
+        finish();
     }
 
     @Override
-    public void onPageSelected(int position) {
-        fab.setImageResource(fabIcons.getResourceId(position, 0));
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(Constants.POSITION, tabLayout.getSelectedTabPosition());
     }
 
     @Override
-    public void onPageScrollStateChanged(int state) {
-
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        viewPager.setCurrentItem(savedInstanceState.getInt(Constants.POSITION));
     }
 }
