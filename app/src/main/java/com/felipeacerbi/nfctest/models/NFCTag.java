@@ -4,6 +4,8 @@ import android.nfc.NdefMessage;
 import android.nfc.Tag;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NFCTag implements Serializable {
 
@@ -26,6 +28,14 @@ public class NFCTag implements Serializable {
 
     public void setTag(Tag tag) {
         this.tag = tag;
+    }
+
+    public List<String> getNdefMessagesArray() {
+        List<String> messages = new ArrayList<>();
+        for(NdefMessage ndefMessage : getNdefMessages()) {
+            messages.add(ndefMessage.toString());
+        }
+        return messages;
     }
 
     public String getNdefMessagesString() {

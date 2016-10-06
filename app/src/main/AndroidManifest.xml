@@ -54,6 +54,7 @@
             android:name=".activities.LoginActivity"
             android:label="Login"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.TicTacToeActivity"></activity>
     </application>
 
 </manifest>

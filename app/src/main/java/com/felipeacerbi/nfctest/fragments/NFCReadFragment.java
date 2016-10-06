@@ -15,13 +15,17 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.models.NFCTagDB;
+import com.felipeacerbi.nfctest.models.UserDB;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.List;
 
 public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
@@ -82,7 +86,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        firebaseHelper = new FirebaseHelper();
+        firebaseHelper = new FirebaseHelper(getActivity());
         setUserInfo();
     }
 
@@ -112,16 +116,23 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
                 startActivityForResult(startReadIntent, Constants.START_WAIT_READ_TAG_INTENT); */
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference(firebaseHelper.getLoginName());
         // Read from the database
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference userRef = firebaseHelper.getCurrentUserReference();
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                tagValue.setText(value);
+                UserDB userDB = dataSnapshot.getValue(UserDB.class);
+                List<NFCTagDB> dbTags = userDB.getNfcTagDBs();
+                if(dbTags != null) {
+                    NFCTagDB nfcTagDB = (NFCTagDB) dbTags.get(0);
+                    tagValue.setText(nfcTagDB.getTag());
+                    tagMessages.setText(nfcTagDB.getNdefMessages().get(0));
+                    tagId.setText(nfcTagDB.getId());
+                } else {
+                    Toast.makeText(getActivity(), "No data found", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override

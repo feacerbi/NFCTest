@@ -1,0 +1,130 @@
+package com.felipeacerbi.nfctest.adapters;
+
+import android.content.Context;
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.models.NFCTagDB;
+import com.felipeacerbi.nfctest.models.User;
+import com.felipeacerbi.nfctest.models.UserDB;
+import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {
+
+    private final List<User> users;
+    private Context context;
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+        private final TextView nameField;
+        private final ImageView onlineField;
+
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+
+            nameField = (TextView) itemView.findViewById(R.id.name_field);
+            onlineField = (ImageView) itemView.findViewById(R.id.online_indicator);
+
+        }
+
+        public TextView getNameField() {
+            return nameField;
+        }
+
+        public ImageView getOnlineField() {
+            return onlineField;
+        }
+    }
+
+    public UsersAdapter(Context context, List<User> users) {
+        this.users = users;
+        this.context = context;
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_item, parent, false);
+        return new ViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(final ViewHolder holder, int position) {
+            final User user = getUsers().get(position);
+            final FirebaseHelper firebaseHelper = new FirebaseHelper(context);
+
+            holder.getNameField().setText(user.getUserDB().getName());
+
+            final DatabaseReference userReference = firebaseHelper.getUserReference(user.getUsername());
+            userReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(final DataSnapshot dataSnapshot) {
+                    final UserDB dbUser = dataSnapshot.getValue(UserDB.class);
+                    holder.getOnlineField().setImageResource((dbUser.isOnline()) ?
+                            R.drawable.ic_cast_on_light :
+                            R.drawable.ic_cast_off_light);
+                    if (dbUser.isOnline()) {
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                AlertDialog.Builder playAlert = new AlertDialog.Builder(context);
+                                playAlert
+                                        .setTitle("Send game request")
+                                        .setMessage("Invite " + dbUser.getName() + " to play a game?")
+                                        .setCancelable(true)
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                List<String> requests = new ArrayList<>();
+                                                requests.addAll(dbUser.getPlayRequests());
+                                                requests.add(firebaseHelper.getLoginName());
+                                                userReference.child("playRequests").setValue(requests);
+                                            }
+                                        })
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                dialogInterface.cancel();
+                                            }
+                                        })
+                                        .show();
+                            }
+                        });
+                    } else {
+                        holder.itemView.setOnClickListener(null);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    @Override
+    public int getItemCount() {
+        return users.size();
+    }
+}
