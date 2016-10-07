@@ -17,9 +17,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.models.NFCTagDB;
-import com.felipeacerbi.nfctest.models.User;
-import com.felipeacerbi.nfctest.models.UserDB;
+import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
+import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DatabaseReference;
@@ -143,7 +142,6 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         userRef.setValue(new UserDB(firebaseHelper.getUserName(),
                         firebaseHelper.getEmail(),
                         dbTags,
-                        requests,
-                        true));
+                        requests));
     }
 }

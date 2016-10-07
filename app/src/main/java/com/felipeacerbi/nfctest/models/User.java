@@ -1,6 +1,6 @@
 package com.felipeacerbi.nfctest.models;
 
-import java.util.List;
+import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 
 /**
  * Created by felipe.acerbi on 06/10/2016.

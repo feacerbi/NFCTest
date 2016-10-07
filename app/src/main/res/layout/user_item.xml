@@ -10,12 +10,21 @@
         android:padding="10dp">
 
         <ImageView
-            android:id="@+id/online_indicator"
+            android:id="@+id/playing_indicator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
-            android:src="@drawable/ic_cast_disabled_light"/>
+            android:alpha="0.4"
+            android:src="@drawable/ic_videogame_asset_black_24dp"/>
+
+        <ImageView
+            android:id="@+id/online_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/playing_indicator"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_signal_wifi_off_black_24dp"/>
 
         <TextView
             android:id="@+id/name_field"

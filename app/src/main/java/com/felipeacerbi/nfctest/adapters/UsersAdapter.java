@@ -7,20 +7,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.models.NFCTagDB;
 import com.felipeacerbi.nfctest.models.User;
-import com.felipeacerbi.nfctest.models.UserDB;
+import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -35,6 +32,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
         private final TextView nameField;
         private final ImageView onlineField;
+        private final ImageView playingField;
 
 
         public ViewHolder(View itemView) {
@@ -42,6 +40,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
             nameField = (TextView) itemView.findViewById(R.id.name_field);
             onlineField = (ImageView) itemView.findViewById(R.id.online_indicator);
+            playingField = (ImageView) itemView.findViewById(R.id.playing_indicator);
 
         }
 
@@ -51,6 +50,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
         public ImageView getOnlineField() {
             return onlineField;
+        }
+
+        public ImageView getPlayingField() {
+            return playingField;
         }
     }
 
@@ -78,9 +81,19 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                 public void onDataChange(final DataSnapshot dataSnapshot) {
                     final UserDB dbUser = dataSnapshot.getValue(UserDB.class);
                     holder.getOnlineField().setImageResource((dbUser.isOnline()) ?
-                            R.drawable.ic_cast_on_light :
-                            R.drawable.ic_cast_off_light);
-                    if (dbUser.isOnline()) {
+                            R.drawable.ic_signal_wifi_4_bar_black_24dp :
+                            R.drawable.ic_signal_wifi_off_black_24dp);
+                    holder.getPlayingField().setImageAlpha((dbUser.isPlaying()) ?
+                            255 :
+                            100);
+                    if(dbUser.isPlaying()) {
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Toast.makeText(context, "User already playing, try another time", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } else if (dbUser.isOnline()) {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -93,7 +106,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
                                                 List<String> requests = new ArrayList<>();
-                                                requests.addAll(dbUser.getPlayRequests());
+                                                requests.addAll(dbUser.getRequests());
                                                 requests.add(firebaseHelper.getLoginName());
                                                 userReference.child("playRequests").setValue(requests);
                                             }
@@ -108,7 +121,12 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                             }
                         });
                     } else {
-                        holder.itemView.setOnClickListener(null);
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Toast.makeText(context, "User offline, try another time", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 }
 

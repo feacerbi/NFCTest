@@ -1,6 +1,7 @@
 package com.felipeacerbi.nfctest.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,10 +11,11 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.models.UserDB;
+import com.felipeacerbi.nfctest.models.TicTacToeGame;
+import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
+import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,7 +50,7 @@ public class TicTacToeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
                 final UserDB userDB = dataSnapshot.getValue(UserDB.class);
-                final List<String> requests = userDB.getPlayRequests();
+                final List<String> requests = userDB.getRequests();
                 if(requests.size() != 0) {
                     AlertDialog.Builder playAlert = new AlertDialog.Builder(TicTacToeActivity.this);
                     playAlert
@@ -63,6 +65,7 @@ public class TicTacToeActivity extends AppCompatActivity {
                                             .child("playRequests")
                                             .child("0")
                                             .removeValue();
+                                    setUpNewGame(dataSnapshot.getKey());
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -81,6 +84,13 @@ public class TicTacToeActivity extends AppCompatActivity {
         };
 
         firebaseHelper.getCurrentUserReference().addValueEventListener(requestsListener);
+    }
+
+    public void setUpNewGame(String opponent) {
+        String currentUser = firebaseHelper.getLoginName();
+        TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(currentUser, opponent, "1"));
+
+        startActivity(new Intent(this, TicTacToePlayActivity.class).putExtra("game", ticTacToeGame));
     }
 
     @Override
@@ -104,11 +114,13 @@ public class TicTacToeActivity extends AppCompatActivity {
 
     public void connect() {
         DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
+        userReference.addValueEventListener(requestsListener);
         userReference.child("online").setValue(true);
     }
 
     public void disconnect() {
         DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
+        userReference.removeEventListener(requestsListener);
         userReference.child("online").setValue(false);
     }
 
@@ -122,12 +134,6 @@ public class TicTacToeActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         disconnect();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        firebaseHelper.getCurrentUserReference().removeEventListener(requestsListener);
     }
 
     public void setRecyclerViewLayoutManager(LayoutManagerType layoutManagerType) {

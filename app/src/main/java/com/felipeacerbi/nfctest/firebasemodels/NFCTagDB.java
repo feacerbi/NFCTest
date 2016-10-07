@@ -1,7 +1,6 @@
-package com.felipeacerbi.nfctest.models;
+package com.felipeacerbi.nfctest.firebasemodels;
 
-import android.nfc.NdefMessage;
-import android.nfc.Tag;
+import com.felipeacerbi.nfctest.models.NFCTag;
 
 import java.io.Serializable;
 import java.util.ArrayList;

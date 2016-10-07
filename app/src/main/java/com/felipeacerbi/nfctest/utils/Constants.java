@@ -15,4 +15,5 @@ public class Constants {
     public static final String LOGIN_ANONYMOUS = "anonymous";
 
     public static final String DATABASE_USERS_PATH = "users/";
+    public static final String DATABASE_GAMES_PATH = "games/";
 }
