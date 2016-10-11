@@ -7,7 +7,7 @@ public class UserDB {
 
     private String name;
     private String email;
-    private List<NFCTagDB> nfcTags;
+    private List<NFCTagDB> tags;
     private List<String> requests;
     private boolean online;
     private boolean playing;
@@ -15,10 +15,10 @@ public class UserDB {
     public UserDB() {
     }
 
-    public UserDB(String name, String email, List<NFCTagDB> nfcTags, List<String> requests) {
+    public UserDB(String name, String email, List<NFCTagDB> tags, List<String> requests) {
         this.name = name;
         this.email = email;
-        this.nfcTags = nfcTags;
+        this.tags = tags;
         this.requests = requests;
     }
 
@@ -46,13 +46,13 @@ public class UserDB {
         this.playing = playing;
     }
 
-    public List<NFCTagDB> getNfcTags() {
+    public List<NFCTagDB> getTags() {
 
-        return (nfcTags == null) ? new ArrayList<NFCTagDB>() : nfcTags;
+        return (tags == null) ? new ArrayList<NFCTagDB>() : tags;
     }
 
-    public void setNfcTags(List<NFCTagDB> nfcTags) {
-        this.nfcTags = nfcTags;
+    public void setTags(List<NFCTagDB> tags) {
+        this.tags = tags;
     }
 
     public String getEmail() {

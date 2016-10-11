@@ -18,10 +18,13 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
+import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
+import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -143,5 +146,8 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
                         firebaseHelper.getEmail(),
                         dbTags,
                         requests));
+
+        DatabaseReference gameReference = firebaseHelper.getGameReference("feaacerbifeaacerbi");
+        gameReference.setValue(new TicTacToeGameDB("feaacerbi", "feaacerbi"));
     }
 }

@@ -1,8 +1,5 @@
 package com.felipeacerbi.nfctest.utils;
 
-/**
- * Created by felipe.acerbi on 19/09/2016.
- */
 
 public class Constants {
 
@@ -13,7 +10,10 @@ public class Constants {
     public static final int START_RC_SIGN_IN_INTENT = 3;
     public static final String POSITION = "position";
     public static final String LOGIN_ANONYMOUS = "anonymous";
+    public static final String PLAYER_ONE = "one";
+    public static final String PLAYER_TWO = "two";
 
-    public static final String DATABASE_USERS_PATH = "users/";
-    public static final String DATABASE_GAMES_PATH = "games/";
+    public static final String NFC_DB_PATH = "database/";
+    public static final String DATABASE_GAMES_PATH = NFC_DB_PATH + "games/";
+    public static final String DATABASE_USERS_PATH = NFC_DB_PATH + "users/";
 }

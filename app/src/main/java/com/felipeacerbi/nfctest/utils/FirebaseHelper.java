@@ -103,9 +103,21 @@ public class FirebaseHelper {
         return database.getReference(Constants.DATABASE_GAMES_PATH + getLoginName() + opponent);
     }
 
-    public DatabaseReference getGameReference(String gameId) {
+    public DatabaseReference getGamesReference() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        return database.getReference(Constants.DATABASE_GAMES_PATH + gameId);
+        return database.getReference(Constants.DATABASE_GAMES_PATH);
+    }
+
+    public DatabaseReference getGameReference(String gameId) {
+        return getGamesReference().child(gameId);
+    }
+
+    public void deleteGame(String gameId) {
+        getGameReference(gameId).removeValue();
+    }
+
+    public void updateGamePlace(String gameId, int place, int marker) {
+        getGameReference(gameId).child("places").child(String.valueOf(place)).setValue(marker);
     }
 
     public void signOut() {

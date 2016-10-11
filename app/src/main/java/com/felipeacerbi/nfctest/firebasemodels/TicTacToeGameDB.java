@@ -15,15 +15,17 @@ public class TicTacToeGameDB implements Serializable {
     private String playerOne;
     private String playerTwo;
     private String currentTurn;
+    private String ready;
     private List<Integer> places;
 
     public TicTacToeGameDB() {
     }
 
-    public TicTacToeGameDB(String playerOne, String playerTwo, String currentTurn) {
+    public TicTacToeGameDB(String playerOne, String playerTwo) {
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
-        this.currentTurn = currentTurn;
+        currentTurn = playerOne;
+        ready = "false";
         fillPlaces();
     }
 
@@ -49,6 +51,14 @@ public class TicTacToeGameDB implements Serializable {
 
     public void setCurrentTurn(String currentTurn) {
         this.currentTurn = currentTurn;
+    }
+
+    public String getReady() {
+        return ready;
+    }
+
+    public void setReady(String ready) {
+        this.ready = ready;
     }
 
     public List<Integer> getPlaces() {

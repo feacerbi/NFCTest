@@ -14,7 +14,7 @@ public class TicTacToeGame implements Serializable {
     public static final int TOTAL_PLACES = 9;
     public static final int PLACE_AVAILABLE = 0;
     public static final int X_MARKER = 1;
-    public static final int O_MARKET = 2;
+    public static final int O_MARKER = 2;
     private String gameId;
     private TicTacToeGameDB ticTacToeGameDB;
 
@@ -45,7 +45,7 @@ public class TicTacToeGame implements Serializable {
 
         if(checkRows(places, X_MARKER) || checkCollumns(places, X_MARKER) || checkDiagonals(places, X_MARKER)) {
             winner = ticTacToeGameDB.getPlayerOne();
-        }else if(checkRows(places, O_MARKET) || checkCollumns(places, O_MARKET) || checkDiagonals(places, O_MARKET)) {
+        }else if(checkRows(places, O_MARKER) || checkCollumns(places, O_MARKER) || checkDiagonals(places, O_MARKER)) {
             winner = ticTacToeGameDB.getPlayerTwo();
         }
         return winner;
@@ -56,7 +56,7 @@ public class TicTacToeGame implements Serializable {
 
         if(checkRows(places, X_MARKER) || checkCollumns(places, X_MARKER) || checkDiagonals(places, X_MARKER)) {
             winner = ticTacToeGameDB.getPlayerOne();
-        }else if(checkRows(places, O_MARKET) || checkCollumns(places, O_MARKET) || checkDiagonals(places, O_MARKET)) {
+        }else if(checkRows(places, O_MARKER) || checkCollumns(places, O_MARKER) || checkDiagonals(places, O_MARKER)) {
             winner = ticTacToeGameDB.getPlayerTwo();
         }
         return winner;

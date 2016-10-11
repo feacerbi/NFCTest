@@ -16,6 +16,7 @@ import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
+import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -62,7 +63,7 @@ public class TicTacToeActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     // New game
                                     firebaseHelper.getCurrentUserReference()
-                                            .child("playRequests")
+                                            .child("requests")
                                             .child("0")
                                             .removeValue();
                                     setUpNewGame(dataSnapshot.getKey());
@@ -88,9 +89,12 @@ public class TicTacToeActivity extends AppCompatActivity {
 
     public void setUpNewGame(String opponent) {
         String currentUser = firebaseHelper.getLoginName();
-        TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(currentUser, opponent, "1"));
+        TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(currentUser, opponent));
 
-        startActivity(new Intent(this, TicTacToePlayActivity.class).putExtra("game", ticTacToeGame));
+        startActivity(
+                new Intent(this, TicTacToePlayActivity.class)
+                        .putExtra("game", ticTacToeGame)
+                        .putExtra("player", Constants.PLAYER_TWO));
     }
 
     @Override

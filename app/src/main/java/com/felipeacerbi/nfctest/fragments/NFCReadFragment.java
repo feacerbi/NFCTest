@@ -123,7 +123,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 UserDB userDB = dataSnapshot.getValue(UserDB.class);
-                List<NFCTagDB> dbTags = userDB.getNfcTags();
+                List<NFCTagDB> dbTags = userDB.getTags();
                 if(dbTags != null) {
                     NFCTagDB nfcTagDB = (NFCTagDB) dbTags.get(0);
                     tagValue.setText(nfcTagDB.getTag());
