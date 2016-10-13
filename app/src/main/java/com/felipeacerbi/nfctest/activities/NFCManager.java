@@ -23,6 +23,7 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.firebase.database.DatabaseReference;
 
 public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -83,7 +84,7 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
 
     private void checkFirebase() {
         // Initialize Firebase
-        firebaseHelper = new FirebaseHelper();
+        firebaseHelper = new FirebaseHelper(this);
         if (firebaseHelper.getFirebaseUser() == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, LoginActivity.class));
@@ -106,6 +107,9 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.action_tictactoe:
+                startActivity(new Intent(this, TicTacToeActivity.class));
+                return true;
             case R.id.action_settings:
                 return true;
             case R.id.action_sign_out:

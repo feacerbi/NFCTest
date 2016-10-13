@@ -3,8 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.NFCManager">
 
+    <item
+        android:id="@+id/action_tictactoe"
+        android:title="@string/action_tic_tac_toe"
+        app:showAsAction="ifRoom" />
+
     <item android:id="@+id/action_sign_out"
-        android:title="@string/sign_out"
+        android:title="@string/action_sign_out"
         app:showAsAction="ifRoom" />
 
     <item

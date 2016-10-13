@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -18,16 +17,18 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.activities.WaitTagActivity;
-import com.felipeacerbi.nfctest.models.NFCTag;
+import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
+import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
+import com.felipeacerbi.nfctest.firebasemodels.UserDB;
+import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class NFCWriteFragment extends Fragment implements View.OnClickListener {
@@ -109,7 +110,7 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        firebaseHelper = new FirebaseHelper();
+        firebaseHelper = new FirebaseHelper(getActivity());
     }
 
     @Override
@@ -130,8 +131,23 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
                 startActivityForResult(startReadIntent, Constants.START_WAIT_WRITE_TAG_INTENT); */
 
         // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference(firebaseHelper.getLoginName());
-        myRef.setValue((tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
+        DatabaseReference userRef = firebaseHelper.getCurrentUserReference();
+
+        List<NFCTagDB> dbTags = new ArrayList<>();
+        dbTags.add(NFCTagDB.createTestDBTag(tagMessages.getText().toString().equals("") ?
+                "Test" :
+                tagMessages.getText().toString()));
+        dbTags.add(NFCTagDB.createTestDBTag(tagMessages.getText().toString().equals("") ?
+                "Test" :
+                tagMessages.getText().toString()));
+        List<String> requests = new ArrayList<>();
+
+        userRef.setValue(new UserDB(firebaseHelper.getUserName(),
+                        firebaseHelper.getEmail(),
+                        dbTags,
+                        requests));
+
+        DatabaseReference gameReference = firebaseHelper.getGameReference("feaacerbifeaacerbi");
+        gameReference.setValue(new TicTacToeGameDB("feaacerbi", "feaacerbi"));
     }
 }
