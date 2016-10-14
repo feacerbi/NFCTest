@@ -1,6 +1,10 @@
 package com.felipeacerbi.nfctest.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +22,7 @@ import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -35,6 +40,8 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
     private ProgressBar progressBar;
     private ArrayList<ImageView> bars;
     private String currentTurn;
+    private ValueEventListener gameScoreMonitor;
+    private ValueEventListener onlineMonitor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +63,12 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         ticTacToeGameDB = ticTacToeGame.getTicTacToeGameDB();
         gameId = ticTacToeGameDB.getPlayerOne() + ticTacToeGameDB.getPlayerTwo();
 
-        ValueEventListener onlineMonitor = new ValueEventListener() {
+        onlineMonitor = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 UserDB userDB = dataSnapshot.getValue(UserDB.class);
-                if(!userDB.isOnline()) {
-                    firebaseHelper.deleteGame(gameId);
+                if(!userDB.isPlaying()) {
+                    disconnect();
                     finish();
                     Toast.makeText(TicTacToePlayActivity.this, "Opponent left", Toast.LENGTH_SHORT).show();
                 }
@@ -73,13 +80,23 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
             }
         };
 
-        ValueEventListener gameScoreMonitor = new ValueEventListener() {
+        gameScoreMonitor = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                TicTacToeGameDB dataTicTacToeGameDB = dataSnapshot.getValue(TicTacToeGameDB.class);
-                ticTacToeGameDB.setPlaces(dataTicTacToeGameDB.getPlaces());
-                updatePlaces(isCurrentTurn());
-                changeTurn();
+                GenericTypeIndicator<List<Integer>> t = new GenericTypeIndicator<List<Integer>>() {};
+                List<Integer> places = dataSnapshot.getValue(t);
+                if(places != null) {
+                    ticTacToeGameDB.setPlaces(places);
+                    updatePlaces();
+                }
+
+                if(!ticTacToeGame.checkResult().equals("")) {
+                    Toast.makeText(TicTacToePlayActivity.this, "Winner: " + ticTacToeGame.checkResult() + "!!!", Toast.LENGTH_SHORT).show();
+                    disconnect();
+                    finish();
+                } else {
+                    changeTurn();
+                }
             }
 
             @Override
@@ -89,37 +106,30 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         };
 
         DatabaseReference gameReference = firebaseHelper.getGameReference(gameId);
+        setUpTurn(ticTacToeGameDB.getPlayerTwo());
 
         if(currentPlayer.equals(Constants.PLAYER_ONE)) {
-            firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).addValueEventListener(onlineMonitor);
             gameReference.setValue(ticTacToeGameDB);
             setLoading(true);
+
+            gameReference.child("ready").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    boolean isReady = Boolean.valueOf(dataSnapshot.getValue(String.class));
+                    setLoading(!isReady);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         } else {
             firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).addValueEventListener(onlineMonitor);
             gameReference.child("ready").setValue("true");
         }
 
-        gameReference.child("ready").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean isReady = Boolean.valueOf(dataSnapshot.getValue(String.class));
-                if(isReady) {
-                    setLoading(false);
-                } else {
-                    setLoading(true);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        firebaseHelper.getGameReference(gameId).addValueEventListener(gameScoreMonitor);
-
-        currentTurn = ticTacToeGameDB.getPlayerOne();
-        turnField.setText(currentTurn);
+        gameReference.child("places").addValueEventListener(gameScoreMonitor);
     }
 
     @Override
@@ -154,29 +164,38 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         placeFields.add(7, place8);
         placeFields.add(8, place9);
 
-        bars.add(0, firstRow);
-        bars.add(0, secondRow);
-        bars.add(0, firstCol);
-        bars.add(0, secondCol);
+        bars.add(firstRow);
+        bars.add(secondRow);
+        bars.add(firstCol);
+        bars.add(secondCol);
 
         turnField = (TextView) findViewById(R.id.turn_name);
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
     }
 
-    public void updatePlaces(boolean isCurrentTurn) {
+    public void updatePlaces() {
         List<Integer> places = ticTacToeGameDB.getPlaces();
+        Bitmap xMarker = BitmapFactory.decodeResource(getResources(), R.drawable.x);
+        Bitmap oMarker = BitmapFactory.decodeResource(getResources(), R.drawable.o);
+        boolean isCurrentTurn = isCurrentTurn();
         for(int i = 0; i < places.size(); i++) {
             switch (places.get(i)) {
                 case TicTacToeGame.PLACE_AVAILABLE:
                     placeFields.get(i).setImageAlpha(0);
-                    if(isCurrentTurn) placeFields.get(i).setOnClickListener(this);
+                    if(isCurrentTurn) {
+                        placeFields.get(i).setOnClickListener(this);
+                    } else {
+                        placeFields.get(i).setOnClickListener(null);
+                    }
                     break;
                 case TicTacToeGame.X_MARKER:
-                    placeFields.get(i).setImageResource(R.drawable.x);
+                    placeFields.get(i).setImageAlpha(255);
+                    placeFields.get(i).setImageBitmap(xMarker);
                     placeFields.get(i).setOnClickListener(null);
                     break;
                 case TicTacToeGame.O_MARKER:
-                    placeFields.get(i).setImageResource(R.drawable.o);
+                    placeFields.get(i).setImageAlpha(255);
+                    placeFields.get(i).setImageBitmap(oMarker);
                     placeFields.get(i).setOnClickListener(null);
                     break;
             }
@@ -184,22 +203,20 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
     }
 
     public void setLoading(boolean loading) {
-        if(loading) {
-            for(ImageView placeField : placeFields) {
-                placeField.setVisibility(View.GONE);
-            }
-            for(ImageView bar : bars) {
-                bar.setVisibility(View.GONE);
-            }
-            progressBar.setVisibility(View.VISIBLE);
-        } else {
-            for(ImageView placeField : placeFields) {
-                placeField.setVisibility(View.VISIBLE);
-            }
-            for(ImageView bar : bars) {
-                bar.setVisibility(View.VISIBLE);
-            }
-            progressBar.setVisibility(View.GONE);
+        int notVisibleLoading = loading ? View.INVISIBLE : View.VISIBLE;
+        int visibleLoading = loading ? View.VISIBLE : View.GONE;
+
+        for(ImageView placeField : placeFields) {
+            placeField.setVisibility(notVisibleLoading);
+        }
+        for(ImageView bar : bars) {
+            bar.setVisibility(notVisibleLoading);
+        }
+        progressBar.setVisibility(visibleLoading);
+
+        if(!loading) {
+            firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).addValueEventListener(onlineMonitor);
+            updatePlaces();
         }
     }
 
@@ -213,24 +230,30 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
         userReference.child("playing").setValue(false);
         firebaseHelper.deleteGame(gameId);
+
+        firebaseHelper.getGameReference(gameId).child("places").removeEventListener(gameScoreMonitor);
+
+        firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).removeEventListener(onlineMonitor);
+        firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).removeEventListener(onlineMonitor);
     }
 
     public void changeTurn() {
-        DatabaseReference turnReference = firebaseHelper.getGameReference(gameId).child("currentTurn");
         String player1 = ticTacToeGameDB.getPlayerOne();
         String player2 = ticTacToeGameDB.getPlayerTwo();
 
         if(currentTurn.equals(player1)) {
-            turnReference.setValue(player2);
-            currentTurn = player2;
-            updatePlaces(currentPlayer.equals(Constants.PLAYER_TWO));
+            setUpTurn(player2);
         } else {
-            turnReference.setValue(player1);
-            currentTurn = player1;
-            updatePlaces(currentPlayer.equals(Constants.PLAYER_ONE));
+            setUpTurn(player1);
         }
 
-        turnField.setText(currentTurn);
+        updatePlaces();
+    }
+
+    public void setUpTurn(String player) {
+        firebaseHelper.setTurn(gameId, player);
+        currentTurn = player;
+        turnField.setText(player);
     }
 
     public boolean isCurrentTurn() {
@@ -279,9 +302,5 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
                 firebaseHelper.updateGamePlace(gameId, 8, marker);
                 break;
         }
-
-        view.setOnClickListener(null);
-
-        Toast.makeText(this, ticTacToeGame.checkResult(), Toast.LENGTH_SHORT).show();
     }
 }

@@ -13,7 +13,6 @@ public class Constants {
     public static final String PLAYER_ONE = "one";
     public static final String PLAYER_TWO = "two";
 
-    public static final String NFC_DB_PATH = "database/";
-    public static final String DATABASE_GAMES_PATH = NFC_DB_PATH + "games/";
-    public static final String DATABASE_USERS_PATH = NFC_DB_PATH + "users/";
+    public static final String DATABASE_GAMES_PATH = "games/";
+    public static final String DATABASE_USERS_PATH = "users/";
 }

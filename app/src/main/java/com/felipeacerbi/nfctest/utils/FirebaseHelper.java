@@ -80,8 +80,9 @@ public class FirebaseHelper {
 
                 for(DataSnapshot userReference : dataSnapshot.getChildren()) {
                     UserDB userDB = userReference.getValue(UserDB.class);
-                    if(userReference.getKey().toLowerCase().contains(search.toLowerCase()) ||
-                            userDB.getName().toLowerCase().contains(search.toLowerCase()))
+                    if(!userReference.getKey().equals(getCurrentUserReference().getKey()) &&
+                            (userReference.getKey().toLowerCase().contains(search.toLowerCase()) ||
+                            userDB.getName().toLowerCase().contains(search.toLowerCase())))
                         usersResultList.add(new User(userReference.getKey(), userDB));
                 }
 
@@ -98,11 +99,6 @@ public class FirebaseHelper {
         });
     }
 
-    public DatabaseReference getCurrentGameReference(String opponent) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        return database.getReference(Constants.DATABASE_GAMES_PATH + getLoginName() + opponent);
-    }
-
     public DatabaseReference getGamesReference() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         return database.getReference(Constants.DATABASE_GAMES_PATH);
@@ -110,6 +106,11 @@ public class FirebaseHelper {
 
     public DatabaseReference getGameReference(String gameId) {
         return getGamesReference().child(gameId);
+    }
+
+    public void setTurn(String gameId, String player) {
+        DatabaseReference turnReference = getGameReference(gameId).child("currentTurn");
+        turnReference.setValue(player);
     }
 
     public void deleteGame(String gameId) {

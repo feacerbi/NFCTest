@@ -90,7 +90,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                             R.drawable.ic_signal_wifi_off_black_24dp);
                     holder.getPlayingField().setImageAlpha((dbUser.isPlaying()) ?
                             255 :
-                            100);
+                            40);
                     if(dbUser.isPlaying()) {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override

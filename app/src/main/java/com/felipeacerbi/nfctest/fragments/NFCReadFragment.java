@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.felipeacerbi.nfctest.activities.WaitTagActivity;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
@@ -111,34 +112,8 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         Toast.makeText(getActivity(), "Data read", Toast.LENGTH_SHORT).show();
-        /* // Start the activity to wait for Tag interactivity
+        // Start the activity to wait for Tag interactivity
                 Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
-                startActivityForResult(startReadIntent, Constants.START_WAIT_READ_TAG_INTENT); */
-
-        // Read from the database
-        DatabaseReference userRef = firebaseHelper.getCurrentUserReference();
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                UserDB userDB = dataSnapshot.getValue(UserDB.class);
-                List<NFCTagDB> dbTags = userDB.getTags();
-                if(dbTags != null) {
-                    NFCTagDB nfcTagDB = (NFCTagDB) dbTags.get(0);
-                    tagValue.setText(nfcTagDB.getTag());
-                    tagMessages.setText(nfcTagDB.getNdefMessages().get(0));
-                    tagId.setText(nfcTagDB.getId());
-                } else {
-                    Toast.makeText(getActivity(), "No data found", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                tagValue.setText("Fail");
-            }
-        });
+                startActivityForResult(startReadIntent, Constants.START_WAIT_READ_TAG_INTENT);
     }
 }
