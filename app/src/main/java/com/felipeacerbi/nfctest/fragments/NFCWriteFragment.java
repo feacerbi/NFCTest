@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.activities.WaitTagActivity;
 import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
@@ -111,6 +112,13 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseHelper = new FirebaseHelper(getActivity());
+
+        // Insert user on DB
+        DatabaseReference userRef = firebaseHelper.getCurrentUserReference();
+        userRef.setValue(new UserDB(firebaseHelper.getUserName(),
+                firebaseHelper.getEmail(),
+                new ArrayList<NFCTagDB>(),
+                new ArrayList<String>()));
     }
 
     @Override
@@ -126,28 +134,9 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         Toast.makeText(getActivity(), "Data write", Toast.LENGTH_SHORT).show();
-        /* Write NFC Tag
-                Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
-                startActivityForResult(startReadIntent, Constants.START_WAIT_WRITE_TAG_INTENT); */
 
-        // Write a message to the database
-        DatabaseReference userRef = firebaseHelper.getCurrentUserReference();
-
-        List<NFCTagDB> dbTags = new ArrayList<>();
-        dbTags.add(NFCTagDB.createTestDBTag(tagMessages.getText().toString().equals("") ?
-                "Test" :
-                tagMessages.getText().toString()));
-        dbTags.add(NFCTagDB.createTestDBTag(tagMessages.getText().toString().equals("") ?
-                "Test" :
-                tagMessages.getText().toString()));
-        List<String> requests = new ArrayList<>();
-
-        userRef.setValue(new UserDB(firebaseHelper.getUserName(),
-                        firebaseHelper.getEmail(),
-                        dbTags,
-                        requests));
-
-        DatabaseReference gameReference = firebaseHelper.getGameReference("feaacerbifeaacerbi");
-        gameReference.setValue(new TicTacToeGameDB("feaacerbi", "feaacerbi"));
+        // Write NFC Tag
+        Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
+        startActivityForResult(startReadIntent, Constants.START_WAIT_WRITE_TAG_INTENT);
     }
 }

@@ -62,6 +62,10 @@ public class TicTacToeGameDB implements Serializable {
     }
 
     public List<Integer> getPlaces() {
+
+        if(places == null) {
+            fillPlaces();
+        }
         return places;
     }
 

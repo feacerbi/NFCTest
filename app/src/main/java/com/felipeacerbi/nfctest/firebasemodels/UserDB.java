@@ -20,6 +20,8 @@ public class UserDB {
         this.email = email;
         this.tags = tags;
         this.requests = requests;
+        online = false;
+        playing = false;
     }
 
     public String getName() {

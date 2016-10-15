@@ -62,17 +62,21 @@ public class TicTacToeActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     // New game
+                                    setUpNewGame(requests.get(0));
                                     firebaseHelper.getCurrentUserReference()
                                             .child("requests")
                                             .child("0")
                                             .removeValue();
-                                    setUpNewGame(dataSnapshot.getKey());
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
+                                    firebaseHelper.getCurrentUserReference()
+                                            .child("requests")
+                                            .child("0")
+                                            .removeValue();
                                 }
                             })
                             .show();
@@ -83,13 +87,11 @@ public class TicTacToeActivity extends AppCompatActivity {
 
             }
         };
-
-        firebaseHelper.getCurrentUserReference().addValueEventListener(requestsListener);
     }
 
     public void setUpNewGame(String opponent) {
         String currentUser = firebaseHelper.getLoginName();
-        TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(currentUser, opponent));
+        TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(opponent, currentUser));
 
         startActivity(
                 new Intent(this, TicTacToePlayActivity.class)
