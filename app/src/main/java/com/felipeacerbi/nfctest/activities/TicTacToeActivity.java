@@ -13,6 +13,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
+import com.felipeacerbi.nfctest.models.Request;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
@@ -21,6 +23,7 @@ import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
@@ -50,33 +53,26 @@ public class TicTacToeActivity extends AppCompatActivity {
         requestsListener = new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
-                final UserDB userDB = dataSnapshot.getValue(UserDB.class);
-                final List<String> requests = userDB.getRequests();
-                if(requests.size() != 0) {
+                final Request request = getCurrentUserRequest(dataSnapshot);
+                if(request != null) {
                     AlertDialog.Builder playAlert = new AlertDialog.Builder(TicTacToeActivity.this);
                     playAlert
                             .setTitle("New game request")
-                            .setMessage("Start a new game with " + userDB.getName() + "?")
+                            .setMessage("Start a new game with " + firebaseHelper.getUserReference(request.getRequestDB().getRequester()).child("name").getKey() + "?")
                             .setCancelable(true)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     // New game
-                                    setUpNewGame(requests.get(0));
-                                    firebaseHelper.getCurrentUserReference()
-                                            .child("requests")
-                                            .child("0")
-                                            .removeValue();
+                                    setUpNewGame(request);
+                                    firebaseHelper.getRequestsReference().child(request.getId()).removeValue();
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
-                                    firebaseHelper.getCurrentUserReference()
-                                            .child("requests")
-                                            .child("0")
-                                            .removeValue();
+                                    firebaseHelper.getRequestsReference().child(request.getId()).removeValue();
                                 }
                             })
                             .show();
@@ -89,14 +85,26 @@ public class TicTacToeActivity extends AppCompatActivity {
         };
     }
 
-    public void setUpNewGame(String opponent) {
+    public Request getCurrentUserRequest(DataSnapshot requestsSnapshot) {
+            for (DataSnapshot requestSnapshot : requestsSnapshot.getChildren()) {
+                RequestDB requestDB = requestSnapshot.getValue(RequestDB.class);
+
+                if (requestDB.getReceiver().equals(firebaseHelper.getLoginName())) {
+                    return new Request(requestSnapshot.getKey(), requestDB);
+                }
+            }
+        return null;
+    }
+
+    public void setUpNewGame(Request request) {
         String currentUser = firebaseHelper.getLoginName();
-        TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(opponent, currentUser));
+        TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(request.getRequestDB().getRequester(), currentUser));
 
         startActivity(
                 new Intent(this, TicTacToePlayActivity.class)
                         .putExtra("game", ticTacToeGame)
-                        .putExtra("player", Constants.PLAYER_TWO));
+                        .putExtra("player", Constants.PLAYER_TWO)
+                        .putExtra("requestId", request.getId()));
     }
 
     @Override
@@ -119,15 +127,13 @@ public class TicTacToeActivity extends AppCompatActivity {
     }
 
     public void connect() {
-        DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
-        userReference.addValueEventListener(requestsListener);
-        userReference.child("online").setValue(true);
+        firebaseHelper.getRequestsReference().addValueEventListener(requestsListener);
+        firebaseHelper.getCurrentUserReference().child("online").setValue(true);
     }
 
     public void disconnect() {
-        DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
-        userReference.removeEventListener(requestsListener);
-        userReference.child("online").setValue(false);
+        firebaseHelper.getRequestsReference().removeEventListener(requestsListener);
+        firebaseHelper.getCurrentUserReference().child("online").setValue(false);
     }
 
     @Override

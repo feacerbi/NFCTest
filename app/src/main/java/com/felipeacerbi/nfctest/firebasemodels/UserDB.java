@@ -5,23 +5,31 @@ import java.util.List;
 
 public class UserDB {
 
+    private String idToken;
     private String name;
     private String email;
     private List<NFCTagDB> tags;
-    private List<String> requests;
     private boolean online;
     private boolean playing;
 
     public UserDB() {
     }
 
-    public UserDB(String name, String email, List<NFCTagDB> tags, List<String> requests) {
+    public UserDB(String idToken, String name, String email, List<NFCTagDB> tags) {
+        this.idToken = idToken;
         this.name = name;
         this.email = email;
         this.tags = tags;
-        this.requests = requests;
         online = false;
         playing = false;
+    }
+
+    public String getIdToken() {
+        return idToken;
+    }
+
+    public void setIdToken(String idToken) {
+        this.idToken = idToken;
     }
 
     public String getName() {
@@ -63,13 +71,5 @@ public class UserDB {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public List<String> getRequests() {
-        return (requests == null) ? new ArrayList<String>() : requests;
-    }
-
-    public void setRequests(List<String> requests) {
-        this.requests = requests;
     }
 }

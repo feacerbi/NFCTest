@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.activities.TicTacToePlayActivity;
+import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.models.User;
@@ -110,10 +111,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                List<String> requests = new ArrayList<>();
-                                                requests.addAll(dbUser.getRequests());
-                                                requests.add(firebaseHelper.getLoginName());
-                                                userReference.child("requests").setValue(requests);
+                                                DatabaseReference newRequest = firebaseHelper.getRequestsReference().push();
+                                                newRequest.setValue(
+                                                        new RequestDB(
+                                                                firebaseHelper.getLoginName(),
+                                                                user.getUsername()));
 
                                                 context.startActivity(
                                                         new Intent(context, TicTacToePlayActivity.class)
@@ -121,7 +123,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                                                         new TicTacToeGameDB(
                                                                                 firebaseHelper.getLoginName(),
                                                                                 user.getUsername())))
-                                                                .putExtra("player", Constants.PLAYER_ONE));
+                                                                .putExtra("player", Constants.PLAYER_ONE)
+                                                                .putExtra("requestId", newRequest.getKey()));
                                             }
                                         })
                                         .setNegativeButton("No", new DialogInterface.OnClickListener() {

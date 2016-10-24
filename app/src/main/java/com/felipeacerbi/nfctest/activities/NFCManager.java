@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.SectionsPagerAdapter;
+import com.felipeacerbi.nfctest.services.FirebaseNotificationService;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.android.gms.auth.api.Auth;
@@ -80,6 +81,7 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
+        startService(new Intent(this, FirebaseNotificationService.class));
     }
 
     private void checkFirebase() {

@@ -5,6 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.adapters.UsersAdapter;
+import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
+import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.google.firebase.auth.FirebaseAuth;
@@ -13,18 +15,42 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirebaseHelper {
+public class FirebaseHelper extends FirebaseInstanceIdService {
 
+    private static final String GAME_TOPIC = "game_topic";
     private String loginName;
     private Context context;
 
+    public FirebaseHelper() {
+    }
+
     public FirebaseHelper(Context context) {
         this.context = context;
+    }
+
+    public String getAppIDToken() {
+        String token = FirebaseInstanceId.getInstance().getToken();
+        // Once a token is generated, we subscribe to topic.
+        FirebaseMessaging.getInstance().subscribeToTopic(GAME_TOPIC);
+        return token;
+    }
+
+    @Override
+    public void onTokenRefresh() {
+        super.onTokenRefresh();
+
+        // Update id token on DB
+        DatabaseReference userRef = getCurrentUserReference();
+        userRef.child("idToken").setValue(getAppIDToken());
     }
 
     public FirebaseUser getFirebaseUser() {
@@ -119,6 +145,19 @@ public class FirebaseHelper {
 
     public void updateGamePlace(String gameId, int place, int marker) {
         getGameReference(gameId).child("places").child(String.valueOf(place)).setValue(marker);
+    }
+
+    public DatabaseReference getRequestsReference() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        return database.getReference(Constants.DATABASE_REQUESTS_PATH);
+    }
+
+    public DatabaseReference getRequestReference(String requestId) {
+        return getRequestsReference().child(requestId);
+    }
+
+    public void deleteRequest(String requestId) {
+        getRequestReference(requestId).removeValue();
     }
 
     public void signOut() {
