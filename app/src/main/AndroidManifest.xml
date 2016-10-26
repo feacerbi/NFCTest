@@ -59,23 +59,32 @@
 
         <activity android:name=".activities.TicTacToeActivity" />
 
-        <activity android:name=".activities.TicTacToePlayActivity" >
+        <activity android:name=".activities.TicTacToePlayActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.NFCManager"/>
+                android:value=".activities.TicTacToeActivity" />
         </activity>
 
-        <service android:name=".services.FirebaseNotificationService" >
+        <service android:name=".services.FirebaseNotificationService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <service android:name=".utils.FirebaseHelper" >
+        <service android:name=".utils.FirebaseHelper">
             <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".receivers.NotificationHandler"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=".utils.ACTION_PLAYER_REFUSE_REQUEST" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

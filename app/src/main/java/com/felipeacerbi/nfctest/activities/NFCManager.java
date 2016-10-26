@@ -80,8 +80,6 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
                         this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
-
-        startService(new Intent(this, FirebaseNotificationService.class));
     }
 
     private void checkFirebase() {
@@ -91,6 +89,8 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, LoginActivity.class));
             finish();
+        } else {
+            startService(new Intent(this, FirebaseNotificationService.class));
         }
     }
 

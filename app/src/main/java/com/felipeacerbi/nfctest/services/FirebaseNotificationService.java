@@ -1,18 +1,15 @@
 package com.felipeacerbi.nfctest.services;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
 
+import com.felipeacerbi.nfctest.receivers.NotificationHandler;
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.activities.TicTacToeActivity;
 import com.felipeacerbi.nfctest.activities.TicTacToePlayActivity;
 import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
@@ -21,10 +18,7 @@ import com.felipeacerbi.nfctest.models.Request;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -32,6 +26,7 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
 
     private FirebaseHelper firebaseHelper;
     private ValueEventListener requestsListener;
+    private ValueEventListener onlineListener;
 
     @Override
     public void onCreate() {
@@ -47,18 +42,19 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
                 final Request request = getCurrentUserRequest(dataSnapshot);
                 if(request != null) {
                     NotificationCompat.Builder notification = new NotificationCompat.Builder(FirebaseNotificationService.this)
-                            .setContentTitle("New request from " + firebaseHelper.getUserReference(request.getRequestDB().getRequester()).child("name").getKey())
+                            .setContentTitle("New request from " + request.getRequestDB().getRequester())
                             .setContentText("Touch to start a new game")
                             .setSmallIcon(android.R.drawable.stat_sys_warning)
                             .setAutoCancel(true)
+                            .setWhen(System.currentTimeMillis())
                             .setContentIntent(getNewGameIntent(request))
-                            .setDeleteIntent(null)
+                            .setDeleteIntent(getCancelIntent(request))
                             .addAction(R.drawable.nfc_logo_ok, "ACCEPT", getNewGameIntent(request))
-                            .addAction(R.drawable.nfc_logo_fail, "REFUSE", null);
+                            .addAction(R.drawable.nfc_logo_fail, "REFUSE", getCancelIntent(request));
 
                     NotificationManager notificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.notify((int) System.currentTimeMillis(), notification.build());
+                    notificationManager.notify(Constants.GAME_REQUEST_NOTIFICATION, notification.build());
 
                 }
             }
@@ -68,11 +64,11 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
             }
         };
 
-        firebaseHelper.getCurrentUserReference().addValueEventListener(new ValueEventListener() {
+        onlineListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                UserDB dbUser = dataSnapshot.getValue(UserDB.class);
-                if(dbUser.isOnline()) {
+                boolean isOnline = dataSnapshot.getValue(Boolean.class);
+                if(isOnline) {
                     firebaseHelper.getRequestsReference().removeEventListener(requestsListener);
                 } else {
                     firebaseHelper.getRequestsReference().addValueEventListener(requestsListener);
@@ -84,7 +80,9 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+
+        firebaseHelper.getCurrentUserReference().child("online").addValueEventListener(onlineListener);
     }
 
     public Request getCurrentUserRequest(DataSnapshot requestsSnapshot) {
@@ -120,10 +118,20 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
 
     public PendingIntent getCancelIntent(Request request) {
 
-        Intent resultIntent = new Intent(this, FirebaseNotificationService.class)
-                .putExtra("requestId", request.getId());
+        String gameId = request.getRequestDB().getRequester() + request.getRequestDB().getReceiver();
 
-        return PendingIntent.getService(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent resultIntent = new Intent(this, NotificationHandler.class)
+                .setAction(Constants.ACTION_PLAYER_REFUSE_REQUEST)
+                .putExtra("gameId", gameId);
+
+        return PendingIntent.getBroadcast(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        firebaseHelper.getRequestsReference().removeEventListener(requestsListener);
+        firebaseHelper.getCurrentUserReference().removeEventListener(onlineListener);
     }
 
     @Override

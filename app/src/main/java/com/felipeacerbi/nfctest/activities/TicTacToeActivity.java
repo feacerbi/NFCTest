@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
@@ -54,25 +55,27 @@ public class TicTacToeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
                 final Request request = getCurrentUserRequest(dataSnapshot);
+                final String gameId = request.getRequestDB().getRequester() + request.getRequestDB().getReceiver();
                 if(request != null) {
                     AlertDialog.Builder playAlert = new AlertDialog.Builder(TicTacToeActivity.this);
                     playAlert
                             .setTitle("New game request")
-                            .setMessage("Start a new game with " + firebaseHelper.getUserReference(request.getRequestDB().getRequester()).child("name").getKey() + "?")
+                            .setMessage("Start a new game with " + request.getRequestDB().getRequester() + "?")
                             .setCancelable(true)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     // New game
                                     setUpNewGame(request);
-                                    firebaseHelper.getRequestsReference().child(request.getId()).removeValue();
+                                    firebaseHelper.deleteRequest(request.getId());
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
-                                    firebaseHelper.getRequestsReference().child(request.getId()).removeValue();
+                                    firebaseHelper.getGameReference(gameId).child("ready").setValue("refused");
+                                    Toast.makeText(TicTacToeActivity.this, "Game request refused", Toast.LENGTH_SHORT).show();
                                 }
                             })
                             .show();

@@ -122,8 +122,14 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
             gameReference.child("ready").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    boolean isReady = Boolean.valueOf(dataSnapshot.getValue(String.class));
-                    setLoading(!isReady);
+                    String isReady = dataSnapshot.getValue(String.class);
+                    if(isReady.equals("refused")) {
+                        disconnect();
+                        finish();
+                        Toast.makeText(TicTacToePlayActivity.this, "Game request refused", Toast.LENGTH_SHORT).show();
+                    } else {
+                        setLoading(!Boolean.valueOf(isReady));
+                    }
                 }
 
                 @Override
