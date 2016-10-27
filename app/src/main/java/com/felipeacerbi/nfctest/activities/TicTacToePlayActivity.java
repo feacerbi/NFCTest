@@ -42,6 +42,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
     private String currentTurn;
     private ValueEventListener gameScoreMonitor;
     private ValueEventListener onlineMonitor;
+    private String requestId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         if(gameIntent != null) {
             ticTacToeGame = (TicTacToeGame) gameIntent.getExtras().get("game");
             currentPlayer = gameIntent.getStringExtra("player");
+            requestId = gameIntent.getStringExtra("requestId");
         } else {
             finish();
             Toast.makeText(this, "Game not started", Toast.LENGTH_SHORT).show();
@@ -90,8 +92,13 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
                     updatePlaces();
                 }
 
-                if(!ticTacToeGame.checkResult().equals("")) {
-                    Toast.makeText(TicTacToePlayActivity.this, "Winner: " + ticTacToeGame.checkResult() + "!!!", Toast.LENGTH_SHORT).show();
+                String result = ticTacToeGame.checkResult();
+                if(!result.equals("")) {
+                    if(result.equals("tie")) {
+                        Toast.makeText(TicTacToePlayActivity.this, "Tie!!!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(TicTacToePlayActivity.this, "Winner: " + result + "!!!", Toast.LENGTH_SHORT).show();
+                    }
                     disconnect();
                     finish();
                 } else {
@@ -115,8 +122,14 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
             gameReference.child("ready").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    boolean isReady = Boolean.valueOf(dataSnapshot.getValue(String.class));
-                    setLoading(!isReady);
+                    String isReady = dataSnapshot.getValue(String.class);
+                    if(isReady.equals("refused")) {
+                        disconnect();
+                        finish();
+                        Toast.makeText(TicTacToePlayActivity.this, "Game request refused", Toast.LENGTH_SHORT).show();
+                    } else {
+                        setLoading(!Boolean.valueOf(isReady));
+                    }
                 }
 
                 @Override
@@ -227,9 +240,9 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
     }
 
     public void disconnect() {
-        DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
-        userReference.child("playing").setValue(false);
+        firebaseHelper.getCurrentUserReference().child("playing").setValue(false);
         firebaseHelper.deleteGame(gameId);
+        firebaseHelper.deleteRequest(requestId);
 
         firebaseHelper.getGameReference(gameId).child("places").removeEventListener(gameScoreMonitor);
 

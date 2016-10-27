@@ -115,10 +115,10 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
 
         // Insert user on DB
         DatabaseReference userRef = firebaseHelper.getCurrentUserReference();
-        userRef.setValue(new UserDB(firebaseHelper.getUserName(),
+        userRef.setValue(new UserDB(firebaseHelper.getAppIDToken(),
+                firebaseHelper.getUserName(),
                 firebaseHelper.getEmail(),
-                new ArrayList<NFCTagDB>(),
-                new ArrayList<String>()));
+                new ArrayList<NFCTagDB>()));
     }
 
     @Override

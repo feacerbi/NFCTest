@@ -45,8 +45,10 @@ public class TicTacToeGame implements Serializable {
 
         if(checkRows(places, X_MARKER) || checkCollumns(places, X_MARKER) || checkDiagonals(places, X_MARKER)) {
             winner = ticTacToeGameDB.getPlayerOne();
-        }else if(checkRows(places, O_MARKER) || checkCollumns(places, O_MARKER) || checkDiagonals(places, O_MARKER)) {
+        } else if(checkRows(places, O_MARKER) || checkCollumns(places, O_MARKER) || checkDiagonals(places, O_MARKER)) {
             winner = ticTacToeGameDB.getPlayerTwo();
+        } else if(checkTie(places)) {
+            winner = "tie";
         }
         return winner;
     }
@@ -76,6 +78,13 @@ public class TicTacToeGame implements Serializable {
 
     public boolean checkDiagonals(List<Integer> places, int marker) {
         return places.get(0) == marker && places.get(4) == marker && places.get(8) == marker
-                || places.get(2) == marker && places.get(4) == marker && places.get(5) == marker;
+                || places.get(2) == marker && places.get(4) == marker && places.get(6) == marker;
+    }
+
+    public boolean checkTie(List<Integer> places) {
+        for(int place : places) {
+            if(place == PLACE_AVAILABLE) return false;
+        }
+        return true;
     }
 }

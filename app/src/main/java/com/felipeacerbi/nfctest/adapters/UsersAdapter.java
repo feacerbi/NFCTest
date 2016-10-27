@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.activities.TicTacToePlayActivity;
+import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.models.User;
@@ -98,22 +99,27 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                 Toast.makeText(context, "User already playing, try another time", Toast.LENGTH_SHORT).show();
                             }
                         });
-                    } else if (dbUser.isOnline()) {
+                    } else {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                String message = "Invite " + dbUser.getName() + " to play a game?";
+                                if(!dbUser.isOnline()) {
+                                    message = dbUser.getName() + " is offline, invite anyway?";
+                                }
                                 AlertDialog.Builder playAlert = new AlertDialog.Builder(context);
                                 playAlert
                                         .setTitle("Send game request")
-                                        .setMessage("Invite " + dbUser.getName() + " to play a game?")
+                                        .setMessage(message)
                                         .setCancelable(true)
                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                List<String> requests = new ArrayList<>();
-                                                requests.addAll(dbUser.getRequests());
-                                                requests.add(firebaseHelper.getLoginName());
-                                                userReference.child("requests").setValue(requests);
+                                                DatabaseReference newRequest = firebaseHelper.getRequestsReference().push();
+                                                newRequest.setValue(
+                                                        new RequestDB(
+                                                                firebaseHelper.getLoginName(),
+                                                                user.getUsername()));
 
                                                 context.startActivity(
                                                         new Intent(context, TicTacToePlayActivity.class)
@@ -121,7 +127,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                                                         new TicTacToeGameDB(
                                                                                 firebaseHelper.getLoginName(),
                                                                                 user.getUsername())))
-                                                                .putExtra("player", Constants.PLAYER_ONE));
+                                                                .putExtra("player", Constants.PLAYER_ONE)
+                                                                .putExtra("requestId", newRequest.getKey()));
                                             }
                                         })
                                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -131,13 +138,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                             }
                                         })
                                         .show();
-                            }
-                        });
-                    } else {
-                        holder.itemView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                Toast.makeText(context, "User offline, try another time", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
