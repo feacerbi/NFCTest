@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
@@ -20,6 +23,7 @@ import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +42,13 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     private TextView userNameField;
     private TextView userEmailField;
     private FloatingActionButton fab;
+    private FloatingActionButton fabNFC;
+    private FloatingActionButton fabQR;
+    private Animation openAnimation;
+    private Animation closeAnimation;
+    private Animation rotateForwardAnimation;
+    private Animation rotateBackAnimation;
+    private boolean isFabOpen = false;
 
     public NFCReadFragment() {
     }
@@ -69,6 +80,29 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                         "TAG read canceled",
                         Snackbar.LENGTH_LONG).show();
             }
+        } else if(requestCode == Constants.RC_BARCODE_CAPTURE) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (data != null) {
+                    Snackbar.make(
+                            getView().findViewById(R.id.nfc_read_layout),
+                            "QR Code read successfully",
+                            Snackbar.LENGTH_LONG).show();
+                    Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
+                    tagValue.setText(R.string.barcode_success);
+                    tagMessages.setText(barcode.displayValue);
+                } else {
+                    Snackbar.make(
+                            getView().findViewById(R.id.nfc_read_layout),
+                            "QR Code read fail",
+                            Snackbar.LENGTH_LONG).show();
+                    tagValue.setText(R.string.barcode_failure);
+                }
+            } else if (resultCode == Activity.RESULT_CANCELED) {
+                Snackbar.make(
+                        getView().findViewById(R.id.nfc_read_layout),
+                        "QR Code read canceled",
+                        Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -81,6 +115,24 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     public void setUserInfo() {
         userNameField.setText(firebaseHelper.getUserName());
         userEmailField.setText(firebaseHelper.getEmail());
+    }
+
+    public void animateFAB() {
+        if(isFabOpen) {
+            fab.startAnimation(rotateBackAnimation);
+            fabNFC.startAnimation(closeAnimation);
+            fabNFC.setClickable(false);
+            fabQR.startAnimation(closeAnimation);
+            fabQR.setClickable(false);
+            isFabOpen = false;
+        } else {
+            fab.startAnimation(rotateForwardAnimation);
+            fabNFC.startAnimation(openAnimation);
+            fabNFC.setClickable(true);
+            fabQR.startAnimation(openAnimation);
+            fabQR.setClickable(true);
+            isFabOpen = true;
+        }
     }
 
     @Override
@@ -103,17 +155,38 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         userNameField = (TextView) rootView.findViewById(R.id.user_name);
         userEmailField = (TextView) rootView.findViewById(R.id.user_email);
 
+        fabNFC = (FloatingActionButton) getActivity().findViewById(R.id.fabNFC);
+        fabQR = (FloatingActionButton) getActivity().findViewById(R.id.fabQR);
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
         fab.setOnClickListener(this);
+        fabQR.setOnClickListener(this);
+        fabNFC.setOnClickListener(this);
+
+        openAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_open);
+        closeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_close);
+        rotateForwardAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_forward);
+        rotateBackAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_backwards);
 
         return rootView;
     }
 
     @Override
     public void onClick(View view) {
-        Toast.makeText(getActivity(), "Data read", Toast.LENGTH_SHORT).show();
-        // Start the activity to wait for Tag interactivity
+        animateFAB();
+        switch (view.getId()) {
+            case R.id.fab:
+                break;
+            case R.id.fabNFC:
+                // Start the activity to wait for Tag interactivity
                 Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
                 startActivityForResult(startReadIntent, Constants.START_WAIT_READ_TAG_INTENT);
+                break;
+            case R.id.fabQR:
+                // Launch barcode activity.
+                Intent intent = new Intent(getActivity(), BarcodeCaptureActivity.class);
+                startActivityForResult(intent, Constants.RC_BARCODE_CAPTURE);
+                break;
+            default:
+        }
     }
 }

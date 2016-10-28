@@ -24,9 +24,11 @@ import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
 import com.google.firebase.database.DatabaseReference;
 
-public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class TabsActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     // Firebase Helper instance
     private FirebaseHelper firebaseHelper;
@@ -62,9 +64,14 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
         tabLayout.addOnTabSelectedListener(sectionsPagerAdapter);
 
         // Check for available NFC Adapter.
-        if (NfcAdapter.getDefaultAdapter(this) == null) {
+        if (!checkNFC()) {
             Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
-            finish();
+            //finish();
+        }
+
+        if(!checkQRCode()) {
+            Toast.makeText(this, "QR Code detector not set up", Toast.LENGTH_LONG).show();
+            //finish();
         }
 
         // Configure sign-in to request the user's ID, email address, and basic
@@ -92,6 +99,18 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
         } else {
             startService(new Intent(this, FirebaseNotificationService.class));
         }
+    }
+
+    public boolean checkNFC() {
+        return NfcAdapter.getDefaultAdapter(this) != null;
+    }
+
+    public boolean checkQRCode() {
+        BarcodeDetector detector =
+                new BarcodeDetector.Builder(getApplicationContext())
+                        .setBarcodeFormats(Barcode.QR_CODE)
+                        .build();
+        return detector.isOperational();
     }
 
     @Override
@@ -127,7 +146,7 @@ public class NFCManager extends AppCompatActivity implements GoogleApiClient.OnC
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "NFCManager: Google Services not available", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "TabsActivity: Google Services not available", Toast.LENGTH_LONG).show();
         finish();
     }
 
