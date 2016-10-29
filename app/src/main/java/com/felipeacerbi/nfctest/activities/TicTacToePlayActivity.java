@@ -65,52 +65,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         ticTacToeGameDB = ticTacToeGame.getTicTacToeGameDB();
         gameId = ticTacToeGameDB.getPlayerOne() + ticTacToeGameDB.getPlayerTwo();
 
-        onlineMonitor = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                UserDB userDB = dataSnapshot.getValue(UserDB.class);
-                if(!userDB.isPlaying()) {
-                    disconnect();
-                    finish();
-                    Toast.makeText(TicTacToePlayActivity.this, "Opponent left", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-
-        gameScoreMonitor = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator<List<Integer>> t = new GenericTypeIndicator<List<Integer>>() {};
-                List<Integer> places = dataSnapshot.getValue(t);
-                if(places != null) {
-                    ticTacToeGameDB.setPlaces(places);
-                    updatePlaces();
-                }
-
-                String result = ticTacToeGame.checkResult();
-                if(!result.equals("")) {
-                    if(result.equals("tie")) {
-                        Toast.makeText(TicTacToePlayActivity.this, "Tie!!!", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(TicTacToePlayActivity.this, "Winner: " + result + "!!!", Toast.LENGTH_SHORT).show();
-                    }
-                    disconnect();
-                    finish();
-                } else {
-                    changeTurn();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
+        setUpMonitors();
 
         DatabaseReference gameReference = firebaseHelper.getGameReference(gameId);
         setUpTurn(ticTacToeGameDB.getPlayerTwo());
@@ -123,7 +78,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     String isReady = dataSnapshot.getValue(String.class);
-                    if(isReady.equals("refused")) {
+                    if(isReady != null && isReady.equals("refused")) {
                         disconnect();
                         finish();
                         Toast.makeText(TicTacToePlayActivity.this, "Game request refused", Toast.LENGTH_SHORT).show();
@@ -186,30 +141,80 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         progressBar = (ProgressBar) findViewById(R.id.progress_bar);
     }
 
+    public void setUpMonitors() {
+        onlineMonitor = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserDB userDB = dataSnapshot.getValue(UserDB.class);
+                if(!userDB.isPlaying()) {
+                    disconnect();
+                    finish();
+                    Toast.makeText(TicTacToePlayActivity.this, "Opponent left", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+        gameScoreMonitor = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<List<Integer>> t = new GenericTypeIndicator<List<Integer>>() {};
+                List<Integer> places = dataSnapshot.getValue(t);
+                if(places != null) {
+                    ticTacToeGameDB.setPlaces(places);
+                    updatePlaces();
+                }
+
+                String result = ticTacToeGame.checkResult();
+                if(!result.equals("")) {
+                    if(result.equals("tie")) {
+                        Toast.makeText(TicTacToePlayActivity.this, "Tie!!!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(TicTacToePlayActivity.this, "Winner: " + result + "!!!", Toast.LENGTH_SHORT).show();
+                    }
+                    disconnect();
+                    finish();
+                } else {
+                    changeTurn();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+    }
+
     public void updatePlaces() {
         List<Integer> places = ticTacToeGameDB.getPlaces();
         Bitmap xMarker = BitmapFactory.decodeResource(getResources(), R.drawable.x);
         Bitmap oMarker = BitmapFactory.decodeResource(getResources(), R.drawable.o);
         boolean isCurrentTurn = isCurrentTurn();
         for(int i = 0; i < places.size(); i++) {
+            placeFields.get(i).setOnClickListener(this);
             switch (places.get(i)) {
                 case TicTacToeGame.PLACE_AVAILABLE:
                     placeFields.get(i).setImageAlpha(0);
                     if(isCurrentTurn) {
-                        placeFields.get(i).setOnClickListener(this);
+                        placeFields.get(i).setClickable(true);
                     } else {
-                        placeFields.get(i).setOnClickListener(null);
+                        placeFields.get(i).setClickable(false);
                     }
                     break;
                 case TicTacToeGame.X_MARKER:
                     placeFields.get(i).setImageAlpha(255);
                     placeFields.get(i).setImageBitmap(xMarker);
-                    placeFields.get(i).setOnClickListener(null);
+                    placeFields.get(i).setClickable(false);
                     break;
                 case TicTacToeGame.O_MARKER:
                     placeFields.get(i).setImageAlpha(255);
                     placeFields.get(i).setImageBitmap(oMarker);
-                    placeFields.get(i).setOnClickListener(null);
+                    placeFields.get(i).setClickable(false);
                     break;
             }
         }
@@ -241,13 +246,13 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
 
     public void disconnect() {
         firebaseHelper.getCurrentUserReference().child("playing").setValue(false);
-        firebaseHelper.deleteGame(gameId);
-        firebaseHelper.deleteRequest(requestId);
 
         firebaseHelper.getGameReference(gameId).child("places").removeEventListener(gameScoreMonitor);
-
         firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).removeEventListener(onlineMonitor);
         firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).removeEventListener(onlineMonitor);
+
+        firebaseHelper.deleteGame(gameId);
+        firebaseHelper.deleteRequest(requestId);
     }
 
     public void changeTurn() {

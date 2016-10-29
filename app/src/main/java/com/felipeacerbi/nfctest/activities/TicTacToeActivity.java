@@ -55,8 +55,8 @@ public class TicTacToeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
                 final Request request = getCurrentUserRequest(dataSnapshot);
-                final String gameId = request.getRequestDB().getRequester() + request.getRequestDB().getReceiver();
                 if(request != null) {
+                    final String gameId = request.getRequestDB().getRequester() + request.getRequestDB().getReceiver();
                     AlertDialog.Builder playAlert = new AlertDialog.Builder(TicTacToeActivity.this);
                     playAlert
                             .setTitle("New game request")

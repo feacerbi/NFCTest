@@ -191,7 +191,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             Toast.makeText(LoginActivity.this, "LoginActivity: Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            startActivity(new Intent(LoginActivity.this, NFCManager.class));
+                            startActivity(new Intent(LoginActivity.this, TabsActivity.class));
                             finish();
                         }
                     }
