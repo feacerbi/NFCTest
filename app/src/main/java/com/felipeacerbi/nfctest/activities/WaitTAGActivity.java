@@ -1,10 +1,21 @@
 package com.felipeacerbi.nfctest.activities;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.nfc.tech.IsoDep;
+import android.nfc.tech.MifareClassic;
+import android.nfc.tech.MifareUltralight;
+import android.nfc.tech.Ndef;
+import android.nfc.tech.NdefFormatable;
+import android.nfc.tech.NfcA;
+import android.nfc.tech.NfcB;
+import android.nfc.tech.NfcF;
+import android.nfc.tech.NfcV;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +31,7 @@ import com.felipeacerbi.nfctest.models.NFCTag;
 public class WaitTagActivity extends AppCompatActivity {
 
     private ImageView nfcLogo;
+    private PendingIntent pendingIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +40,28 @@ public class WaitTagActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        pendingIntent = PendingIntent.getActivity(
+                this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        NfcAdapter.getDefaultAdapter(this).enableForegroundDispatch(
+                this,
+                pendingIntent,
+                getIntentFilters(),
+                getTechsList()
+        );
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        NfcAdapter.getDefaultAdapter(this).disableForegroundDispatch(this);
     }
 
     @Override
@@ -57,6 +91,8 @@ public class WaitTagActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
+        Toast.makeText(this, "New NFC Intent", Toast.LENGTH_SHORT).show();
 
         // Create NFC Tag from Intent
         NFCTag nfcTag = getNFCTag(intent);
@@ -109,14 +145,48 @@ public class WaitTagActivity extends AppCompatActivity {
                 nfcTag.setId(Integer.valueOf(nfcIntent.getParcelableExtra(NfcAdapter.EXTRA_ID).toString()));
 
             } else if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(nfcIntent.getAction())) {
-                Toast.makeText(this, "NFC Tag technology not supported", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "NFC Tag not formatted", Toast.LENGTH_SHORT).show();
+                setResult(Activity.RESULT_OK, new Intent());
+                finish();
             } else if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(nfcIntent.getAction())) {
                 Toast.makeText(this, "NFC Tag not supported", Toast.LENGTH_SHORT).show();
+                setResult(Activity.RESULT_OK, new Intent());
+                finish();
             } else {
                 Toast.makeText(this, "Unknown error", Toast.LENGTH_SHORT).show();
             }
         }
 
         return nfcTag;
+    }
+
+    public IntentFilter[] getIntentFilters() {
+
+        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        IntentFilter techs = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+        IntentFilter disc = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+
+        try {
+            ndef.addDataType("*/*");
+        } catch (IntentFilter.MalformedMimeTypeException e) {
+            e.printStackTrace();
+        }
+
+        return new IntentFilter[] { ndef, techs, disc};
+    }
+
+    public String[][] getTechsList() {
+        return new String[][] {
+                new String[] {
+                        IsoDep.class.getName(),
+                        NfcA.class.getName(),
+                        NfcB.class.getName(),
+                        NfcF.class.getName(),
+                        NfcV.class.getName(),
+                        Ndef.class.getName(),
+                        NdefFormatable.class.getName(),
+                        MifareClassic.class.getName(),
+                        MifareUltralight.class.getName()}
+        };
     }
 }

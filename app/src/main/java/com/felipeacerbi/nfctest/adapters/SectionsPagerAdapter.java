@@ -71,6 +71,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter implements TabLay
 
     @Override
     public void onTabUnselected(TabLayout.Tab tab) {
+        int position = tab.getPosition();
 
     }
 

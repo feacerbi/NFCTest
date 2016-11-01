@@ -81,6 +81,8 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
 
         // Register NFC push message.
         NfcAdapter.getDefaultAdapter(getActivity()).setNdefPushMessage(ndefMessage, getActivity());
+
+        Toast.makeText(getActivity(), "Push registered", Toast.LENGTH_SHORT).show();
     }
 
     public NdefRecord createTextRecord(String payload, Locale locale, boolean encodeInUtf8) {
@@ -133,8 +135,6 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        Toast.makeText(getActivity(), "Data write", Toast.LENGTH_SHORT).show();
-
         // Write NFC Tag
         Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
         startActivityForResult(startReadIntent, Constants.START_WAIT_WRITE_TAG_INTENT);

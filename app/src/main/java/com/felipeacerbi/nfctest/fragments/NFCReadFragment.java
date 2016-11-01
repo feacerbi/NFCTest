@@ -73,6 +73,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                         "TAG read successfully",
                         Snackbar.LENGTH_LONG).show();
                 // Set text fields with Tag information
+                if(data.getExtras() != null)
                 setNFCFields((NFCTag) data.getExtras().getSerializable("nfc_tag"));
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
