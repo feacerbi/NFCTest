@@ -1,5 +1,7 @@
 package com.felipeacerbi.nfctest.firebasemodels;
 
+import android.nfc.NdefMessage;
+
 import com.felipeacerbi.nfctest.models.NFCTag;
 
 import java.io.Serializable;
@@ -24,7 +26,7 @@ public class NFCTagDB implements Serializable {
 
     public static NFCTagDB createDBTag(NFCTag nfcTag) {
         return new NFCTagDB(
-                nfcTag.getTag().toString(),
+                (nfcTag.getTag() == null) ? "" : nfcTag.getTag().toString(),
                 nfcTag.getNdefMessagesArray(),
                 String.valueOf(nfcTag.getId()));
     }
@@ -37,6 +39,14 @@ public class NFCTagDB implements Serializable {
                 test,
                 temp,
                 test);
+    }
+
+    public String getNdefMessagesString() {
+        String messages = "";
+        for(String ndefMessage : getNdefMessages()) {
+            messages += ndefMessage + "\n";
+        }
+        return messages;
     }
 
     public String getTag() {

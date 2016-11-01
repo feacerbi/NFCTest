@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
+import android.nfc.tech.NdefFormatable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +24,7 @@ import com.felipeacerbi.nfctest.activities.WaitTagActivity;
 import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
+import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
@@ -62,8 +66,9 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
                         getView().findViewById(R.id.nfc_write_layout),
                         "TAG written successfully",
                         Snackbar.LENGTH_LONG).show();
+                NFCTag nfcTag = data.getExtras().getParcelable("nfc_tag");
                 // Set the content message to send to the Tag
-                registerPushNFCTag((tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
+                writeNFCTag(nfcTag, (tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
                         getView().findViewById(R.id.nfc_write_layout),
@@ -73,16 +78,32 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void registerPushNFCTag(String payload) {
+    private void writeNFCTag(NFCTag nfcTag, String payload) {
         // Create Ndef message
         NdefMessage ndefMessage = new NdefMessage(
                 createTextRecord(payload, Locale.getDefault(), true),   // Create a TNF_WELL_KNOWN NDEF Record
                 NdefRecord.createApplicationRecord(getActivity().getPackageName())); // Include Android Application Record (AAR)
 
-        // Register NFC push message.
-        NfcAdapter.getDefaultAdapter(getActivity()).setNdefPushMessage(ndefMessage, getActivity());
-
-        Toast.makeText(getActivity(), "Push registered", Toast.LENGTH_SHORT).show();
+        if (nfcTag.getTag() != null) {
+            try {
+                Ndef ndefTag = Ndef.get(nfcTag.getTag());
+                if (ndefTag == null) {
+                    // Let's try to format the Tag in NDEF
+                    NdefFormatable nForm = NdefFormatable.get(nfcTag.getTag());
+                    if (nForm != null) {
+                        nForm.connect();
+                        nForm.format(ndefMessage);
+                        nForm.close();
+                    }
+                } else {
+                    ndefTag.connect();
+                    ndefTag.writeNdefMessage(ndefMessage);
+                    ndefTag.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public NdefRecord createTextRecord(String payload, Locale locale, boolean encodeInUtf8) {

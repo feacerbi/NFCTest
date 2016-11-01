@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
 import com.felipeacerbi.nfctest.models.NFCTag;
 
 public class WaitTagActivity extends AppCompatActivity {
@@ -142,16 +143,14 @@ public class WaitTagActivity extends AppCompatActivity {
                 nfcTag.setTag((Tag) nfcIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG));
 
                 // Retrieve Tag id.
-                nfcTag.setId(Integer.valueOf(nfcIntent.getParcelableExtra(NfcAdapter.EXTRA_ID).toString()));
+                byte[] tagId = nfcIntent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
+                if(tagId != null)
+                nfcTag.setId(tagId.toString());
 
             } else if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(nfcIntent.getAction())) {
                 Toast.makeText(this, "NFC Tag not formatted", Toast.LENGTH_SHORT).show();
-                setResult(Activity.RESULT_OK, new Intent());
-                finish();
             } else if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(nfcIntent.getAction())) {
                 Toast.makeText(this, "NFC Tag not supported", Toast.LENGTH_SHORT).show();
-                setResult(Activity.RESULT_OK, new Intent());
-                finish();
             } else {
                 Toast.makeText(this, "Unknown error", Toast.LENGTH_SHORT).show();
             }
