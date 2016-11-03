@@ -13,6 +13,7 @@ public class NFCTagDB implements Serializable {
     private String tag;
     private List<String> ndefMessages;
     private String id;
+    private String payload;
 
     public NFCTagDB() {
 
@@ -24,29 +25,19 @@ public class NFCTagDB implements Serializable {
         this.id = id;
     }
 
+    private NFCTagDB(String tag, List<String> ndefMessages, String id, String payload) {
+        this.tag = tag;
+        this.ndefMessages = ndefMessages;
+        this.id = id;
+        this.payload = payload;
+    }
+
     public static NFCTagDB createDBTag(NFCTag nfcTag) {
         return new NFCTagDB(
                 (nfcTag.getTag() == null) ? "" : nfcTag.getTag().toString(),
                 nfcTag.getNdefMessagesArray(),
-                String.valueOf(nfcTag.getId()));
-    }
-
-    public static NFCTagDB createTestDBTag(String test) {
-        List<String> temp = new ArrayList<>();
-        temp.add("test");
-        temp.add("test");
-        return new NFCTagDB(
-                test,
-                temp,
-                test);
-    }
-
-    public String getNdefMessagesString() {
-        String messages = "";
-        for(String ndefMessage : getNdefMessages()) {
-            messages += ndefMessage + "\n";
-        }
-        return messages;
+                String.valueOf(nfcTag.getId()),
+                NFCTag.decodePayload(nfcTag.getNdefMessages()[0]));
     }
 
     public String getTag() {
@@ -59,5 +50,9 @@ public class NFCTagDB implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public String getPayload() {
+        return payload;
     }
 }

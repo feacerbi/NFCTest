@@ -160,6 +160,10 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
         getRequestReference(requestId).removeValue();
     }
 
+    public DatabaseReference getTagReference(String tagId) {
+        return getCurrentUserReference().child("tags").child(tagId);
+    }
+
     public void signOut() {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.signOut();

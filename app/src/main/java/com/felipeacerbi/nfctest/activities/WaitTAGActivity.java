@@ -145,7 +145,7 @@ public class WaitTagActivity extends AppCompatActivity {
                 // Retrieve Tag id.
                 byte[] tagId = nfcIntent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
                 if(tagId != null)
-                nfcTag.setId(tagId.toString());
+                nfcTag.setId(byteArrayToHexString(tagId));
 
             } else if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(nfcIntent.getAction())) {
                 Toast.makeText(this, "NFC Tag not formatted", Toast.LENGTH_SHORT).show();
@@ -172,6 +172,22 @@ public class WaitTagActivity extends AppCompatActivity {
         }
 
         return new IntentFilter[] { ndef, techs, disc};
+    }
+
+    // Converting byte[] to hex string:
+    private String byteArrayToHexString(byte [] inarray) {
+        int i, j, in;
+        String [] hex = {"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
+        String out= "";
+        for(j = 0 ; j < inarray.length ; ++j)
+        {
+            in = (int) inarray[j] & 0xff;
+            i = (in >> 4) & 0x0f;
+            out += hex[i];
+            i = in & 0x0f;
+            out += hex[i];
+        }
+        return out;
     }
 
     public String[][] getTechsList() {

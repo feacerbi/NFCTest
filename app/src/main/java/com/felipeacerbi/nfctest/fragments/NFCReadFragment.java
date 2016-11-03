@@ -3,7 +3,6 @@ package com.felipeacerbi.nfctest.fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NdefMessage;
-import android.nfc.tech.Ndef;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,24 +14,17 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
+import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
-import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.android.gms.vision.barcode.Barcode;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
@@ -72,8 +64,8 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         if(requestCode == Constants.START_WAIT_READ_TAG_INTENT) {
             if (resultCode == Activity.RESULT_OK) {
                 Snackbar.make(
-                        getView().findViewById(R.id.nfc_read_layout),
-                        "TAG read successfully",
+                        getActivity().findViewById(R.id.nfc_read_layout),
+                        R.string.tag_read_success,
                         Snackbar.LENGTH_LONG).show();
                 // Set text fields with Tag information
                 if(data.getExtras() != null) {
@@ -83,15 +75,15 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
-                        getView().findViewById(R.id.nfc_read_layout),
-                        "TAG read canceled",
+                        getActivity().findViewById(R.id.nfc_read_layout),
+                        R.string.tag_read_cancel,
                         Snackbar.LENGTH_LONG).show();
             }
         } else if(requestCode == Constants.RC_BARCODE_CAPTURE) {
             if (resultCode == Activity.RESULT_OK) {
                 if (data != null) {
                     Snackbar.make(
-                            getView().findViewById(R.id.nfc_read_layout),
+                            getActivity().findViewById(R.id.nfc_read_layout),
                             "QR Code read successfully",
                             Snackbar.LENGTH_LONG).show();
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
@@ -99,57 +91,26 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                     tagMessages.setText(barcode.displayValue);
                 } else {
                     Snackbar.make(
-                            getView().findViewById(R.id.nfc_read_layout),
+                            getActivity().findViewById(R.id.nfc_read_layout),
                             "QR Code read fail",
                             Snackbar.LENGTH_LONG).show();
                     tagValue.setText(R.string.barcode_failure);
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
-                        getView().findViewById(R.id.nfc_read_layout),
+                        getActivity().findViewById(R.id.nfc_read_layout),
                         "QR Code read canceled",
                         Snackbar.LENGTH_LONG).show();
             }
         }
     }
 
-    private String decodePayload(NdefMessage ndefMessage) {
-        /*
-         * See NFC forum specification for "Text Record Type Definition" at 3.2.1
-         *
-         * http://www.nfc-forum.org/specs/
-         *
-         * bit_7 defines encoding
-         * bit_6 reserved for future use, must be 0
-         * bit_5..0 length of IANA language code
-         */
-
-        byte[] payload = ndefMessage.getRecords()[0].getPayload();
-
-        // Get the Text Encoding
-        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-
-        // Get the Language Code
-        int languageCodeLength = payload[0] & 0063;
-
-        // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
-        // e.g. "en"
-
-        // Get the Text
-        String resultPayload = "";
-        try {
-            resultPayload = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return resultPayload;
-    }
-
     public void setNFCFields(NFCTag nfcTag) {
         tagValue.setText(nfcTag.getTag().toString());
-        tagMessages.setText(decodePayload(nfcTag.getNdefMessages()[0]));
-        tagId.setText(String.valueOf(nfcTag.getId()));
+        tagMessages.setText(NFCTag.decodePayload(nfcTag.getNdefMessages()[0]));
+        tagId.setText(nfcTag.getId());
+
+        firebaseHelper.getTagReference(nfcTag.getId()).setValue(NFCTagDB.createDBTag(nfcTag));
     }
 
     public void clearFields() {
@@ -163,7 +124,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         userEmailField.setText(firebaseHelper.getEmail());
     }
 
-    public void animateFAB() {
+    public void animateFab() {
         if(isFabOpen) {
             fab.startAnimation(rotateBackAnimation);
             fabNFC.startAnimation(closeAnimation);
@@ -218,7 +179,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        animateFAB();
+        animateFab();
         switch (view.getId()) {
             case R.id.fab:
                 break;

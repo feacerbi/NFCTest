@@ -26,7 +26,6 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
-import com.google.firebase.database.DatabaseReference;
 
 public class TabsActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
@@ -34,16 +33,16 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
     private FirebaseHelper firebaseHelper;
 
     private GoogleApiClient googleApiClient;
-    private SectionsPagerAdapter sectionsPagerAdapter;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfcmanager);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         
         checkFirebase();
@@ -53,7 +52,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this, fab);
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this, fab);
 
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.container);
@@ -98,6 +97,8 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
             finish();
         } else {
             startService(new Intent(this, FirebaseNotificationService.class));
+            toolbar.setTitle(firebaseHelper.getUserName());
+            setSupportActionBar(toolbar);
         }
     }
 
@@ -107,7 +108,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
 
     public boolean checkQRCode() {
         BarcodeDetector detector =
-                new BarcodeDetector.Builder(getApplicationContext())
+                new BarcodeDetector.Builder(this)
                         .setBarcodeFormats(Barcode.QR_CODE)
                         .build();
         return detector.isOperational();
@@ -146,7 +147,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "TabsActivity: Google Services not available", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Google Services not available", Toast.LENGTH_LONG).show();
         finish();
     }
 
