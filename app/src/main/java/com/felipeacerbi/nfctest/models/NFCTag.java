@@ -5,30 +5,33 @@ import android.nfc.Tag;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.felipeacerbi.nfctest.firebasemodels.TagDB;
+import com.felipeacerbi.nfctest.utils.Constants;
+
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NFCTag implements Parcelable {
+public class NFCTag extends BaseTag implements Parcelable {
 
     private Tag tag;
     private NdefMessage[] ndefMessages;
-    private String id;
 
     public NFCTag() {
     }
 
-    public NFCTag(Tag tag, NdefMessage[] ndefMessages, String id) {
+    public NFCTag(Tag tag, NdefMessage[] ndefMessages, String id, String user) {
+        super(id, user);
         this.tag = tag;
         this.ndefMessages = ndefMessages;
-        this.id = id;
     }
 
     private NFCTag(Parcel in) {
         tag = in.readParcelable(Tag.class.getClassLoader());
         ndefMessages = in.createTypedArray(NdefMessage.CREATOR);
         id = in.readString();
+        tagDB = (TagDB) in.readSerializable();
     }
 
     public static final Creator<NFCTag> CREATOR = new Creator<NFCTag>() {
@@ -55,22 +58,6 @@ public class NFCTag implements Parcelable {
         List<String> messages = new ArrayList<>();
         for(NdefMessage ndefMessage : getNdefMessages()) {
             messages.add(ndefMessage.toString());
-        }
-        return messages;
-    }
-
-    public String getNdefMessagesString() {
-        String messages = "";
-        for(NdefMessage ndefMessage : getNdefMessages()) {
-            messages += ndefMessage.toString() + "\n";
-        }
-        return messages;
-    }
-
-    public String getNdefMessagesListString(String[] ndefMessages) {
-        String messages = "";
-        for(String ndefMessage : ndefMessages) {
-            messages += ndefMessage + "\n";
         }
         return messages;
     }
@@ -116,12 +103,13 @@ public class NFCTag implements Parcelable {
         this.ndefMessages = ndefMessages;
     }
 
-    public String getId() {
-        return id;
-    }
-
     public void setId(String id) {
         this.id = id;
+    }
+
+    public NFCTag setUser(String user) {
+        this.tagDB = new TagDB(user);
+        return this;
     }
 
     @Override
@@ -134,5 +122,6 @@ public class NFCTag implements Parcelable {
         dest.writeParcelable(getTag(), flags);
         dest.writeTypedArray(getNdefMessages(), flags);
         dest.writeString(getId());
+        dest.writeSerializable(getTagDB());
     }
 }

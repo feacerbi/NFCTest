@@ -5,8 +5,6 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.adapters.UsersAdapter;
-import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
-import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.google.firebase.auth.FirebaseAuth;
@@ -15,7 +13,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -97,6 +95,16 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
         return getUsersReference().child(username);
     }
 
+    public void registerUser() {
+        // Insert user on DB
+        DatabaseReference userRef = getCurrentUserReference();
+        userRef.child("name").setValue(getUserName());
+        userRef.child("email").setValue(getEmail());
+        userRef.child("online").setValue(false);
+        userRef.child("playing").setValue(false);
+        userRef.child("idToken").setValue(getAppIDToken());
+    }
+
     public void showResultUsers(final String search, final RecyclerView recyclerView) {
         DatabaseReference users = getUsersReference();
         users.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -160,8 +168,17 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
         getRequestReference(requestId).removeValue();
     }
 
+    public DatabaseReference getTagsReference() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        return database.getReference(Constants.DATABASE_TAGS_PATH);
+    }
+
     public DatabaseReference getTagReference(String tagId) {
-        return getCurrentUserReference().child("tags").child(tagId);
+        return getTagsReference().child(tagId);
+    }
+
+    public void get(String user) {
+        Query userTags = getTagsReference().equalTo(user);
     }
 
     public void signOut() {

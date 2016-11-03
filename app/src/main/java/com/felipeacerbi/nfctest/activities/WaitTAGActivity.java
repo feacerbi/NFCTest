@@ -26,7 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
+import com.felipeacerbi.nfctest.firebasemodels.TagDB;
 import com.felipeacerbi.nfctest.models.NFCTag;
 
 public class WaitTagActivity extends AppCompatActivity {

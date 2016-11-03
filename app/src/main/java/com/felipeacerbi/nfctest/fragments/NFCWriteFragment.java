@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Bundle;
@@ -17,23 +15,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
-import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
-import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
-import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.models.NFCTag;
-import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class NFCWriteFragment extends Fragment implements View.OnClickListener {
@@ -135,13 +124,7 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseHelper = new FirebaseHelper(getActivity());
-
-        // Insert user on DB
-        DatabaseReference userRef = firebaseHelper.getCurrentUserReference();
-        userRef.setValue(new UserDB(firebaseHelper.getAppIDToken(),
-                firebaseHelper.getUserName(),
-                firebaseHelper.getEmail(),
-                new ArrayList<NFCTagDB>()));
+        firebaseHelper.registerUser();
     }
 
     @Override

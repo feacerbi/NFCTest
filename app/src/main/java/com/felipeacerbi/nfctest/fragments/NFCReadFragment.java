@@ -2,7 +2,6 @@ package com.felipeacerbi.nfctest.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.nfc.NdefMessage;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,14 +16,14 @@ import android.widget.TextView;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
-import com.felipeacerbi.nfctest.firebasemodels.NFCTagDB;
+import com.felipeacerbi.nfctest.firebasemodels.TagDB;
+import com.felipeacerbi.nfctest.models.BaseTag;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.models.QRCodeTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
 import com.google.android.gms.vision.barcode.Barcode;
-
-import java.io.UnsupportedEncodingException;
 
 public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
@@ -87,8 +86,11 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                             "QR Code read successfully",
                             Snackbar.LENGTH_LONG).show();
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
-                    tagValue.setText(R.string.barcode_success);
-                    tagMessages.setText(barcode.displayValue);
+                    if(barcode != null) {
+                        setQRFields(new QRCodeTag(barcode.displayValue, firebaseHelper.getLoginName()));
+                    } else {
+                        clearFields();
+                    }
                 } else {
                     Snackbar.make(
                             getActivity().findViewById(R.id.nfc_read_layout),
@@ -105,12 +107,21 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    public void addNewTag(BaseTag tag) {
+        firebaseHelper.getTagReference(tag.getId()).setValue(tag.getTagDB());
+    }
+
     public void setNFCFields(NFCTag nfcTag) {
         tagValue.setText(nfcTag.getTag().toString());
         tagMessages.setText(NFCTag.decodePayload(nfcTag.getNdefMessages()[0]));
         tagId.setText(nfcTag.getId());
+        addNewTag(nfcTag.setUser(firebaseHelper.getLoginName()));
+    }
 
-        firebaseHelper.getTagReference(nfcTag.getId()).setValue(NFCTagDB.createDBTag(nfcTag));
+    public void setQRFields(QRCodeTag qrCodeTag) {
+        tagValue.setText(R.string.barcode_success);
+        tagId.setText(qrCodeTag.getId());
+        addNewTag(qrCodeTag);
     }
 
     public void clearFields() {

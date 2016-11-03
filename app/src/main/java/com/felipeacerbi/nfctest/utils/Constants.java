@@ -20,4 +20,5 @@ public class Constants {
     public static final String DATABASE_GAMES_PATH = "games/";
     public static final String DATABASE_USERS_PATH = "users/";
     public static final String DATABASE_REQUESTS_PATH = "requests/";
+    public static final String DATABASE_TAGS_PATH = "tags/";
 }
