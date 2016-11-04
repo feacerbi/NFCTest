@@ -16,9 +16,20 @@ public class Constants {
     public static final String LOGIN_ANONYMOUS = "anonymous";
     public static final String PLAYER_ONE = "one";
     public static final String PLAYER_TWO = "two";
+    public static final String NFC_TAG_EXTRA = "nfc_tag";
+
 
     public static final String DATABASE_GAMES_PATH = "games/";
     public static final String DATABASE_USERS_PATH = "users/";
     public static final String DATABASE_REQUESTS_PATH = "requests/";
     public static final String DATABASE_TAGS_PATH = "tags/";
+    public static final String DATABASE_USERS_CHILD = "users";
+    public static final String DATABASE_TAGS_CHILD = "tags";
+    public static final String DATABASE_NAME_CHILD = "name";
+    public static final String DATABASE_EMAIL_CHILD = "email";
+    public static final String DATABASE_ONLINE_CHILD = "onlime";
+    public static final String DATABASE_PLAYING_CHILD = "playing";
+    public static final String DATABASE_IDTOKEN_CHILD = "idToken";
+    public static final String DATABASE_PLACES_CHILD = "places";
+    public static final String DATABASE_CURRENT_TURN_CHILD = "currentTurn";
 }

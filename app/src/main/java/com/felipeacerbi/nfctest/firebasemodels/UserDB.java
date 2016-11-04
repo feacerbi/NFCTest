@@ -12,14 +12,16 @@ public class UserDB {
     private String email;
     private boolean online;
     private boolean playing;
+    private List<Boolean> tags;
 
     public UserDB() {
     }
 
-    public UserDB(String idToken, String name, String email) {
+    public UserDB(String idToken, String name, String email, List<Boolean> tags) {
         this.idToken = idToken;
         this.name = name;
         this.email = email;
+        this.tags = tags;
         online = false;
         playing = false;
     }
@@ -62,5 +64,13 @@ public class UserDB {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<Boolean> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Boolean> tags) {
+        this.tags = tags;
     }
 }

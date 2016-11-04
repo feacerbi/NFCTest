@@ -1,9 +1,5 @@
 package com.felipeacerbi.nfctest.firebasemodels;
 
-/**
- * Created by felipe.acerbi on 19/10/2016.
- */
-
 public class RequestDB {
 
     private String requester;

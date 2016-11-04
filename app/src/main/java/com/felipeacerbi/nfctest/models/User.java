@@ -2,10 +2,6 @@ package com.felipeacerbi.nfctest.models;
 
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 
-/**
- * Created by felipe.acerbi on 06/10/2016.
- */
-
 public class User {
 
     private String username;

@@ -5,10 +5,6 @@ import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * Created by felipe.acerbi on 07/10/2016.
- */
-
 public class TicTacToeGame implements Serializable {
 
     public static final int TOTAL_PLACES = 9;

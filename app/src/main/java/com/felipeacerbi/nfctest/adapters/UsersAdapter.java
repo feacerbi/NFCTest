@@ -96,7 +96,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Toast.makeText(context, "User already playing, try another time", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, R.string.user_playing, Toast.LENGTH_SHORT).show();
                             }
                         });
                     } else {
@@ -109,10 +109,10 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                 }
                                 AlertDialog.Builder playAlert = new AlertDialog.Builder(context);
                                 playAlert
-                                        .setTitle("Send game request")
+                                        .setTitle(R.string.send_request)
                                         .setMessage(message)
                                         .setCancelable(true)
-                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
                                                 DatabaseReference newRequest = firebaseHelper.getRequestsReference().push();
@@ -131,7 +131,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                                                 .putExtra("requestId", newRequest.getKey()));
                                             }
                                         })
-                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
                                                 dialogInterface.cancel();

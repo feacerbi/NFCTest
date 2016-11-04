@@ -59,7 +59,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
             requestId = gameIntent.getStringExtra("requestId");
         } else {
             finish();
-            Toast.makeText(this, "Game not started", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.game_not_started, Toast.LENGTH_SHORT).show();
         }
 
         ticTacToeGameDB = ticTacToeGame.getTicTacToeGameDB();
@@ -81,7 +81,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
                     if(isReady != null && isReady.equals("refused")) {
                         disconnect();
                         finish();
-                        Toast.makeText(TicTacToePlayActivity.this, "Game request refused", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TicTacToePlayActivity.this, R.string.request_refused, Toast.LENGTH_SHORT).show();
                     } else {
                         setLoading(!Boolean.valueOf(isReady));
                     }
@@ -97,7 +97,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
             gameReference.child("ready").setValue("true");
         }
 
-        gameReference.child("places").addValueEventListener(gameScoreMonitor);
+        gameReference.child(Constants.DATABASE_PLACES_CHILD).addValueEventListener(gameScoreMonitor);
     }
 
     @Override
@@ -149,7 +149,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
                 if(!userDB.isPlaying()) {
                     disconnect();
                     finish();
-                    Toast.makeText(TicTacToePlayActivity.this, "Opponent left", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(TicTacToePlayActivity.this, R.string.opponent_left, Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -172,7 +172,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
                 String result = ticTacToeGame.checkResult();
                 if(!result.equals("")) {
                     if(result.equals("tie")) {
-                        Toast.makeText(TicTacToePlayActivity.this, "Tie!!!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(TicTacToePlayActivity.this, R.string.tie, Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(TicTacToePlayActivity.this, "Winner: " + result + "!!!", Toast.LENGTH_SHORT).show();
                     }
@@ -240,14 +240,14 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
 
     public void connect() {
         DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
-        userReference.child("online").setValue(true);
-        userReference.child("playing").setValue(true);
+        userReference.child(Constants.DATABASE_ONLINE_CHILD).setValue(true);
+        userReference.child(Constants.DATABASE_PLAYING_CHILD).setValue(true);
     }
 
     public void disconnect() {
-        firebaseHelper.getCurrentUserReference().child("playing").setValue(false);
+        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_PLAYING_CHILD).setValue(false);
 
-        firebaseHelper.getGameReference(gameId).child("places").removeEventListener(gameScoreMonitor);
+        firebaseHelper.getGameReference(gameId).child(Constants.DATABASE_PLACES_CHILD).removeEventListener(gameScoreMonitor);
         firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).removeEventListener(onlineMonitor);
         firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).removeEventListener(onlineMonitor);
 

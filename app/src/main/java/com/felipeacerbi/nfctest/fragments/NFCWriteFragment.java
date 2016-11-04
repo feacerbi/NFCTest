@@ -8,7 +8,6 @@ import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -31,7 +30,6 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     private FirebaseHelper firebaseHelper;
 
     private EditText tagMessages;
-    private FloatingActionButton fab;
 
     public NFCWriteFragment() {
     }
@@ -52,16 +50,16 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         if(requestCode == Constants.START_WAIT_WRITE_TAG_INTENT) {
             if (resultCode == Activity.RESULT_OK) {
                 Snackbar.make(
-                        getView().findViewById(R.id.nfc_write_layout),
-                        "TAG written successfully",
+                        getActivity().findViewById(R.id.nfc_write_layout),
+                        R.string.nfc_write_success,
                         Snackbar.LENGTH_LONG).show();
-                NFCTag nfcTag = data.getExtras().getParcelable("nfc_tag");
+                NFCTag nfcTag = data.getExtras().getParcelable(Constants.NFC_TAG_EXTRA);
                 // Set the content message to send to the Tag
                 writeNFCTag(nfcTag, (tagMessages.getText().toString().equals("")) ? "Test" : tagMessages.getText().toString());
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
-                        getView().findViewById(R.id.nfc_write_layout),
-                        "TAG write canceled",
+                        getActivity().findViewById(R.id.nfc_write_layout),
+                        R.string.nfc_write_canceled,
                         Snackbar.LENGTH_LONG).show();
             }
         }

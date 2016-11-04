@@ -10,9 +10,8 @@ public class BaseTag {
     public BaseTag() {
     }
 
-    public BaseTag(String id, String user) {
+    public BaseTag(String id) {
         this.id = id;
-        this.tagDB = new TagDB(user);
     }
 
     public String getId() {

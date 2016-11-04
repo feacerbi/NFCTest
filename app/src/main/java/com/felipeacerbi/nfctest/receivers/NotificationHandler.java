@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
+import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.models.Request;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseHelper;
@@ -28,7 +29,7 @@ public class NotificationHandler extends BroadcastReceiver {
                     FirebaseHelper firebaseHelper = new FirebaseHelper(context);
                     firebaseHelper.getGameReference(gameId).child("ready").setValue("refused");
 
-                    Toast.makeText(context, "Game request refused", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.request_refused, Toast.LENGTH_SHORT).show();
                 }
                 break;
         }

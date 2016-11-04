@@ -1,19 +1,24 @@
 package com.felipeacerbi.nfctest.firebasemodels;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class TagDB implements Serializable {
 
-    private String user;
+    private List<Boolean> users;
 
     public TagDB() {
     }
 
-    public TagDB(String user) {
-        this.user = user;
+    public TagDB(List<Boolean> users) {
+        this.users = users;
     }
 
-    public String getUser() {
-        return user;
+    public List<Boolean> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<Boolean> users) {
+        this.users = users;
     }
 }

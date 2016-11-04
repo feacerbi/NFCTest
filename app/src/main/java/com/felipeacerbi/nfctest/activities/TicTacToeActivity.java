@@ -59,10 +59,10 @@ public class TicTacToeActivity extends AppCompatActivity {
                     final String gameId = request.getRequestDB().getRequester() + request.getRequestDB().getReceiver();
                     AlertDialog.Builder playAlert = new AlertDialog.Builder(TicTacToeActivity.this);
                     playAlert
-                            .setTitle("New game request")
+                            .setTitle(R.string.new_game_request)
                             .setMessage("Start a new game with " + request.getRequestDB().getRequester() + "?")
                             .setCancelable(true)
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     // New game
@@ -70,12 +70,12 @@ public class TicTacToeActivity extends AppCompatActivity {
                                     firebaseHelper.deleteRequest(request.getId());
                                 }
                             })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
                                     firebaseHelper.getGameReference(gameId).child("ready").setValue("refused");
-                                    Toast.makeText(TicTacToeActivity.this, "Game request refused", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(TicTacToeActivity.this, R.string.request_refused, Toast.LENGTH_SHORT).show();
                                 }
                             })
                             .show();
@@ -131,12 +131,12 @@ public class TicTacToeActivity extends AppCompatActivity {
 
     public void connect() {
         firebaseHelper.getRequestsReference().addValueEventListener(requestsListener);
-        firebaseHelper.getCurrentUserReference().child("online").setValue(true);
+        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).setValue(true);
     }
 
     public void disconnect() {
         firebaseHelper.getRequestsReference().removeEventListener(requestsListener);
-        firebaseHelper.getCurrentUserReference().child("online").setValue(false);
+        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).setValue(false);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class TicTacToeActivity extends AppCompatActivity {
                     .findFirstCompletelyVisibleItemPosition();
         }
 
-        RecyclerView.LayoutManager layoutManager = null;
+        RecyclerView.LayoutManager layoutManager;
         switch (layoutManagerType) {
             case GRID_LAYOUT_MANAGER:
                 layoutManager = new GridLayoutManager(this, SPAN_COUNT);

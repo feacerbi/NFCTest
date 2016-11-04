@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
+import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.UsersAdapter;
 import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
@@ -13,18 +14,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FirebaseHelper extends FirebaseInstanceIdService {
 
-    private static final String GAME_TOPIC = "game_topic";
+    //private static final String GAME_TOPIC = "game_topic";
     private String loginName;
     private Context context;
 
@@ -36,10 +35,9 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
     }
 
     public String getAppIDToken() {
-        String token = FirebaseInstanceId.getInstance().getToken();
         // Once a token is generated, we subscribe to topic.
-        FirebaseMessaging.getInstance().subscribeToTopic(GAME_TOPIC);
-        return token;
+        //FirebaseMessaging.getInstance().subscribeToTopic(GAME_TOPIC);
+        return FirebaseInstanceId.getInstance().getToken();
     }
 
     @Override
@@ -48,7 +46,7 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
 
         // Update id token on DB
         DatabaseReference userRef = getCurrentUserReference();
-        userRef.child("idToken").setValue(getAppIDToken());
+        userRef.child(Constants.DATABASE_IDTOKEN_CHILD).setValue(getAppIDToken());
     }
 
     public FirebaseUser getFirebaseUser() {
@@ -98,11 +96,11 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
     public void registerUser() {
         // Insert user on DB
         DatabaseReference userRef = getCurrentUserReference();
-        userRef.child("name").setValue(getUserName());
-        userRef.child("email").setValue(getEmail());
-        userRef.child("online").setValue(false);
-        userRef.child("playing").setValue(false);
-        userRef.child("idToken").setValue(getAppIDToken());
+        userRef.child(Constants.DATABASE_NAME_CHILD).setValue(getUserName());
+        userRef.child(Constants.DATABASE_EMAIL_CHILD).setValue(getEmail());
+        userRef.child(Constants.DATABASE_ONLINE_CHILD).setValue(false);
+        userRef.child(Constants.DATABASE_PLAYING_CHILD).setValue(false);
+        userRef.child(Constants.DATABASE_IDTOKEN_CHILD).setValue(getAppIDToken());
     }
 
     public void showResultUsers(final String search, final RecyclerView recyclerView) {
@@ -121,7 +119,7 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
                 }
 
                 if(usersResultList.size() == 0) {
-                    Toast.makeText(context, "No users found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.no_users, Toast.LENGTH_SHORT).show();
                 }
                 recyclerView.setAdapter(new UsersAdapter(context, usersResultList));
             }
@@ -143,7 +141,7 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
     }
 
     public void setTurn(String gameId, String player) {
-        DatabaseReference turnReference = getGameReference(gameId).child("currentTurn");
+        DatabaseReference turnReference = getGameReference(gameId).child(Constants.DATABASE_CURRENT_TURN_CHILD);
         turnReference.setValue(player);
     }
 
@@ -152,7 +150,7 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
     }
 
     public void updateGamePlace(String gameId, int place, int marker) {
-        getGameReference(gameId).child("places").child(String.valueOf(place)).setValue(marker);
+        getGameReference(gameId).child(Constants.DATABASE_PLACES_CHILD).child(String.valueOf(place)).setValue(marker);
     }
 
     public DatabaseReference getRequestsReference() {
@@ -175,10 +173,6 @@ public class FirebaseHelper extends FirebaseInstanceIdService {
 
     public DatabaseReference getTagReference(String tagId) {
         return getTagsReference().child(tagId);
-    }
-
-    public void get(String user) {
-        Query userTags = getTagsReference().equalTo(user);
     }
 
     public void signOut() {

@@ -23,14 +23,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter implements TabLay
 
     private final FloatingActionButton fab;
     private final FragmentManager fm;
-    private Context context;
     private TypedArray fabIcons;
     private String[] tabTitles;
 
     public SectionsPagerAdapter(FragmentManager fm, Context context, FloatingActionButton fab) {
         super(fm);
         this.fm = fm;
-        this.context = context;
         this.fab = fab;
 
         fabIcons = context.getResources().obtainTypedArray(R.array.fab_icons);
@@ -71,7 +69,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter implements TabLay
 
     @Override
     public void onTabUnselected(TabLayout.Tab tab) {
-        int position = tab.getPosition();
 
     }
 

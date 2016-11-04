@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.firebasemodels.TagDB;
 import com.felipeacerbi.nfctest.models.NFCTag;
+import com.felipeacerbi.nfctest.utils.Constants;
 
 public class WaitTagActivity extends AppCompatActivity {
 
@@ -93,8 +94,6 @@ public class WaitTagActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        Toast.makeText(this, "New NFC Intent", Toast.LENGTH_SHORT).show();
-
         // Create NFC Tag from Intent
         NFCTag nfcTag = getNFCTag(intent);
 
@@ -104,14 +103,14 @@ public class WaitTagActivity extends AppCompatActivity {
 
             // Prepare response Intent
             Intent returnIntent = new Intent();
-            returnIntent.putExtra("nfc_tag", nfcTag);
+            returnIntent.putExtra(Constants.NFC_TAG_EXTRA, nfcTag);
 
             // NFC Tag read and created
             setResult(Activity.RESULT_OK, returnIntent);
             finish();
         } else {
             // Not able to create NFC Tag
-            Toast.makeText(this, "NFC Tag not recognized", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.nfctag_not_recognized, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -148,11 +147,11 @@ public class WaitTagActivity extends AppCompatActivity {
                 nfcTag.setId(byteArrayToHexString(tagId));
 
             } else if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(nfcIntent.getAction())) {
-                Toast.makeText(this, "NFC Tag not formatted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.nfctag_not_formatted, Toast.LENGTH_SHORT).show();
             } else if(NfcAdapter.ACTION_TAG_DISCOVERED.equals(nfcIntent.getAction())) {
-                Toast.makeText(this, "NFC Tag not supported", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.nfctag_not_supported, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Unknown error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.nfctag_unknown_error, Toast.LENGTH_SHORT).show();
             }
         }
 

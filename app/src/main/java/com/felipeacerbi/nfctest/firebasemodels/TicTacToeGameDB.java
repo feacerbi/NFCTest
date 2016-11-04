@@ -6,10 +6,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by felipe.acerbi on 07/10/2016.
- */
-
 public class TicTacToeGameDB implements Serializable {
 
     private String playerOne;

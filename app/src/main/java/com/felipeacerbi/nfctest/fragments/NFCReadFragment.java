@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
-import com.felipeacerbi.nfctest.firebasemodels.TagDB;
 import com.felipeacerbi.nfctest.models.BaseTag;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
@@ -68,7 +67,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                         Snackbar.LENGTH_LONG).show();
                 // Set text fields with Tag information
                 if(data.getExtras() != null) {
-                    setNFCFields((NFCTag) data.getExtras().getParcelable("nfc_tag"));
+                    setNFCFields((NFCTag) data.getExtras().getParcelable(Constants.NFC_TAG_EXTRA));
                 } else {
                     clearFields();
                 }
@@ -83,39 +82,46 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 if (data != null) {
                     Snackbar.make(
                             getActivity().findViewById(R.id.nfc_read_layout),
-                            "QR Code read successfully",
+                            R.string.qrcode_read_success,
                             Snackbar.LENGTH_LONG).show();
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     if(barcode != null) {
-                        setQRFields(new QRCodeTag(barcode.displayValue, firebaseHelper.getLoginName()));
+                        setQRFields(new QRCodeTag(barcode.displayValue));
                     } else {
                         clearFields();
                     }
                 } else {
                     Snackbar.make(
                             getActivity().findViewById(R.id.nfc_read_layout),
-                            "QR Code read fail",
+                            R.string.qrcode_read_fail,
                             Snackbar.LENGTH_LONG).show();
                     tagValue.setText(R.string.barcode_failure);
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
                         getActivity().findViewById(R.id.nfc_read_layout),
-                        "QR Code read canceled",
+                        R.string.qrcode_read_canceled,
                         Snackbar.LENGTH_LONG).show();
             }
         }
     }
 
     public void addNewTag(BaseTag tag) {
-        firebaseHelper.getTagReference(tag.getId()).setValue(tag.getTagDB());
+        firebaseHelper.getTagReference(tag.getId())
+                .child(Constants.DATABASE_USERS_CHILD)
+                .child(firebaseHelper.getLoginName())
+                .setValue(true);
+        firebaseHelper.getCurrentUserReference()
+                .child(Constants.DATABASE_TAGS_CHILD)
+                .child(tag.getId())
+                .setValue(true);
     }
 
     public void setNFCFields(NFCTag nfcTag) {
         tagValue.setText(nfcTag.getTag().toString());
         tagMessages.setText(NFCTag.decodePayload(nfcTag.getNdefMessages()[0]));
         tagId.setText(nfcTag.getId());
-        addNewTag(nfcTag.setUser(firebaseHelper.getLoginName()));
+        addNewTag(nfcTag);
     }
 
     public void setQRFields(QRCodeTag qrCodeTag) {

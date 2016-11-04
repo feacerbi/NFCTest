@@ -171,7 +171,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             } else {
                 showProgress(false);
                 // Google Sign In failed
-                Toast.makeText(this, "LoginActivity: Google Sign In failed", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.google_signin_fail, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -188,7 +188,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             showProgress(false);
-                            Toast.makeText(LoginActivity.this, "LoginActivity: Authentication failed.",
+                            Toast.makeText(LoginActivity.this, R.string.firebase_auth_fail,
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             startActivity(new Intent(LoginActivity.this, TabsActivity.class));
@@ -240,7 +240,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         }
     }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -385,7 +384,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(LoginActivity.this, "LoginActivity: Connection failed.",
+        Toast.makeText(LoginActivity.this, "Connection failed.",
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -418,7 +417,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         };
 
         int ADDRESS = 0;
-        int IS_PRIMARY = 1;
+        //int IS_PRIMARY = 1;
     }
 
     /**

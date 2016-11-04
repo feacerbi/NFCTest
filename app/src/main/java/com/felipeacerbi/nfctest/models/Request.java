@@ -2,10 +2,6 @@ package com.felipeacerbi.nfctest.models;
 
 import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 
-/**
- * Created by felipe.acerbi on 20/10/2016.
- */
-
 public class Request {
 
     private String id;

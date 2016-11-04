@@ -64,12 +64,12 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // Check for available NFC Adapter.
         if (!checkNFC()) {
-            Toast.makeText(this, "NFC is not available", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.nfc_not_available, Toast.LENGTH_LONG).show();
             //finish();
         }
 
         if(!checkQRCode()) {
-            Toast.makeText(this, "QR Code detector not set up", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.qrcode_detector_not_setup, Toast.LENGTH_LONG).show();
             //finish();
         }
 
@@ -147,7 +147,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Toast.makeText(this, "Google Services not available", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.google_services_not_available, Toast.LENGTH_LONG).show();
         finish();
     }
 

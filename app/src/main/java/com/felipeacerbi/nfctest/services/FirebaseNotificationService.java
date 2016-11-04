@@ -32,7 +32,7 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
     public void onCreate() {
         super.onCreate();
 
-        FirebaseMessaging.getInstance().subscribeToTopic("test");
+        //FirebaseMessaging.getInstance().subscribeToTopic("test");
 
         firebaseHelper = new FirebaseHelper(this);
 
@@ -43,14 +43,14 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
                 if(request != null) {
                     NotificationCompat.Builder notification = new NotificationCompat.Builder(FirebaseNotificationService.this)
                             .setContentTitle("New request from " + request.getRequestDB().getRequester())
-                            .setContentText("Touch to start a new game")
+                            .setContentText(getString(R.string.touch_to_start))
                             .setSmallIcon(android.R.drawable.stat_sys_warning)
                             .setAutoCancel(true)
                             .setWhen(System.currentTimeMillis())
                             .setContentIntent(getNewGameIntent(request))
                             .setDeleteIntent(getCancelIntent(request))
-                            .addAction(R.drawable.nfc_logo_ok, "ACCEPT", getNewGameIntent(request))
-                            .addAction(R.drawable.nfc_logo_fail, "REFUSE", getCancelIntent(request));
+                            .addAction(R.drawable.nfc_logo_ok, getString(R.string.accept), getNewGameIntent(request))
+                            .addAction(R.drawable.nfc_logo_fail, getString(R.string.refuse), getCancelIntent(request));
 
                     NotificationManager notificationManager =
                             (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -82,7 +82,7 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
             }
         };
 
-        firebaseHelper.getCurrentUserReference().child("online").addValueEventListener(onlineListener);
+        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).addValueEventListener(onlineListener);
     }
 
     public Request getCurrentUserRequest(DataSnapshot requestsSnapshot) {

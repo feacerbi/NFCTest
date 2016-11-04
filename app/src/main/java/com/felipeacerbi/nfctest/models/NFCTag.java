@@ -21,8 +21,8 @@ public class NFCTag extends BaseTag implements Parcelable {
     public NFCTag() {
     }
 
-    public NFCTag(Tag tag, NdefMessage[] ndefMessages, String id, String user) {
-        super(id, user);
+    public NFCTag(Tag tag, NdefMessage[] ndefMessages, String id) {
+        super(id);
         this.tag = tag;
         this.ndefMessages = ndefMessages;
     }
@@ -101,15 +101,6 @@ public class NFCTag extends BaseTag implements Parcelable {
 
     public void setNdefMessages(NdefMessage[] ndefMessages) {
         this.ndefMessages = ndefMessages;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public NFCTag setUser(String user) {
-        this.tagDB = new TagDB(user);
-        return this;
     }
 
     @Override
