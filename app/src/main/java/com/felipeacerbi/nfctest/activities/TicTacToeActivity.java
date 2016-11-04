@@ -18,16 +18,11 @@ import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.models.Request;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
-import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.Constants;
-import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.List;
 
 public class TicTacToeActivity extends AppCompatActivity {
 
@@ -36,7 +31,7 @@ public class TicTacToeActivity extends AppCompatActivity {
     private ImageView searchButton;
     private RecyclerView resultUsersList;
     private LayoutManagerType currentLayoutManagerType;
-    private FirebaseHelper firebaseHelper;
+    private FirebaseDBHelper firebaseDBHelper;
     private ValueEventListener requestsListener;
 
     private enum LayoutManagerType {
@@ -49,7 +44,7 @@ public class TicTacToeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tic_tac_toe);
 
-        firebaseHelper = new FirebaseHelper(this);
+        firebaseDBHelper = new FirebaseDBHelper(this);
 
         requestsListener = new ValueEventListener() {
             @Override
@@ -67,14 +62,14 @@ public class TicTacToeActivity extends AppCompatActivity {
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     // New game
                                     setUpNewGame(request);
-                                    firebaseHelper.deleteRequest(request.getId());
+                                    firebaseDBHelper.deleteRequest(request.getId());
                                 }
                             })
                             .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.cancel();
-                                    firebaseHelper.getGameReference(gameId).child("ready").setValue("refused");
+                                    firebaseDBHelper.getGameReference(gameId).child("ready").setValue("refused");
                                     Toast.makeText(TicTacToeActivity.this, R.string.request_refused, Toast.LENGTH_SHORT).show();
                                 }
                             })
@@ -92,7 +87,7 @@ public class TicTacToeActivity extends AppCompatActivity {
             for (DataSnapshot requestSnapshot : requestsSnapshot.getChildren()) {
                 RequestDB requestDB = requestSnapshot.getValue(RequestDB.class);
 
-                if (requestDB.getReceiver().equals(firebaseHelper.getLoginName())) {
+                if (requestDB.getReceiver().equals(firebaseDBHelper.getLoginName())) {
                     return new Request(requestSnapshot.getKey(), requestDB);
                 }
             }
@@ -100,7 +95,7 @@ public class TicTacToeActivity extends AppCompatActivity {
     }
 
     public void setUpNewGame(Request request) {
-        String currentUser = firebaseHelper.getLoginName();
+        String currentUser = firebaseDBHelper.getLoginName();
         TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(request.getRequestDB().getRequester(), currentUser));
 
         startActivity(
@@ -121,7 +116,7 @@ public class TicTacToeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String search = searchPlayersBox.getText().toString();
-                firebaseHelper.showResultUsers(search, resultUsersList);
+                firebaseDBHelper.showResultUsers(search, resultUsersList);
             }
         });
 
@@ -130,13 +125,13 @@ public class TicTacToeActivity extends AppCompatActivity {
     }
 
     public void connect() {
-        firebaseHelper.getRequestsReference().addValueEventListener(requestsListener);
-        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).setValue(true);
+        firebaseDBHelper.getRequestsReference().addValueEventListener(requestsListener);
+        firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).setValue(true);
     }
 
     public void disconnect() {
-        firebaseHelper.getRequestsReference().removeEventListener(requestsListener);
-        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).setValue(false);
+        firebaseDBHelper.getRequestsReference().removeEventListener(requestsListener);
+        firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).setValue(false);
     }
 
     @Override

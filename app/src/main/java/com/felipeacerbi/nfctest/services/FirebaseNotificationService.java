@@ -6,25 +6,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
-import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.receivers.NotificationHandler;
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.activities.TicTacToePlayActivity;
 import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
-import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.models.Request;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
-import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.*;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class FirebaseNotificationService extends com.google.firebase.messaging.FirebaseMessagingService {
 
-    private FirebaseHelper firebaseHelper;
+    private FirebaseDBHelper firebaseDBHelper;
     private ValueEventListener requestsListener;
     private ValueEventListener onlineListener;
 
@@ -34,7 +31,7 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
 
         //FirebaseMessaging.getInstance().subscribeToTopic("test");
 
-        firebaseHelper = new FirebaseHelper(this);
+        firebaseDBHelper = new FirebaseDBHelper(this);
 
         requestsListener = new ValueEventListener() {
             @Override
@@ -69,9 +66,9 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean isOnline = dataSnapshot.getValue(Boolean.class);
                 if(isOnline) {
-                    firebaseHelper.getRequestsReference().removeEventListener(requestsListener);
+                    firebaseDBHelper.getRequestsReference().removeEventListener(requestsListener);
                 } else {
-                    firebaseHelper.getRequestsReference().addValueEventListener(requestsListener);
+                    firebaseDBHelper.getRequestsReference().addValueEventListener(requestsListener);
 
                 }
             }
@@ -82,14 +79,14 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
             }
         };
 
-        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).addValueEventListener(onlineListener);
+        firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_ONLINE_CHILD).addValueEventListener(onlineListener);
     }
 
     public Request getCurrentUserRequest(DataSnapshot requestsSnapshot) {
         for (DataSnapshot requestSnapshot : requestsSnapshot.getChildren()) {
             RequestDB requestDB = requestSnapshot.getValue(RequestDB.class);
 
-            if (requestDB.getReceiver().equals(firebaseHelper.getLoginName())) {
+            if (requestDB.getReceiver().equals(firebaseDBHelper.getLoginName())) {
                 return new Request(requestSnapshot.getKey(), requestDB);
             }
         }
@@ -98,7 +95,7 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
 
     public PendingIntent getNewGameIntent(Request request) {
 
-        String currentUser = firebaseHelper.getLoginName();
+        String currentUser = firebaseDBHelper.getLoginName();
         TicTacToeGame ticTacToeGame = new TicTacToeGame(new TicTacToeGameDB(request.getRequestDB().getRequester(), currentUser));
 
         Intent resultIntent = new Intent(this, TicTacToePlayActivity.class)
@@ -130,8 +127,8 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
     @Override
     public void onDestroy() {
         super.onDestroy();
-        firebaseHelper.getRequestsReference().removeEventListener(requestsListener);
-        firebaseHelper.getCurrentUserReference().removeEventListener(onlineListener);
+        firebaseDBHelper.getRequestsReference().removeEventListener(requestsListener);
+        firebaseDBHelper.getCurrentUserReference().removeEventListener(onlineListener);
     }
 
     @Override

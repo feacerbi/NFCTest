@@ -12,68 +12,84 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/tag_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:text="TAG" />
+        <TextView
+            android:id="@+id/tag_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="TAG" />
 
-    <TextView
-        android:id="@+id/tag_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_title"
-        android:text="Test TAG" />
+        <TextView
+            android:id="@+id/tag_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tag_title"
+            android:text="Test TAG" />
 
-    <TextView
-        android:id="@+id/tag_messages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_value"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:text="TAG Messages" />
+        <TextView
+            android:id="@+id/tag_messages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tag_value"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"
+            android:text="TAG Messages" />
 
-    <TextView
-        android:id="@+id/tag_messages_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_messages"
-        android:text="Test TAG message" />
+        <TextView
+            android:id="@+id/tag_messages_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tag_messages"
+            android:text="Test TAG message" />
 
-    <TextView
-        android:id="@+id/tag_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_messages_value"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:text="TAG ID" />
+        <TextView
+            android:id="@+id/tag_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tag_messages_value"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"
+            android:text="TAG ID" />
 
-    <TextView
-        android:id="@+id/tag_id_value"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_id"
-        android:text="Test ID" />
+        <TextView
+            android:id="@+id/tag_id_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tag_id"
+            android:text="Test ID" />
 
-    <TextView
-        android:id="@+id/user_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:textSize="16sp"
-        android:layout_below="@id/tag_id_value"
-        android:text="Test Name" />
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="16sp"
+            android:layout_below="@id/tag_id_value"
+            android:text="Test Name" />
 
-    <TextView
-        android:id="@+id/user_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/user_name"
-        android:textSize="16sp"
-        android:text="test@test.com" />
+        <TextView
+            android:id="@+id/user_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/user_name"
+            android:textSize="16sp"
+            android:text="test@test.com" />
+
+        <Button
+            android:id="@+id/download_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_below="@id/user_email"
+            android:text="Download"/>
+
+        <ImageView
+            android:id="@+id/downloaded_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_below="@id/download_image_button"
+            android:src="@mipmap/ic_launcher"/>
     </RelativeLayout>
 
 </android.support.v4.widget.NestedScrollView>

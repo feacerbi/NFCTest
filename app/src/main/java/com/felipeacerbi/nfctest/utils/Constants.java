@@ -32,4 +32,7 @@ public class Constants {
     public static final String DATABASE_IDTOKEN_CHILD = "idToken";
     public static final String DATABASE_PLACES_CHILD = "places";
     public static final String DATABASE_CURRENT_TURN_CHILD = "currentTurn";
+
+    public static final String STORAGE_IMAGES_PATH = "images/";
+
 }

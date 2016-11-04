@@ -21,16 +21,16 @@ import com.google.firebase.iid.FirebaseInstanceIdService;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirebaseHelper extends FirebaseInstanceIdService {
+public class FirebaseDBHelper extends FirebaseInstanceIdService {
 
     //private static final String GAME_TOPIC = "game_topic";
     private String loginName;
     private Context context;
 
-    public FirebaseHelper() {
+    public FirebaseDBHelper() {
     }
 
-    public FirebaseHelper(Context context) {
+    public FirebaseDBHelper(Context context) {
         this.context = context;
     }
 

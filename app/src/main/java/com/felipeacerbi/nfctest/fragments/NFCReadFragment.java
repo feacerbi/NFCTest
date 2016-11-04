@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
@@ -21,13 +23,16 @@ import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.models.QRCodeTag;
 import com.felipeacerbi.nfctest.utils.Constants;
-import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
 import com.google.android.gms.vision.barcode.Barcode;
+
+import java.io.File;
 
 public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
     // Firebase Helper instance
-    private FirebaseHelper firebaseHelper;
+    private FirebaseDBHelper firebaseDBHelper;
 
     private TextView tagValue;
     private TextView tagId;
@@ -42,6 +47,9 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     private Animation rotateForwardAnimation;
     private Animation rotateBackAnimation;
     private boolean isFabOpen = false;
+    private Button downloadButton;
+    private ImageView downloadedImage;
+    private FirebaseStoreHelper firebaseStoreHelper;
 
     public NFCReadFragment() {
     }
@@ -107,11 +115,11 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     }
 
     public void addNewTag(BaseTag tag) {
-        firebaseHelper.getTagReference(tag.getId())
+        firebaseDBHelper.getTagReference(tag.getId())
                 .child(Constants.DATABASE_USERS_CHILD)
-                .child(firebaseHelper.getLoginName())
+                .child(firebaseDBHelper.getLoginName())
                 .setValue(true);
-        firebaseHelper.getCurrentUserReference()
+        firebaseDBHelper.getCurrentUserReference()
                 .child(Constants.DATABASE_TAGS_CHILD)
                 .child(tag.getId())
                 .setValue(true);
@@ -137,8 +145,8 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     }
 
     public void setUserInfo() {
-        userNameField.setText(firebaseHelper.getUserName());
-        userEmailField.setText(firebaseHelper.getEmail());
+        userNameField.setText(firebaseDBHelper.getUserName());
+        userEmailField.setText(firebaseDBHelper.getEmail());
     }
 
     public void animateFab() {
@@ -162,7 +170,8 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        firebaseHelper = new FirebaseHelper(getActivity());
+        firebaseDBHelper = new FirebaseDBHelper(getActivity());
+        firebaseStoreHelper = new FirebaseStoreHelper();
         setUserInfo();
     }
 
@@ -190,6 +199,15 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         closeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.fab_close);
         rotateForwardAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_forward);
         rotateBackAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_backwards);
+
+        downloadedImage = (ImageView) rootView.findViewById(R.id.downloaded_image);
+        downloadButton = (Button) rootView.findViewById(R.id.download_image_button);
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                firebaseStoreHelper.downloadImage(new File("test"), downloadedImage);
+            }
+        });
 
         return rootView;
     }

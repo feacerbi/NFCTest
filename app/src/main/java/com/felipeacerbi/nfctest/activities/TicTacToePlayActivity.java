@@ -3,8 +3,6 @@ package com.felipeacerbi.nfctest.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,7 +16,7 @@ import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
-import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +29,7 @@ import java.util.List;
 public class TicTacToePlayActivity extends AppCompatActivity implements View.OnClickListener {
 
     TicTacToeGame ticTacToeGame;
-    private FirebaseHelper firebaseHelper;
+    private FirebaseDBHelper firebaseDBHelper;
     private TicTacToeGameDB ticTacToeGameDB;
     private List<ImageView> placeFields;
     private String gameId;
@@ -49,7 +47,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tic_tac_toe_play);
 
-        firebaseHelper = new FirebaseHelper(this);
+        firebaseDBHelper = new FirebaseDBHelper(this);
         connect();
 
         final Intent gameIntent = getIntent();
@@ -67,7 +65,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
 
         setUpMonitors();
 
-        DatabaseReference gameReference = firebaseHelper.getGameReference(gameId);
+        DatabaseReference gameReference = firebaseDBHelper.getGameReference(gameId);
         setUpTurn(ticTacToeGameDB.getPlayerTwo());
 
         if(currentPlayer.equals(Constants.PLAYER_ONE)) {
@@ -93,7 +91,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
                 }
             });
         } else {
-            firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).addValueEventListener(onlineMonitor);
+            firebaseDBHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).addValueEventListener(onlineMonitor);
             gameReference.child("ready").setValue("true");
         }
 
@@ -233,26 +231,26 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         progressBar.setVisibility(visibleLoading);
 
         if(!loading) {
-            firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).addValueEventListener(onlineMonitor);
+            firebaseDBHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).addValueEventListener(onlineMonitor);
             updatePlaces();
         }
     }
 
     public void connect() {
-        DatabaseReference userReference = firebaseHelper.getCurrentUserReference();
+        DatabaseReference userReference = firebaseDBHelper.getCurrentUserReference();
         userReference.child(Constants.DATABASE_ONLINE_CHILD).setValue(true);
         userReference.child(Constants.DATABASE_PLAYING_CHILD).setValue(true);
     }
 
     public void disconnect() {
-        firebaseHelper.getCurrentUserReference().child(Constants.DATABASE_PLAYING_CHILD).setValue(false);
+        firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_PLAYING_CHILD).setValue(false);
 
-        firebaseHelper.getGameReference(gameId).child(Constants.DATABASE_PLACES_CHILD).removeEventListener(gameScoreMonitor);
-        firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).removeEventListener(onlineMonitor);
-        firebaseHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).removeEventListener(onlineMonitor);
+        firebaseDBHelper.getGameReference(gameId).child(Constants.DATABASE_PLACES_CHILD).removeEventListener(gameScoreMonitor);
+        firebaseDBHelper.getUserReference(ticTacToeGameDB.getPlayerOne()).removeEventListener(onlineMonitor);
+        firebaseDBHelper.getUserReference(ticTacToeGameDB.getPlayerTwo()).removeEventListener(onlineMonitor);
 
-        firebaseHelper.deleteGame(gameId);
-        firebaseHelper.deleteRequest(requestId);
+        firebaseDBHelper.deleteGame(gameId);
+        firebaseDBHelper.deleteRequest(requestId);
     }
 
     public void changeTurn() {
@@ -269,7 +267,7 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
     }
 
     public void setUpTurn(String player) {
-        firebaseHelper.setTurn(gameId, player);
+        firebaseDBHelper.setTurn(gameId, player);
         currentTurn = player;
         turnField.setText(player);
     }
@@ -293,31 +291,31 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
 
         switch (view.getId()) {
             case R.id.place1:
-                firebaseHelper.updateGamePlace(gameId, 0, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 0, marker);
                 break;
             case R.id.place2:
-                firebaseHelper.updateGamePlace(gameId, 1, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 1, marker);
                 break;
             case R.id.place3:
-                firebaseHelper.updateGamePlace(gameId, 2, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 2, marker);
                 break;
             case R.id.place4:
-                firebaseHelper.updateGamePlace(gameId, 3, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 3, marker);
                 break;
             case R.id.place5:
-                firebaseHelper.updateGamePlace(gameId, 4, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 4, marker);
                 break;
             case R.id.place6:
-                firebaseHelper.updateGamePlace(gameId, 5, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 5, marker);
                 break;
             case R.id.place7:
-                firebaseHelper.updateGamePlace(gameId, 6, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 6, marker);
                 break;
             case R.id.place8:
-                firebaseHelper.updateGamePlace(gameId, 7, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 7, marker);
                 break;
             case R.id.place9:
-                firebaseHelper.updateGamePlace(gameId, 8, marker);
+                firebaseDBHelper.updateGamePlace(gameId, 8, marker);
                 break;
         }
     }

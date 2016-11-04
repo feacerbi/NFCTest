@@ -7,9 +7,8 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.models.Request;
 import com.felipeacerbi.nfctest.utils.Constants;
-import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 
 public class NotificationHandler extends BroadcastReceiver {
     public NotificationHandler() {
@@ -26,8 +25,8 @@ public class NotificationHandler extends BroadcastReceiver {
                             (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                     notificationManager.cancel(Constants.GAME_REQUEST_NOTIFICATION);
 
-                    FirebaseHelper firebaseHelper = new FirebaseHelper(context);
-                    firebaseHelper.getGameReference(gameId).child("ready").setValue("refused");
+                    FirebaseDBHelper firebaseDBHelper = new FirebaseDBHelper(context);
+                    firebaseDBHelper.getGameReference(gameId).child("ready").setValue("refused");
 
                     Toast.makeText(context, R.string.request_refused, Toast.LENGTH_SHORT).show();
                 }

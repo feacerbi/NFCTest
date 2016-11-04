@@ -19,7 +19,7 @@ import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.SectionsPagerAdapter;
 import com.felipeacerbi.nfctest.services.FirebaseNotificationService;
 import com.felipeacerbi.nfctest.utils.Constants;
-import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -30,7 +30,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 public class TabsActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     // Firebase Helper instance
-    private FirebaseHelper firebaseHelper;
+    private FirebaseDBHelper firebaseDBHelper;
 
     private GoogleApiClient googleApiClient;
     private TabLayout tabLayout;
@@ -90,14 +90,14 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
 
     private void checkFirebase() {
         // Initialize Firebase
-        firebaseHelper = new FirebaseHelper(this);
-        if (firebaseHelper.getFirebaseUser() == null) {
+        firebaseDBHelper = new FirebaseDBHelper(this);
+        if (firebaseDBHelper.getFirebaseUser() == null) {
             // Not signed in, launch the Sign In activity
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         } else {
             startService(new Intent(this, FirebaseNotificationService.class));
-            toolbar.setTitle(firebaseHelper.getUserName());
+            toolbar.setTitle(firebaseDBHelper.getUserName());
             setSupportActionBar(toolbar);
         }
     }
@@ -135,7 +135,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
             case R.id.action_settings:
                 return true;
             case R.id.action_sign_out:
-                firebaseHelper.signOut();
+                firebaseDBHelper.signOut();
                 Auth.GoogleSignInApi.signOut(googleApiClient);
                 startActivity(new Intent(this, LoginActivity.class));
                 finish();

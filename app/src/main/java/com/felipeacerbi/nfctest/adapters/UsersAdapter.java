@@ -20,13 +20,12 @@ import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.Constants;
-import com.felipeacerbi.nfctest.utils.FirebaseHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {
@@ -77,11 +76,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
             final User user = getUsers().get(position);
-            final FirebaseHelper firebaseHelper = new FirebaseHelper(context);
+            final FirebaseDBHelper firebaseDBHelper = new FirebaseDBHelper(context);
 
             holder.getNameField().setText(user.getUserDB().getName());
 
-            final DatabaseReference userReference = firebaseHelper.getUserReference(user.getUsername());
+            final DatabaseReference userReference = firebaseDBHelper.getUserReference(user.getUsername());
             userReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(final DataSnapshot dataSnapshot) {
@@ -115,17 +114,17 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                DatabaseReference newRequest = firebaseHelper.getRequestsReference().push();
+                                                DatabaseReference newRequest = firebaseDBHelper.getRequestsReference().push();
                                                 newRequest.setValue(
                                                         new RequestDB(
-                                                                firebaseHelper.getLoginName(),
+                                                                firebaseDBHelper.getLoginName(),
                                                                 user.getUsername()));
 
                                                 context.startActivity(
                                                         new Intent(context, TicTacToePlayActivity.class)
                                                                 .putExtra("game", new TicTacToeGame(
                                                                         new TicTacToeGameDB(
-                                                                                firebaseHelper.getLoginName(),
+                                                                                firebaseDBHelper.getLoginName(),
                                                                                 user.getUsername())))
                                                                 .putExtra("player", Constants.PLAYER_ONE)
                                                                 .putExtra("requestId", newRequest.getKey()));
