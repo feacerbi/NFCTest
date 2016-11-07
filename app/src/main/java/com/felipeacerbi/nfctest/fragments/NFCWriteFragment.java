@@ -12,6 +12,7 @@ import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
@@ -40,8 +43,9 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     private FirebaseDBHelper firebaseDBHelper;
 
     private EditText tagMessages;
-    private Button uploadButton;
     private FirebaseStoreHelper firebaseStoreHelper;
+    private ProgressBar uploadProgressBar;
+    private TextView uploadProgress;
 
     public NFCWriteFragment() {
     }
@@ -74,13 +78,11 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
                         R.string.nfc_write_canceled,
                         Snackbar.LENGTH_LONG).show();
             }
-        } else if(requestCode == 0) {
+        } else if(requestCode == Constants.GET_IMAGE_FROM_PICKER) {
             if (resultCode == Activity.RESULT_OK) {
                 String path = getBitmapPath(data);
-                firebaseStoreHelper.uploadImage(new File(path));
+                firebaseStoreHelper.uploadImage(new File(path), uploadProgressBar, uploadProgress);
             }
-        } else if(requestCode == 1) {
-            startPickImageActivity();
         }
     }
 
@@ -138,13 +140,16 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     }
 
     public String getBitmapPath(Intent data){
+        String picturePath = "";
         Uri selectedImage = data.getData();
         String[] filePathColumn = { MediaStore.Images.Media.DATA };
         Cursor cursor = getActivity().getContentResolver().query(selectedImage,filePathColumn, null, null, null);
-        cursor.moveToFirst();
-        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-        String picturePath = cursor.getString(columnIndex);
-        cursor.close();
+        if(cursor != null) {
+            cursor.moveToFirst();
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            picturePath = cursor.getString(columnIndex);
+            cursor.close();
+        }
 
         return picturePath;
     }
@@ -153,8 +158,8 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseDBHelper = new FirebaseDBHelper(getActivity());
-        firebaseStoreHelper = new FirebaseStoreHelper();
         firebaseDBHelper.registerUser();
+        firebaseStoreHelper = new FirebaseStoreHelper();
     }
 
     @Override
@@ -163,7 +168,9 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         View rootView = inflater.inflate(R.layout.fragment_write_nfc, container, false);
 
         tagMessages = (EditText) rootView.findViewById(R.id.tag_write_messages_value);
-        uploadButton = (Button) rootView.findViewById(R.id.upload_image_button);
+        uploadProgressBar = (ProgressBar) rootView.findViewById(R.id.upload_progress_bar);
+        uploadProgress = (TextView) rootView.findViewById(R.id.upload_message);
+        Button uploadButton = (Button) rootView.findViewById(R.id.upload_image_button);
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -182,10 +189,10 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     private void startPickImageActivity() {
         Intent gal = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         if(gal.resolveActivity(getActivity().getPackageManager()) != null) {
-            startActivityForResult(gal, 0);
+            startActivityForResult(gal, Constants.GET_IMAGE_FROM_PICKER);
 
         } else {
-            Toast.makeText(getActivity(), "No Gallery app", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), R.string.no_gallery, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -194,17 +201,19 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
 
         if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            ActivityCompat.requestPermissions(getActivity(), permissions, 1);
-            return;
+            ActivityCompat.requestPermissions(getActivity(), permissions, Constants.WRITE_EXTERNAL_STORAGE_PERMISSION);
         }
+    }
 
-        View.OnClickListener listener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ActivityCompat.requestPermissions(getActivity(), permissions,
-                        1);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == Constants.WRITE_EXTERNAL_STORAGE_PERMISSION) {
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startPickImageActivity();
             }
-        };
+        }
     }
 
     @Override

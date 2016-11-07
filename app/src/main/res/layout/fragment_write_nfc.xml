@@ -36,11 +36,20 @@
             android:layout_below="@id/tag_write_messages_value"
             android:text="Upload"/>
 
+        <ProgressBar
+            android:id="@+id/upload_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progress="0"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_below="@id/upload_image_button"/>
+
         <TextView
             android:id="@+id/upload_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/upload_image_button"/>
+            android:layout_below="@id/upload_progress_bar"
+            android:text="0%"/>
     </RelativeLayout>
 
 </android.support.v4.widget.NestedScrollView>

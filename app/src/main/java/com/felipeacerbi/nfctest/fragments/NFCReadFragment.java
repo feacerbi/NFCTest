@@ -14,7 +14,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
@@ -47,9 +49,12 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     private Animation rotateForwardAnimation;
     private Animation rotateBackAnimation;
     private boolean isFabOpen = false;
-    private Button downloadButton;
     private ImageView downloadedImage;
     private FirebaseStoreHelper firebaseStoreHelper;
+    private TextView downloadProgress;
+    private ProgressBar downloadProgressBar;
+
+    public static String downloadFilePath = "test.jpg";
 
     public NFCReadFragment() {
     }
@@ -200,12 +205,14 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         rotateForwardAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_forward);
         rotateBackAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_backwards);
 
+        downloadProgressBar = (ProgressBar) rootView.findViewById(R.id.download_progress_bar);
+        downloadProgress = (TextView) rootView.findViewById(R.id.download_message);
         downloadedImage = (ImageView) rootView.findViewById(R.id.downloaded_image);
-        downloadButton = (Button) rootView.findViewById(R.id.download_image_button);
+        Button downloadButton = (Button) rootView.findViewById(R.id.download_image_button);
         downloadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                firebaseStoreHelper.downloadImage(new File("test"), downloadedImage);
+                firebaseStoreHelper.downloadImage(new File(downloadFilePath), downloadedImage, downloadProgressBar, downloadProgress);
             }
         });
 

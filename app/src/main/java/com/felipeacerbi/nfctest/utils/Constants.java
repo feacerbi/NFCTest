@@ -11,6 +11,9 @@ public class Constants {
     public static final int START_RC_SIGN_IN_INTENT = 3;
     public static final int GAME_REQUEST_NOTIFICATION = 4;
     public static final int RC_BARCODE_CAPTURE = 5;
+    public static final int GET_IMAGE_FROM_PICKER = 6;
+    public static final int WRITE_EXTERNAL_STORAGE_PERMISSION = 7;
+
     public static final String ACTION_PLAYER_REFUSE_REQUEST = PACKAGE + ".PLAYER_REFUSE_REQUEST";
     public static final String POSITION = "position";
     public static final String LOGIN_ANONYMOUS = "anonymous";

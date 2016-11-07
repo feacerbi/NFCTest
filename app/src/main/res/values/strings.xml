@@ -66,4 +66,8 @@
     <string name="tie">Tie!!!</string>
     <string name="game_not_started">Game not started</string>
     <string name="new_game_request">New game request</string>
+    <string name="fail">Fail</string>
+    <string name="finished">Finished</string>
+    <string name="paused">Paused</string>
+    <string name="no_gallery">No Gallery app</string>
 </resources>

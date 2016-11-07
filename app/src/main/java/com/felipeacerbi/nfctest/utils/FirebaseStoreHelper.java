@@ -1,19 +1,15 @@
 package com.felipeacerbi.nfctest.utils;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.fragments.NFCReadFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
@@ -24,12 +20,24 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.IOException;
 
-public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener<UploadTask.TaskSnapshot>,
-        OnPausedListener<UploadTask.TaskSnapshot>, OnProgressListener<UploadTask.TaskSnapshot> {
+public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener,
+        OnPausedListener, OnProgressListener {
 
+    private final FirebaseDBHelper firebaseDBHelper;
     private UploadTask currentUploadTask;
     private FileDownloadTask currentDownloadTask;
+    private ProgressBar uploadProgressBar;
+    private TextView uploadProgress;
+    private ProgressBar downloadProgressBar;
+    private TextView downloadProgress;
+    private ImageView downloadImageView;
+    private File localFile;
+
+    public FirebaseStoreHelper() {
+        firebaseDBHelper = new FirebaseDBHelper();
+    }
 
     public StorageReference getImageReference(String name) {
         return getImagesReference().child(name);
@@ -37,32 +45,37 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
 
     public StorageReference getImagesReference() {
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        return storage.getReference(Constants.STORAGE_IMAGES_PATH);
+        return storage.getReference(Constants.STORAGE_IMAGES_PATH + firebaseDBHelper.getLoginName());
     }
 
-    public void uploadImage(File file) {
+    public void uploadImage(File file, ProgressBar progressBar, TextView progress) {
         Uri uri = Uri.fromFile(file);
 
+        uploadProgressBar = progressBar;
+        uploadProgress = progress;
+
         currentUploadTask = getImageReference(file.getName()).putFile(uri);
-        currentUploadTask.addOnFailureListener(this);
-        currentUploadTask.addOnPausedListener(this);
-        currentUploadTask.addOnProgressListener(this);
-        currentUploadTask.addOnSuccessListener(this);
+        currentUploadTask.addOnFailureListener(this)
+                .addOnPausedListener(this)
+                .addOnProgressListener(this)
+                .addOnSuccessListener(this);
     }
 
-    public void downloadImage(final File file, final ImageView imageView) {
-        currentDownloadTask = getImageReference(file.getName()).getFile(file);
-        currentDownloadTask.addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                imageView.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                imageView.setImageResource(R.mipmap.ic_launcher);
-            }
-        });
+    public void downloadImage(File file, ImageView imageView, ProgressBar progressBar, TextView progress) {
+        downloadImageView = imageView;
+        downloadProgressBar = progressBar;
+        downloadProgress = progress;
+
+        try {
+            localFile = File.createTempFile("temp", "jpg");
+            currentDownloadTask = getImageReference(file.getName()).getFile(localFile);
+            currentDownloadTask.addOnSuccessListener(this)
+                    .addOnFailureListener(this)
+                    .addOnProgressListener(this)
+                    .addOnSuccessListener(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void pauseUploadTask() {
@@ -77,6 +90,14 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         currentUploadTask.resume();
     }
 
+    public boolean checkUpload(Object o) {
+        return uploadProgressBar != null && uploadProgress != null;// && o instanceof FileDownloadTask.TaskSnapshot;
+    }
+
+    public boolean checkDownload(Object o) {
+        return downloadProgressBar != null && downloadProgress != null;// && o instanceof UploadTask.TaskSnapshot;
+    }
+
     @Override
     public void onFailure(@NonNull Exception e) {
         // Handle unsuccessful uploads
@@ -84,18 +105,46 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
     }
 
     @Override
-    public void onPaused(UploadTask.TaskSnapshot taskSnapshot) {
+    public void onPaused(Object o) {
         // Handle Pause
+        if(checkUpload(o)) {
+            uploadProgress.setText(R.string.paused);
+        } else if(checkDownload(o)) {
+            downloadProgress.setText(R.string.paused);
+        }
     }
 
     @Override
-    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-        long progress = taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount() * 100;
+    public void onProgress(Object o) {
+        if(checkUpload(o)) {
+            UploadTask.TaskSnapshot taskSnapshot = (UploadTask.TaskSnapshot) o;
+            int progress = (int) ((((double) taskSnapshot.getBytesTransferred()) / ((double) taskSnapshot.getTotalByteCount())) * 100);
+            uploadProgressBar.setProgress(progress);
+            uploadProgress.setText(progress + "%");
+        } else if(checkDownload(o)) {
+            FileDownloadTask.TaskSnapshot taskSnapshot = (FileDownloadTask.TaskSnapshot) o;
+            int progress = (int) ((((double) taskSnapshot.getBytesTransferred()) / ((double) taskSnapshot.getTotalByteCount())) * 100);
+            downloadProgressBar.setProgress(progress);
+            downloadProgress.setText(progress + "%");
+        }
     }
 
-    @Override
-    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-        Uri downloadUrl = taskSnapshot.getDownloadUrl();
+
+    public void onSuccess(Object o) {
+        if(checkUpload(o)) {
+            // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
+            UploadTask.TaskSnapshot taskSnapshot = (UploadTask.TaskSnapshot) o;
+            Uri downloadUrl = taskSnapshot.getDownloadUrl();
+            if(downloadUrl != null) {
+                NFCReadFragment.downloadFilePath = downloadUrl.getLastPathSegment();
+                uploadProgress.setText(R.string.finished);
+            } else {
+                uploadProgress.setText(R.string.fail);
+            }
+        } else if(checkDownload(o)) {
+            //FileDownloadTask.TaskSnapshot taskSnapshot = (FileDownloadTask.TaskSnapshot) o;
+            downloadImageView.setImageBitmap(BitmapFactory.decodeFile(localFile.getAbsolutePath()));
+            downloadProgress.setText(R.string.finished);
+        }
     }
 }
