@@ -30,7 +30,7 @@ import java.util.List;
 
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {
 
-    private final List<User> users;
+    private List<User> users;
     private Context context;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

@@ -202,6 +202,8 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             ActivityCompat.requestPermissions(getActivity(), permissions, Constants.WRITE_EXTERNAL_STORAGE_PERMISSION);
+        } else {
+            Toast.makeText(getActivity(), R.string.allow_write_storage, Toast.LENGTH_SHORT).show();
         }
     }
 

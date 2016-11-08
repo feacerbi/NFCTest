@@ -70,4 +70,6 @@
     <string name="finished">Finished</string>
     <string name="paused">Paused</string>
     <string name="no_gallery">No Gallery app</string>
+    <string name="allow_write_storage">Please allow write storage permission</string>
+    <string name="profile_picture">Profile picture</string>
 </resources>

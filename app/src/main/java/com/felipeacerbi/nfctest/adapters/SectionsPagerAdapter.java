@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.fragments.FeedFragment;
 import com.felipeacerbi.nfctest.fragments.NFCReadFragment;
 import com.felipeacerbi.nfctest.fragments.NFCWriteFragment;
 import com.felipeacerbi.nfctest.utils.Constants;
@@ -40,17 +41,19 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter implements TabLay
         // getItem is called to instantiate the fragment for the given page.
         switch (position) {
             case 0:
-                return NFCReadFragment.newInstance(position + 1);
+                return FeedFragment.newInstance(position + 1);
             case 1:
+                return NFCReadFragment.newInstance(position + 1);
+            case 2:
                 return NFCWriteFragment.newInstance(position + 1);
             default:
-                return NFCReadFragment.newInstance(position + 1);
+                return FeedFragment.newInstance(position + 1);
         }
     }
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
+        // Show total pages.
         return Constants.TABS_NUMBER;
     }
 
