@@ -7,6 +7,7 @@ public abstract class FeedPost {
 
     private Calendar time;
     private String user;
+    private String imagePath;
     private int type;
     private List<Boolean> likes;
     private List<Comment> comments;
@@ -31,6 +32,14 @@ public abstract class FeedPost {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public int getType() {

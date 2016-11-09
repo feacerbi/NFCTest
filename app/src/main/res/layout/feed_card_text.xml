@@ -7,6 +7,8 @@
     android:layout_height="wrap_content"
     card_view:cardBackgroundColor="@color/cardview_light_background"
     card_view:cardCornerRadius="4dp"
+
+
     card_view:cardElevation="4dp">
 
     <RelativeLayout
@@ -19,9 +21,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@id/post_buttons"
-            android:layout_below="@id/post_header">
+            android:layout_height="match_parent">
 
             <TextView
                 android:id="@+id/post_content"

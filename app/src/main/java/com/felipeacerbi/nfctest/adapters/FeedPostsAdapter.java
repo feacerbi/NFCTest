@@ -19,6 +19,7 @@ import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
 import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.models.FeedPost;
+import com.felipeacerbi.nfctest.models.FeedPostText;
 import com.felipeacerbi.nfctest.models.TicTacToeGame;
 import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.utils.Constants;
@@ -125,26 +126,39 @@ public class FeedPostsAdapter extends RecyclerView.Adapter<FeedPostsAdapter.View
         switch (viewType) {
             case Constants.POST_TYPE_TEXT:
                 itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.feed_card_text, parent, false);
+                itemView.setTag(0, parent);
                 return new ViewHolderText(itemView);
             case Constants.POST_TYPE_PHOTO:
-                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.feed_card_text, parent, false);
+                itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.feed_card_photo, parent, false);
+                itemView.setTag(0, parent);
                 return new ViewHolderPhoto(itemView);
             default:
                 itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.feed_card_text, parent, false);
+                itemView.setTag(0, parent);
                 return new ViewHolderText(itemView);
         }
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
             FeedPost post = getPosts().get(position);
             FirebaseDBHelper firebaseDBHelper = new FirebaseDBHelper(context);
 
-            if(holder instanceof ViewHolderText) {
-                ViewHolderText viewHolderText = (ViewHolderText) holder;
-                viewHolderText.getUserField().setText(post.getUser());
-                viewHolderText.getTimeField().setText(FeedPost.formatTime(post.getTime()));
-                // TODO
+            if(post instanceof FeedPostText) {
+                ViewHolderText viewHolderText;
+                FeedPostText feedPostText = (FeedPostText) post;
+                if(holder instanceof ViewHolderText) {
+                    viewHolderText = (ViewHolderText) holder;
+                } else {
+                    ViewGroup viewGroup = (ViewGroup) holder.itemView.getTag(0);
+                    viewHolderText = new ViewHolderText(LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.feed_card_text, viewGroup, false));
+                }
+                viewHolderText.getUserField().setText(feedPostText.getUser());
+                viewHolderText.getTimeField().setText(FeedPost.formatTime(feedPostText.getTime()));
+                viewHolderText.getContentField().setText(feedPostText.getContent());
+                // TODO Load image from Firebase Storage
+
+
             } else if(holder instanceof ViewHolderPhoto) {
 
             }

@@ -71,6 +71,7 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         return loginName;
     }
 
+    // TODO Change login to email
     private void setLoginName(String email) {
         if(email != null) {
             loginName = email.substring(0, email.indexOf('@'));

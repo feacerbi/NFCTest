@@ -8,6 +8,7 @@ import java.util.List;
 public abstract class FeedPostDB {
 
     private String user;
+    private String image;
     private int type;
     private List<Boolean> likes;
 
@@ -22,6 +23,14 @@ public abstract class FeedPostDB {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public int getType() {

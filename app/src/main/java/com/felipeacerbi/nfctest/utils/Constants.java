@@ -33,7 +33,7 @@ public class Constants {
     public static final String DATABASE_TAGS_CHILD = "tags";
     public static final String DATABASE_NAME_CHILD = "name";
     public static final String DATABASE_EMAIL_CHILD = "email";
-    public static final String DATABASE_ONLINE_CHILD = "onlime";
+    public static final String DATABASE_ONLINE_CHILD = "online";
     public static final String DATABASE_PLAYING_CHILD = "playing";
     public static final String DATABASE_IDTOKEN_CHILD = "idToken";
     public static final String DATABASE_PLACES_CHILD = "places";
