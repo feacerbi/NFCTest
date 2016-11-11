@@ -1,17 +1,18 @@
 package com.felipeacerbi.nfctest.models;
 
-import com.felipeacerbi.nfctest.firebasemodels.TagDB;
+import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
 
 public class BaseTag {
 
     String id;
-    TagDB tagDB;
+    BaseTagDB baseTagDB;
 
     public BaseTag() {
     }
 
-    public BaseTag(String id) {
+    public BaseTag(String id, BaseTagDB baseTagDB) {
         this.id = id;
+        this.baseTagDB = baseTagDB;
     }
 
     public String getId() {
@@ -22,11 +23,11 @@ public class BaseTag {
         this.id = id;
     }
 
-    public TagDB getTagDB() {
-        return tagDB;
+    public BaseTagDB getBaseTagDB() {
+        return baseTagDB;
     }
 
-    public void setTagDB(TagDB tagDB) {
-        this.tagDB = tagDB;
+    public void setBaseTagDB(BaseTagDB baseTagDB) {
+        this.baseTagDB = baseTagDB;
     }
 }

@@ -1,6 +1,4 @@
-package com.felipeacerbi.nfctest.models;
-
-import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
+package com.felipeacerbi.nfctest.game;
 
 public class Request {
 

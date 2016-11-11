@@ -5,19 +5,22 @@
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginTop="30dp"
     card_view:cardBackgroundColor="@color/cardview_light_background"
     card_view:cardCornerRadius="4dp"
-
-
-    card_view:cardElevation="4dp">
+    card_view:cardElevation="1dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <include layout="@layout/post_buttons" />
+        <include
+            android:id="@+id/post_buttons"
+            layout="@layout/post_buttons" />
 
-        <include layout="@layout/post_header" />
+        <include
+            android:id="@+id/post_header"
+            layout="@layout/post_header" />
 
         <RelativeLayout
             android:layout_width="match_parent"

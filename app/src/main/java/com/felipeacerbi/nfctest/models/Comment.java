@@ -1,40 +1,35 @@
 package com.felipeacerbi.nfctest.models;
 
+import com.felipeacerbi.nfctest.firebasemodels.CommentDB;
+
 import java.util.Calendar;
 
 public class Comment {
 
-    private Calendar time;
-    private String user;
-    private String comment;
+    private String id; // Timestamp + user
+    private CommentDB commentDB;
 
-    public Comment(Calendar time, String user, String comment) {
-        this.time = time;
-        this.user = user;
-        this.comment = comment;
+    public Comment() {
     }
 
-    public Calendar getTime() {
-        return time;
+    public Comment(String id, CommentDB commentDB) {
+        this.id = id;
+        this.commentDB = commentDB;
     }
 
-    public void setTime(Calendar time) {
-        this.time = time;
+    public String getId() {
+        return id;
     }
 
-    public String getUser() {
-        return user;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public CommentDB getCommentDB() {
+        return commentDB;
     }
 
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
+    public void setCommentDB(CommentDB commentDB) {
+        this.commentDB = commentDB;
     }
 }

@@ -1,76 +1,54 @@
 package com.felipeacerbi.nfctest.models;
 
 import java.util.Calendar;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class FeedPost {
 
-    private Calendar time;
-    private String user;
-    private String imagePath;
     private int type;
-    private List<Boolean> likes;
-    private List<Comment> comments;
+    private String user;
+    private String profileImage;
+    private String timestamp;
+    private String location;
+    public Map<String, Boolean> likes;
+    public Map<String, Boolean> marked;
 
-    public FeedPost(Calendar time, String user, int type) {
-        this.time = time;
-        this.user = user;
+    public FeedPost() {
+    }
+
+    public FeedPost(int type, String user, String profileImage, String timestamp, String location, Map<String, Boolean> likes, Map<String, Boolean> marked) {
         this.type = type;
-    }
-
-    public Calendar getTime() {
-        return time;
-    }
-
-    public void setTime(Calendar time) {
-        this.time = time;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
         this.user = user;
-    }
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
-    public List<Boolean> getLikes() {
-        return likes;
-    }
-
-    public void setLikes(List<Boolean> likes) {
+        this.profileImage = profileImage;
+        this.timestamp = timestamp;
+        this.location = location;
         this.likes = likes;
+        this.marked = marked;
     }
 
-    public List<Comment> getComments() {
-        return comments;
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("type", type);
+        result.put("user", user);
+        result.put("profileImage", profileImage);
+        result.put("timestamp", timestamp);
+        result.put("location", location);
+        result.put("likes", likes);
+        result.put("marked", marked);
+
+        return result;
     }
 
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
+    public static String formatTime(String time) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Integer.parseInt(time));
 
-    public static String formatTime(Calendar time) {
-        String month = String.valueOf(time.get(Calendar.MONTH)).substring(0,2);
-        String day = String.valueOf(time.get(Calendar.DAY_OF_MONTH));
-        String hour = String.valueOf(time.get(Calendar.HOUR));
-        String minute = String.valueOf(time.get(Calendar.MINUTE));
+        String month = String.valueOf(calendar.get(Calendar.MONTH)).substring(0,2);
+        String day = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
+        String hour = String.valueOf(calendar.get(Calendar.HOUR));
+        String minute = String.valueOf(calendar.get(Calendar.MINUTE));
         return month + " " + day + ", " + hour + ":" + minute;
     }
 }

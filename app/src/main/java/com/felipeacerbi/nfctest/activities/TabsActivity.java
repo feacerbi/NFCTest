@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.SectionsPagerAdapter;
+import com.felipeacerbi.nfctest.game.TicTacToeActivity;
 import com.felipeacerbi.nfctest.services.FirebaseNotificationService;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;

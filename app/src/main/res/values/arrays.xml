@@ -8,7 +8,7 @@
 
     <array name="fab_icons">
         <item>@drawable/plus_sign</item>
-        <item>@drawable/plus_sign</item>
+        <item>@drawable/ic_pets_white_24dp</item>
         <item>@drawable/ic_file_upload_white_24dp</item>
     </array>
 

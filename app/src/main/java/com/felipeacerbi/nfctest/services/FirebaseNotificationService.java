@@ -9,11 +9,11 @@ import android.support.v4.app.TaskStackBuilder;
 
 import com.felipeacerbi.nfctest.receivers.NotificationHandler;
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.activities.TicTacToePlayActivity;
-import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
-import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
-import com.felipeacerbi.nfctest.models.Request;
-import com.felipeacerbi.nfctest.models.TicTacToeGame;
+import com.felipeacerbi.nfctest.game.TicTacToePlayActivity;
+import com.felipeacerbi.nfctest.game.RequestDB;
+import com.felipeacerbi.nfctest.game.TicTacToeGameDB;
+import com.felipeacerbi.nfctest.game.Request;
+import com.felipeacerbi.nfctest.game.TicTacToeGame;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.*;
@@ -64,12 +64,14 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
         onlineListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean isOnline = dataSnapshot.getValue(Boolean.class);
-                if(isOnline) {
-                    firebaseDBHelper.getRequestsReference().removeEventListener(requestsListener);
-                } else {
-                    firebaseDBHelper.getRequestsReference().addValueEventListener(requestsListener);
+                if(dataSnapshot.getValue(Boolean.class) != null) {
+                    boolean isOnline = dataSnapshot.getValue(Boolean.class);
+                    if (isOnline) {
+                        firebaseDBHelper.getRequestsReference().removeEventListener(requestsListener);
+                    } else {
+                        firebaseDBHelper.getRequestsReference().addValueEventListener(requestsListener);
 
+                    }
                 }
             }
 

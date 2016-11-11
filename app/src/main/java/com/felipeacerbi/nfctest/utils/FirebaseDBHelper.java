@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.adapters.UsersAdapter;
+import com.felipeacerbi.nfctest.game.UsersAdapter;
 import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,6 +49,10 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         userRef.child(Constants.DATABASE_IDTOKEN_CHILD).setValue(getAppIDToken());
     }
 
+    public DatabaseReference getDatabase() {
+        return FirebaseDatabase.getInstance().getReference();
+    }
+
     public FirebaseUser getFirebaseUser() {
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
         return firebaseAuth.getCurrentUser();
@@ -71,10 +75,10 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         return loginName;
     }
 
-    // TODO Change login to email
     private void setLoginName(String email) {
         if(email != null) {
-            loginName = email.substring(0, email.indexOf('@'));
+            String[] parts = email.split("@");
+            loginName = parts[0] + parts[1].replace(".", "");
         } else {
             loginName = Constants.LOGIN_ANONYMOUS;
         }
@@ -174,6 +178,24 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
 
     public DatabaseReference getTagReference(String tagId) {
         return getTagsReference().child(tagId);
+    }
+
+    public DatabaseReference getPostsReference() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        return database.getReference(Constants.DATABASE_POSTS_PATH);
+    }
+
+    public DatabaseReference getPostReference(String postTimestamp) {
+        return getTagsReference().child(postTimestamp);
+    }
+
+    public DatabaseReference getCommentsReference() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        return database.getReference(Constants.DATABASE_COMMENTS_PATH);
+    }
+
+    public DatabaseReference getCommentReference(String commentTimestamp) {
+        return getTagsReference().child(commentTimestamp);
     }
 
     public void signOut() {

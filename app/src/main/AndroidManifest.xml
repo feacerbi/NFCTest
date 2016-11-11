@@ -60,12 +60,12 @@
             android:name=".activities.LoginActivity"
             android:label="Login"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.TicTacToeActivity" />
+        <activity android:name=".game.TicTacToeActivity" />
 
-        <activity android:name=".activities.TicTacToePlayActivity">
+        <activity android:name=".game.TicTacToePlayActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.TicTacToeActivity" />
+                android:value=".game.TicTacToeActivity" />
         </activity>
 
         <activity android:name=".activities.BarcodeCaptureActivity" />

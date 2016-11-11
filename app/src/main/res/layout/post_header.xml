@@ -12,7 +12,16 @@
         android:layout_alignParentTop="true"
         android:contentDescription="@string/profile_picture"
         android:padding="8dp"
+        android:visibility="invisible"
         android:src="@mipmap/ic_launcher"/>
+
+    <ProgressBar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/profile_picture_progress"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:padding="8dp"/>
 
     <TextView
         android:id="@+id/post_date_time"

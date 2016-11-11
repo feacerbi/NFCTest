@@ -28,6 +28,8 @@ public class Constants {
     public static final String DATABASE_USERS_PATH = "users/";
     public static final String DATABASE_REQUESTS_PATH = "requests/";
     public static final String DATABASE_TAGS_PATH = "tags/";
+    public static final String DATABASE_POSTS_PATH = "posts/";
+    public static final String DATABASE_COMMENTS_PATH = "comments/";
 
     public static final String DATABASE_USERS_CHILD = "users";
     public static final String DATABASE_TAGS_CHILD = "tags";
@@ -37,7 +39,9 @@ public class Constants {
     public static final String DATABASE_PLAYING_CHILD = "playing";
     public static final String DATABASE_IDTOKEN_CHILD = "idToken";
     public static final String DATABASE_PLACES_CHILD = "places";
+    public static final String DATABASE_LIKES_CHILD = "likes";
     public static final String DATABASE_CURRENT_TURN_CHILD = "currentTurn";
+    public static final String DATABASE_TYPE_CHILD = "type";
 
     public static final String STORAGE_IMAGES_PATH = "images/";
 

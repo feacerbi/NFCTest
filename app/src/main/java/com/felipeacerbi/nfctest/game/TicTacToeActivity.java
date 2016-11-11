@@ -1,4 +1,4 @@
-package com.felipeacerbi.nfctest.activities;
+package com.felipeacerbi.nfctest.game;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,10 +14,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.firebasemodels.RequestDB;
-import com.felipeacerbi.nfctest.models.Request;
-import com.felipeacerbi.nfctest.models.TicTacToeGame;
-import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.DataSnapshot;

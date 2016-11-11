@@ -1,4 +1,4 @@
-package com.felipeacerbi.nfctest.firebasemodels;
+package com.felipeacerbi.nfctest.game;
 
 public class RequestDB {
 

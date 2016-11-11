@@ -1,6 +1,4 @@
-package com.felipeacerbi.nfctest.models;
-
-import com.felipeacerbi.nfctest.firebasemodels.TicTacToeGameDB;
+package com.felipeacerbi.nfctest.game;
 
 import java.io.Serializable;
 import java.util.List;

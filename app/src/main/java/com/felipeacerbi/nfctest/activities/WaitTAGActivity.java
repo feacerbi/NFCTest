@@ -26,9 +26,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.firebasemodels.TagDB;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.utils.Constants;
+import com.felipeacerbi.nfctest.utils.NFCUtils;
 
 public class WaitTagActivity extends AppCompatActivity {
 
@@ -54,8 +54,8 @@ public class WaitTagActivity extends AppCompatActivity {
         NfcAdapter.getDefaultAdapter(this).enableForegroundDispatch(
                 this,
                 pendingIntent,
-                getIntentFilters(),
-                getTechsList()
+                NFCUtils.getIntentFilters(),
+                NFCUtils.getTechsList()
         );
     }
 
@@ -144,7 +144,7 @@ public class WaitTagActivity extends AppCompatActivity {
                 // Retrieve Tag id.
                 byte[] tagId = nfcIntent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
                 if(tagId != null)
-                nfcTag.setId(byteArrayToHexString(tagId));
+                nfcTag.setId(NFCUtils.byteArrayToHexString(tagId));
 
             } else if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(nfcIntent.getAction())) {
                 Toast.makeText(this, R.string.nfctag_not_formatted, Toast.LENGTH_SHORT).show();
@@ -156,51 +156,5 @@ public class WaitTagActivity extends AppCompatActivity {
         }
 
         return nfcTag;
-    }
-
-    public IntentFilter[] getIntentFilters() {
-
-        IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        IntentFilter techs = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
-        IntentFilter disc = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
-
-        try {
-            ndef.addDataType("*/*");
-        } catch (IntentFilter.MalformedMimeTypeException e) {
-            e.printStackTrace();
-        }
-
-        return new IntentFilter[] { ndef, techs, disc};
-    }
-
-    // Converting byte[] to hex string:
-    private String byteArrayToHexString(byte [] inarray) {
-        int i, j, in;
-        String [] hex = {"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
-        String out= "";
-        for(j = 0 ; j < inarray.length ; ++j)
-        {
-            in = (int) inarray[j] & 0xff;
-            i = (in >> 4) & 0x0f;
-            out += hex[i];
-            i = in & 0x0f;
-            out += hex[i];
-        }
-        return out;
-    }
-
-    public String[][] getTechsList() {
-        return new String[][] {
-                new String[] {
-                        IsoDep.class.getName(),
-                        NfcA.class.getName(),
-                        NfcB.class.getName(),
-                        NfcF.class.getName(),
-                        NfcV.class.getName(),
-                        Ndef.class.getName(),
-                        NdefFormatable.class.getName(),
-                        MifareClassic.class.getName(),
-                        MifareUltralight.class.getName()}
-        };
     }
 }

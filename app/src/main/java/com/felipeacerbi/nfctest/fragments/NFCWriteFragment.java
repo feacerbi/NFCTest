@@ -32,6 +32,7 @@ import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
+import com.felipeacerbi.nfctest.utils.NFCUtils;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -89,7 +90,7 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     private void writeNFCTag(NFCTag nfcTag, String payload) {
         // Create Ndef message
         NdefMessage ndefMessage = new NdefMessage(
-                createTextRecord(payload, Locale.getDefault(), true),   // Create a TNF_WELL_KNOWN NDEF Record
+                NFCUtils.createTextRecord(payload, Locale.getDefault(), true),   // Create a TNF_WELL_KNOWN NDEF Record
                 NdefRecord.createApplicationRecord(getActivity().getPackageName())); // Include Android Application Record (AAR)
 
         if (nfcTag.getTag() != null) {
@@ -112,31 +113,6 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
                 e.printStackTrace();
             }
         }
-    }
-
-    public NdefRecord createTextRecord(String payload, Locale locale, boolean encodeInUtf8) {
-        // Handle Locale.
-        byte[] langBytes = locale.getLanguage().getBytes(Charset.forName("US-ASCII"));
-
-        // Handle Encoding.
-        Charset utfEncoding = encodeInUtf8 ? Charset.forName("UTF-8") : Charset.forName("UTF-16");
-
-        // Payload to bytes.
-        byte[] textBytes = payload.getBytes(utfEncoding);
-
-        // Create status.
-        int utfBit = encodeInUtf8 ? 0 : (1 << 7);
-        char status = (char) (utfBit + langBytes.length);
-
-        // Create message.
-        byte[] data = new byte[1 + langBytes.length + textBytes.length];
-        data[0] = (byte) status;
-        System.arraycopy(langBytes, 0, data, 1, langBytes.length);
-        System.arraycopy(textBytes, 0, data, 1 + langBytes.length, textBytes.length);
-
-        // Create new Ndef Record.
-        return new NdefRecord(NdefRecord.TNF_WELL_KNOWN,
-                NdefRecord.RTD_TEXT, new byte[0], data);
     }
 
     public String getBitmapPath(Intent data){
@@ -171,17 +147,7 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         uploadProgressBar = (ProgressBar) rootView.findViewById(R.id.upload_progress_bar);
         uploadProgress = (TextView) rootView.findViewById(R.id.upload_message);
         Button uploadButton = (Button) rootView.findViewById(R.id.upload_image_button);
-        uploadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int rc = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                if (rc == PackageManager.PERMISSION_GRANTED) {
-                    startPickImageActivity();
-                } else {
-                    requestStoragePermission();
-                }
-            }
-        });
+        uploadButton.setOnClickListener(this);
 
         return rootView;
     }
@@ -190,7 +156,6 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         Intent gal = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         if(gal.resolveActivity(getActivity().getPackageManager()) != null) {
             startActivityForResult(gal, Constants.GET_IMAGE_FROM_PICKER);
-
         } else {
             Toast.makeText(getActivity(), R.string.no_gallery, Toast.LENGTH_SHORT).show();
         }
@@ -220,8 +185,20 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        // Write NFC Tag
-        Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
-        startActivityForResult(startReadIntent, Constants.START_WAIT_WRITE_TAG_INTENT);
+        switch (view.getId()) {
+            case R.id.fab:
+                // Write NFC Tag
+                Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
+                startActivityForResult(startReadIntent, Constants.START_WAIT_WRITE_TAG_INTENT);
+                break;
+            case R.id.upload_image_button:
+                int rc = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (rc == PackageManager.PERMISSION_GRANTED) {
+                    startPickImageActivity();
+                } else {
+                    requestStoragePermission();
+                }
+                break;
+        }
     }
 }

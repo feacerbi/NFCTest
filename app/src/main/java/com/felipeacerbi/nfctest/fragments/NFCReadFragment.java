@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
+import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
 import com.felipeacerbi.nfctest.models.BaseTag;
 import com.felipeacerbi.nfctest.models.NFCTag;
 import com.felipeacerbi.nfctest.R;
@@ -27,9 +28,16 @@ import com.felipeacerbi.nfctest.models.QRCodeTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
+import com.felipeacerbi.nfctest.utils.NFCUtils;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
@@ -99,7 +107,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                             Snackbar.LENGTH_LONG).show();
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     if(barcode != null) {
-                        setQRFields(new QRCodeTag(barcode.displayValue));
+                        setQRFields(new QRCodeTag(barcode.displayValue, new BaseTagDB()));
                     } else {
                         clearFields();
                     }
@@ -120,26 +128,38 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     }
 
     public void addNewTag(BaseTag tag) {
-        firebaseDBHelper.getTagReference(tag.getId())
-                .child(Constants.DATABASE_USERS_CHILD)
-                .child(firebaseDBHelper.getLoginName())
-                .setValue(true);
-        firebaseDBHelper.getCurrentUserReference()
-                .child(Constants.DATABASE_TAGS_CHILD)
-                .child(tag.getId())
-                .setValue(true);
+        // Map<String, Object> tagValues = tag.toMap();
+        Map<String, Object> childUpdates = new HashMap<>();
+
+        /* childUpdates.put(Constants.DATABASE_TAGS_CHILD // Set TAG Info
+                + tag.getId(),
+                tagValues); */
+        childUpdates.put(Constants.DATABASE_TAGS_CHILD // Add current user to TAG
+                + tag.getId()
+                + Constants.DATABASE_USERS_CHILD
+                + firebaseDBHelper.getLoginName(),
+                true);
+        childUpdates.put(Constants.DATABASE_USERS_CHILD // Add TAG to current user
+                + firebaseDBHelper.getLoginName()
+                + Constants.DATABASE_TAGS_CHILD
+                + tagId,
+                true);
+
+        firebaseDBHelper.getDatabase().updateChildren(childUpdates);
     }
 
     public void setNFCFields(NFCTag nfcTag) {
         tagValue.setText(nfcTag.getTag().toString());
-        tagMessages.setText(NFCTag.decodePayload(nfcTag.getNdefMessages()[0]));
+        tagMessages.setText(NFCUtils.decodePayload(nfcTag.getNdefMessages()[0]));
         tagId.setText(nfcTag.getId());
+
         addNewTag(nfcTag);
     }
 
     public void setQRFields(QRCodeTag qrCodeTag) {
         tagValue.setText(R.string.barcode_success);
         tagId.setText(qrCodeTag.getId());
+
         addNewTag(qrCodeTag);
     }
 
@@ -196,7 +216,6 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         fabNFC = (FloatingActionButton) getActivity().findViewById(R.id.fabNFC);
         fabQR = (FloatingActionButton) getActivity().findViewById(R.id.fabQR);
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
-        fab.setOnClickListener(this);
         fabQR.setOnClickListener(this);
         fabNFC.setOnClickListener(this);
 
@@ -209,21 +228,16 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         downloadProgress = (TextView) rootView.findViewById(R.id.download_message);
         downloadedImage = (ImageView) rootView.findViewById(R.id.downloaded_image);
         Button downloadButton = (Button) rootView.findViewById(R.id.download_image_button);
-        downloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                firebaseStoreHelper.downloadImage(new File(downloadFilePath), downloadedImage, downloadProgressBar, downloadProgress);
-            }
-        });
+        downloadButton.setOnClickListener(this);
 
         return rootView;
     }
 
     @Override
     public void onClick(View view) {
-        animateFab();
         switch (view.getId()) {
             case R.id.fab:
+                animateFab();
                 break;
             case R.id.fabNFC:
                 // Start the activity to wait for Tag interactivity
@@ -234,6 +248,9 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 // Launch barcode activity.
                 Intent intent = new Intent(getActivity(), BarcodeCaptureActivity.class);
                 startActivityForResult(intent, Constants.RC_BARCODE_CAPTURE);
+                break;
+            case R.id.download_image_button:
+                firebaseStoreHelper.downloadImage(new File(downloadFilePath), downloadedImage, downloadProgressBar, downloadProgress);
                 break;
             default:
         }

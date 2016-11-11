@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -65,6 +66,10 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         downloadImageView = imageView;
         downloadProgressBar = progressBar;
         downloadProgress = progress;
+        if(downloadProgress == null) {
+            downloadProgressBar.setVisibility(View.VISIBLE);
+            downloadImageView.setVisibility(View.INVISIBLE);
+        }
 
         try {
             localFile = File.createTempFile("temp", "jpg");
@@ -90,12 +95,12 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         currentUploadTask.resume();
     }
 
-    public boolean checkUpload(Object o) {
-        return uploadProgressBar != null && uploadProgress != null;// && o instanceof FileDownloadTask.TaskSnapshot;
+    public boolean checkUpload() {
+        return uploadProgressBar != null && uploadProgress != null;
     }
 
-    public boolean checkDownload(Object o) {
-        return downloadProgressBar != null && downloadProgress != null;// && o instanceof UploadTask.TaskSnapshot;
+    public boolean checkDownload() {
+        return downloadProgressBar != null;
     }
 
     @Override
@@ -107,21 +112,21 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
     @Override
     public void onPaused(Object o) {
         // Handle Pause
-        if(checkUpload(o)) {
+        if(checkUpload()) {
             uploadProgress.setText(R.string.paused);
-        } else if(checkDownload(o)) {
+        } else if(checkDownload() && downloadProgress != null) {
             downloadProgress.setText(R.string.paused);
         }
     }
 
     @Override
     public void onProgress(Object o) {
-        if(checkUpload(o)) {
+        if(checkUpload()) {
             UploadTask.TaskSnapshot taskSnapshot = (UploadTask.TaskSnapshot) o;
             int progress = (int) ((((double) taskSnapshot.getBytesTransferred()) / ((double) taskSnapshot.getTotalByteCount())) * 100);
             uploadProgressBar.setProgress(progress);
             uploadProgress.setText(progress + "%");
-        } else if(checkDownload(o)) {
+        } else if(checkDownload() && downloadProgress != null) {
             FileDownloadTask.TaskSnapshot taskSnapshot = (FileDownloadTask.TaskSnapshot) o;
             int progress = (int) ((((double) taskSnapshot.getBytesTransferred()) / ((double) taskSnapshot.getTotalByteCount())) * 100);
             downloadProgressBar.setProgress(progress);
@@ -130,8 +135,9 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
     }
 
 
+
     public void onSuccess(Object o) {
-        if(checkUpload(o)) {
+        if(checkUpload()) {
             // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
             UploadTask.TaskSnapshot taskSnapshot = (UploadTask.TaskSnapshot) o;
             Uri downloadUrl = taskSnapshot.getDownloadUrl();
@@ -141,10 +147,15 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
             } else {
                 uploadProgress.setText(R.string.fail);
             }
-        } else if(checkDownload(o)) {
+        } else if(checkDownload()) {
             //FileDownloadTask.TaskSnapshot taskSnapshot = (FileDownloadTask.TaskSnapshot) o;
+            if(downloadProgress != null) {
+                downloadProgress.setText(R.string.finished);
+            } else {
+                downloadProgressBar.setVisibility(View.INVISIBLE);
+                downloadImageView.setVisibility(View.VISIBLE);
+            }
             downloadImageView.setImageBitmap(BitmapFactory.decodeFile(localFile.getAbsolutePath()));
-            downloadProgress.setText(R.string.finished);
         }
     }
 }
