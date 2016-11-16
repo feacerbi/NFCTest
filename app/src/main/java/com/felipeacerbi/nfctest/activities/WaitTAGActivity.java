@@ -3,19 +3,9 @@ package com.felipeacerbi.nfctest.activities;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
-import android.nfc.tech.IsoDep;
-import android.nfc.tech.MifareClassic;
-import android.nfc.tech.MifareUltralight;
-import android.nfc.tech.Ndef;
-import android.nfc.tech.NdefFormatable;
-import android.nfc.tech.NfcA;
-import android.nfc.tech.NfcB;
-import android.nfc.tech.NfcF;
-import android.nfc.tech.NfcV;
 import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.models.NFCTag;
+import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.NFCUtils;
 

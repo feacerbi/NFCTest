@@ -1,4 +1,4 @@
-package com.felipeacerbi.nfctest.models;
+package com.felipeacerbi.nfctest.models.tags;
 
 import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
 

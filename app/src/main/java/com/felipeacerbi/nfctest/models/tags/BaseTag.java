@@ -1,8 +1,8 @@
-package com.felipeacerbi.nfctest.models;
+package com.felipeacerbi.nfctest.models.tags;
 
 import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
 
-public class BaseTag {
+public abstract class BaseTag {
 
     String id;
     BaseTagDB baseTagDB;

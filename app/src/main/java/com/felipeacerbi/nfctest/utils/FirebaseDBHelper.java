@@ -1,7 +1,9 @@
 package com.felipeacerbi.nfctest.utils;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
@@ -18,6 +20,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,9 +67,30 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         return null;
     }
 
+    public void setUserName(String loginName, final TextView textView) {
+        getUserReference(loginName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                UserDB userDB = (UserDB) dataSnapshot.getValue(UserDB.class);
+                textView.setText(userDB.getName());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public String getEmail() {
         FirebaseUser firebaseUser = getFirebaseUser();
         if(firebaseUser != null) return getFirebaseUser().getEmail();
+        return null;
+    }
+
+    public Uri getProfilePicture() {
+        FirebaseUser firebaseUser = getFirebaseUser();
+        if(firebaseUser != null) return getFirebaseUser().getPhotoUrl();
         return null;
     }
 
@@ -136,6 +160,15 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         });
     }
 
+    public DatabaseReference getPetsReference() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        return database.getReference(Constants.DATABASE_PETS_PATH);
+    }
+
+    public DatabaseReference getPetReference(String petId) {
+        return getPetsReference().child(petId);
+    }
+
     public DatabaseReference getGamesReference() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         return database.getReference(Constants.DATABASE_GAMES_PATH);
@@ -185,8 +218,8 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         return database.getReference(Constants.DATABASE_POSTS_PATH);
     }
 
-    public DatabaseReference getPostReference(String postTimestamp) {
-        return getTagsReference().child(postTimestamp);
+    public DatabaseReference getPostReference(String id) {
+        return getPostsReference().child(id);
     }
 
     public DatabaseReference getCommentsReference() {

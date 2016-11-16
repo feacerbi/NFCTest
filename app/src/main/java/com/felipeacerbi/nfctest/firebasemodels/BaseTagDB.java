@@ -8,31 +8,21 @@ import java.util.Map;
 
 public class BaseTagDB implements Serializable {
 
-    Pet pet;
-    Map<String, Boolean> users;
+    String pet;
 
     public BaseTagDB() {
     }
 
-    public BaseTagDB(Pet pet, Map<String, Boolean> users) {
+    public BaseTagDB(String pet) {
         this.pet = pet;
-        this.users = users;
     }
 
-    public Pet getPet() {
+    public String getPet() {
         return pet;
     }
 
-    public void setPet(Pet pet) {
+    public void setPet(String pet) {
         this.pet = pet;
-    }
-
-    public Map<String, Boolean> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Map<String, Boolean> users) {
-        this.users = users;
     }
 
 }

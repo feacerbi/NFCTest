@@ -7,6 +7,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.util.ArrayMap;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,19 +23,16 @@ import android.widget.Toast;
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
 import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
-import com.felipeacerbi.nfctest.models.BaseTag;
-import com.felipeacerbi.nfctest.models.NFCTag;
+import com.felipeacerbi.nfctest.models.Pet;
+import com.felipeacerbi.nfctest.models.tags.BaseTag;
+import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.models.QRCodeTag;
+import com.felipeacerbi.nfctest.models.tags.QRCodeTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
 import com.felipeacerbi.nfctest.utils.NFCUtils;
 import com.google.android.gms.vision.barcode.Barcode;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.util.HashMap;
@@ -62,7 +61,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     private TextView downloadProgress;
     private ProgressBar downloadProgressBar;
 
-    public static String downloadFilePath = "test.jpg";
+    public static String downloadFilePath = "fail";
 
     public NFCReadFragment() {
     }
@@ -128,22 +127,28 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     }
 
     public void addNewTag(BaseTag tag) {
+        String petId = firebaseDBHelper.getPetsReference().push().getKey();
+        Pet pet = new Pet(tag.getId(), "Rex", 1, new HashMap<String, Boolean>());
+        pet.getUsers().put(firebaseDBHelper.getLoginName(), true);
+
         // Map<String, Object> tagValues = tag.toMap();
         Map<String, Object> childUpdates = new HashMap<>();
 
         /* childUpdates.put(Constants.DATABASE_TAGS_CHILD // Set TAG Info
                 + tag.getId(),
                 tagValues); */
-        childUpdates.put(Constants.DATABASE_TAGS_CHILD // Add current user to TAG
-                + tag.getId()
-                + Constants.DATABASE_USERS_CHILD
-                + firebaseDBHelper.getLoginName(),
+        childUpdates.put(Constants.DATABASE_TAGS_CHILD + "/" // Add current user to TAG
+                + tag.getId() + "/"
+                + Constants.DATABASE_PET_CHILD,
+                petId);
+        childUpdates.put(Constants.DATABASE_USERS_CHILD + "/" // Add TAG to current user
+                + firebaseDBHelper.getLoginName() + "/"
+                + Constants.DATABASE_PETS_CHILD + "/"
+                + petId,
                 true);
-        childUpdates.put(Constants.DATABASE_USERS_CHILD // Add TAG to current user
-                + firebaseDBHelper.getLoginName()
-                + Constants.DATABASE_TAGS_CHILD
-                + tagId,
-                true);
+        childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
+                + petId,
+                pet.toMap());
 
         firebaseDBHelper.getDatabase().updateChildren(childUpdates);
     }
@@ -250,7 +255,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 startActivityForResult(intent, Constants.RC_BARCODE_CAPTURE);
                 break;
             case R.id.download_image_button:
-                firebaseStoreHelper.downloadImage(new File(downloadFilePath), downloadedImage, downloadProgressBar, downloadProgress);
+                firebaseStoreHelper.downloadImage(downloadFilePath, firebaseDBHelper.getLoginName(), downloadedImage, downloadProgressBar, downloadProgress);
                 break;
             default:
         }

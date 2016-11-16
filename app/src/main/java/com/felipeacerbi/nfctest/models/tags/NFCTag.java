@@ -1,4 +1,4 @@
-package com.felipeacerbi.nfctest.models;
+package com.felipeacerbi.nfctest.models.tags;
 
 import android.nfc.NdefMessage;
 import android.nfc.Tag;
@@ -6,12 +6,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class NFCTag extends BaseTag implements Parcelable {
 

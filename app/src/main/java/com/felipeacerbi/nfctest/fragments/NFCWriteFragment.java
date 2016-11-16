@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,14 +29,13 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
-import com.felipeacerbi.nfctest.models.NFCTag;
+import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
 import com.felipeacerbi.nfctest.utils.NFCUtils;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Locale;
 
 public class NFCWriteFragment extends Fragment implements View.OnClickListener {
@@ -82,7 +82,7 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         } else if(requestCode == Constants.GET_IMAGE_FROM_PICKER) {
             if (resultCode == Activity.RESULT_OK) {
                 String path = getBitmapPath(data);
-                firebaseStoreHelper.uploadImage(new File(path), uploadProgressBar, uploadProgress);
+                firebaseStoreHelper.uploadImage(new File(path), firebaseDBHelper.getLoginName(), uploadProgressBar, uploadProgress);
             }
         }
     }

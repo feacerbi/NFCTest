@@ -1,8 +1,5 @@
 package com.felipeacerbi.nfctest.firebasemodels;
 
-import com.felipeacerbi.nfctest.models.BaseTag;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserDB {
