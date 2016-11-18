@@ -1,36 +1,24 @@
 package com.felipeacerbi.nfctest.fragments;
 
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.models.posts.FeedPost;
+import com.felipeacerbi.nfctest.adapters.PostsAdapter;
+import com.felipeacerbi.nfctest.models.posts.FeedPostFullViewHolder;
 import com.felipeacerbi.nfctest.models.posts.FeedPostMedia;
-import com.felipeacerbi.nfctest.models.posts.FeedPostMediaViewHolder;
-import com.felipeacerbi.nfctest.models.posts.FeedPostViewHolder;
+import com.felipeacerbi.nfctest.models.posts.FeedPostText;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
-import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +27,10 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
 
     // Firebase Helper instance
     private FirebaseDBHelper firebaseDBHelper;
-    private FirebaseStoreHelper firebaseStoreHelper;
     private FloatingActionButton fab;
     private RecyclerView cardsList;
     private LayoutManagerType currentLayoutManagerType;
-    private FirebaseRecyclerAdapter<FeedPostMedia, FeedPostMediaViewHolder> postsAdapter;
+    private PostsAdapter postsAdapter;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -57,83 +44,13 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseDBHelper = new FirebaseDBHelper(getActivity());
-        firebaseStoreHelper = new FirebaseStoreHelper();
 
-        postsAdapter = new FirebaseRecyclerAdapter<FeedPostMedia, FeedPostMediaViewHolder>(FeedPostMedia.class, R.layout.feed_card_media, FeedPostMediaViewHolder.class, getQuery(firebaseDBHelper)) {
-            @Override
-            protected void populateViewHolder(final FeedPostMediaViewHolder viewHolder, FeedPostMedia model, int position) {
-                DatabaseReference postRef = getRef(position);
-                final String postKey = postRef.getKey();
-
-                firebaseDBHelper = new FirebaseDBHelper(getActivity());
-                firebaseStoreHelper = new FirebaseStoreHelper();
-
-                viewHolder.getTimeField().setText(FeedPost.formatTime(model.getTimestamp()));
-                viewHolder.getContentText().setText(model.getText());
-
-                firebaseDBHelper.setUserName(model.getUser(), viewHolder.getUserField());
-
-                firebaseStoreHelper.downloadImage(
-                        model.getProfileImage(),
-                        model.getUser(),
-                        viewHolder.getProfilePicture(),
-                        viewHolder.getProfilePictureProgress(),
-                        null);
-
-                viewHolder.getLikeButton().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        firebaseDBHelper.getPostReference(postKey)
-                                .child(Constants.DATABASE_LIKES_CHILD)
-                                .child(firebaseDBHelper.getLoginName())
-                                .setValue(true);
-                    }
-                });
-
-                firebaseDBHelper.getPostReference(postKey).child(Constants.DATABASE_LIKES_CHILD).
-                        addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                long likesCount = dataSnapshot.getChildrenCount();
-                                viewHolder.getLikesView().setText(String.valueOf(likesCount));
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-
-                viewHolder.getCommentButton().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // TODO Add user comment
-                    }
-                });
-
-                firebaseDBHelper.getPostReference(postKey).child(Constants.DATABASE_COMMENTS_PATH).
-                        addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                long commentsCount = dataSnapshot.getChildrenCount();
-                                viewHolder.getCommentsView().setText(String.valueOf(commentsCount));
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-
-                FirebaseStoreHelper firebaseStoreHelper2 = new FirebaseStoreHelper();
-                firebaseStoreHelper2.downloadImage(
-                        model.getMedia(),
-                        model.getUser(),
-                        viewHolder.getContentPicture(),
-                        viewHolder.getMediaProgress(),
-                        null);
-            }
-        };
+        postsAdapter = new PostsAdapter(
+                getActivity(),
+                FeedPostText.class,
+                R.layout.feed_card_text,
+                FeedPostFullViewHolder.class,
+                getQuery(firebaseDBHelper));
 
         cardsList.setAdapter(postsAdapter);
     }
@@ -183,6 +100,7 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
             case R.id.fab:
                 FeedPostMedia feedPost = new FeedPostMedia();
                 feedPost.setUser(firebaseDBHelper.getLoginName());
+                feedPost.setName(firebaseDBHelper.getUserName());
                 feedPost.setTimestamp(String.valueOf(Calendar.getInstance().getTimeInMillis()));
                 feedPost.setProfileImage(NFCReadFragment.downloadFilePath);
                 feedPost.setText("Post text test, hey!");
@@ -190,18 +108,17 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
 
                 feedPost.setMedia(NFCReadFragment.downloadFilePath);
 
-                String key = firebaseDBHelper.getPostsReference().push().getKey();
-                Map<String, Object> postValues = feedPost.toMap();
+                String postKey = firebaseDBHelper.getPostsReference().push().getKey();
                 Map<String, Object> childUpdates = new HashMap<>();
 
                 childUpdates.put(Constants.DATABASE_POSTS_PATH + "/"
-                                + key,
-                        postValues);
+                                + postKey,
+                                feedPost.toMap());
                 childUpdates.put(Constants.DATABASE_USERS_CHILD + "/"
                                 + firebaseDBHelper.getLoginName() + "/"
                                 + Constants.DATABASE_POSTS_PATH + "/"
-                                + key,
-                        true);
+                                + postKey,
+                                true);
 
                 firebaseDBHelper.getDatabase().updateChildren(childUpdates);
                 break;

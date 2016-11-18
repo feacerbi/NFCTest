@@ -3,13 +3,11 @@ package com.felipeacerbi.nfctest.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.game.UsersAdapter;
 import com.felipeacerbi.nfctest.models.User;
-import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -20,9 +18,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FirebaseDBHelper extends FirebaseInstanceIdService {
 
@@ -67,21 +66,6 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         return null;
     }
 
-    public void setUserName(String loginName, final TextView textView) {
-        getUserReference(loginName).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                UserDB userDB = (UserDB) dataSnapshot.getValue(UserDB.class);
-                textView.setText(userDB.getName());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     public String getEmail() {
         FirebaseUser firebaseUser = getFirebaseUser();
         if(firebaseUser != null) return getFirebaseUser().getEmail();
@@ -124,12 +108,12 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
 
     public void registerUser() {
         // Insert user on DB
-        DatabaseReference userRef = getCurrentUserReference();
-        userRef.child(Constants.DATABASE_NAME_CHILD).setValue(getUserName());
-        userRef.child(Constants.DATABASE_EMAIL_CHILD).setValue(getEmail());
-        userRef.child(Constants.DATABASE_ONLINE_CHILD).setValue(false);
-        userRef.child(Constants.DATABASE_PLAYING_CHILD).setValue(false);
-        userRef.child(Constants.DATABASE_IDTOKEN_CHILD).setValue(getAppIDToken());
+        User user = new User(getLoginName(),
+                getAppIDToken(),
+                getUserName(),
+                getEmail());
+
+        getCurrentUserReference().setValue(user.toMap());
     }
 
     public void showResultUsers(final String search, final RecyclerView recyclerView) {
@@ -140,11 +124,11 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
                 List<User> usersResultList = new ArrayList<>();
 
                 for(DataSnapshot userReference : dataSnapshot.getChildren()) {
-                    UserDB userDB = userReference.getValue(UserDB.class);
+                    User user = new User(userReference);
                     if(!userReference.getKey().equals(getCurrentUserReference().getKey()) &&
                             (userReference.getKey().toLowerCase().contains(search.toLowerCase()) ||
-                            userDB.getName().toLowerCase().contains(search.toLowerCase())))
-                        usersResultList.add(new User(userReference.getKey(), userDB));
+                            user.getName().toLowerCase().contains(search.toLowerCase())))
+                        usersResultList.add(user);
                 }
 
                 if(usersResultList.size() == 0) {

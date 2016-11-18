@@ -15,6 +15,7 @@
         android:contentDescription="@string/profile_picture"
         android:padding="8dp"
         android:visibility="invisible"
+        android:scaleType="centerInside"
         android:src="@mipmap/ic_launcher"/>
 
     <ProgressBar xmlns:android="http://schemas.android.com/apk/res/android"

@@ -3,12 +3,13 @@ package com.felipeacerbi.nfctest.models.posts;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.felipeacerbi.nfctest.R;
 
-public class FeedPostViewHolder extends RecyclerView.ViewHolder {
+public class FeedPostFullViewHolder extends RecyclerView.ViewHolder {
 
     private TextView userField;
     private TextView timeField;
@@ -20,8 +21,12 @@ public class FeedPostViewHolder extends RecyclerView.ViewHolder {
     private TextView commentsView;
     private TextView contentText;
 
+    private ImageView contentPicture;
+    private MediaController video;
+    private ProgressBar contentProgress;
 
-    public FeedPostViewHolder(View itemView) {
+
+    public FeedPostFullViewHolder(View itemView) {
         super(itemView);
 
         profilePicture = (ImageView) itemView.findViewById(R.id.profile_picture);
@@ -34,6 +39,9 @@ public class FeedPostViewHolder extends RecyclerView.ViewHolder {
         commentsView = (TextView) itemView.findViewById(R.id.comments_number);
         contentText = (TextView) itemView.findViewById(R.id.post_content);
 
+        contentPicture = (ImageView) itemView.findViewById(R.id.post_photo);
+        video = (MediaController) itemView.findViewById(R.id.post_video);
+        contentProgress = (ProgressBar) itemView.findViewById(R.id.post_media_progress);
     }
 
     public TextView getUserField() {
@@ -70,5 +78,17 @@ public class FeedPostViewHolder extends RecyclerView.ViewHolder {
 
     public TextView getContentText() {
         return contentText;
+    }
+
+    public ImageView getContentPicture() {
+        return contentPicture;
+    }
+
+    public MediaController getVideo() {
+        return video;
+    }
+
+    public ProgressBar getContentProgress() {
+        return contentProgress;
     }
 }

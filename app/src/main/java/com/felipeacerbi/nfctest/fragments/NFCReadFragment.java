@@ -7,8 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.util.ArrayMap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +16,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
-import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
 import com.felipeacerbi.nfctest.models.Pet;
 import com.felipeacerbi.nfctest.models.tags.BaseTag;
 import com.felipeacerbi.nfctest.models.tags.NFCTag;
@@ -34,7 +30,6 @@ import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
 import com.felipeacerbi.nfctest.utils.NFCUtils;
 import com.google.android.gms.vision.barcode.Barcode;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -106,7 +101,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                             Snackbar.LENGTH_LONG).show();
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     if(barcode != null) {
-                        setQRFields(new QRCodeTag(barcode.displayValue, new BaseTagDB()));
+                        setQRFields(new QRCodeTag(barcode.displayValue));
                     } else {
                         clearFields();
                     }
@@ -128,7 +123,9 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
     public void addNewTag(BaseTag tag) {
         String petId = firebaseDBHelper.getPetsReference().push().getKey();
-        Pet pet = new Pet(tag.getId(), "Rex", 1, new HashMap<String, Boolean>());
+        tag.setPet(petId);
+        
+        Pet pet = new Pet(petId, tag.getId(), "Rex", 1);
         pet.getUsers().put(firebaseDBHelper.getLoginName(), true);
 
         // Map<String, Object> tagValues = tag.toMap();
@@ -138,12 +135,11 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 + tag.getId(),
                 tagValues); */
         childUpdates.put(Constants.DATABASE_TAGS_CHILD + "/" // Add current user to TAG
-                + tag.getId() + "/"
-                + Constants.DATABASE_PET_CHILD,
-                petId);
+                + tag.getId(),
+                tag.toMap());
         childUpdates.put(Constants.DATABASE_USERS_CHILD + "/" // Add TAG to current user
                 + firebaseDBHelper.getLoginName() + "/"
-                + Constants.DATABASE_PETS_CHILD + "/"
+                + Constants.DATABASE_BUDDIES_PATH + "/"
                 + petId,
                 true);
         childUpdates.put(Constants.DATABASE_PETS_PATH + "/"

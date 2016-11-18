@@ -1,39 +1,37 @@
 package com.felipeacerbi.nfctest.models.posts;
 
+import android.content.Context;
+
+import com.felipeacerbi.nfctest.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.GenericTypeIndicator;
+
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class FeedPost {
+public abstract class FeedPost {
 
+    private String id;
     private int type;
     private String user;
+    private String name;
     private String profileImage;
     private String timestamp;
     private String location;
     private String text;
-    public Map<String, Boolean> likes;
-    public Map<String, Boolean> marked;
+    private Map<String, Boolean> likes;
+    private Map<String, Boolean> marked;
 
     public FeedPost() {
-    }
-
-    public FeedPost(int type, String user, String profileImage, String timestamp, String location, String text, Map<String, Boolean> likes, Map<String, Boolean> marked) {
-        this.type = type;
-        this.user = user;
-        this.profileImage = profileImage;
-        this.timestamp = timestamp;
-        this.location = location;
-        this.text = text;
-        this.likes = likes;
-        this.marked = marked;
     }
 
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
         result.put("type", type);
         result.put("user", user);
+        result.put("name", name);
         result.put("profileImage", profileImage);
         result.put("timestamp", timestamp);
         result.put("location", location);
@@ -44,15 +42,42 @@ public class FeedPost {
         return result;
     }
 
-    public static String formatTime(String time) {
+    public void fromMap(DataSnapshot dataSnapshot) {
+        id = dataSnapshot.getKey();
+        type = dataSnapshot.child("type").getValue(Integer.class);
+        user = dataSnapshot.child("user").getValue(String.class);
+        name = dataSnapshot.child("name").getValue(String.class);
+        profileImage = dataSnapshot.child("profileImage").getValue(String.class);
+        timestamp = dataSnapshot.child("timestamp").getValue(String.class);
+        location = dataSnapshot.child("location").getValue(String.class);
+        text = dataSnapshot.child("text").getValue(String.class);
+        GenericTypeIndicator<Map<String, Boolean>> t = new GenericTypeIndicator<Map<String, Boolean>>() {};
+        likes = dataSnapshot.child("likes").getValue(t);
+        marked = dataSnapshot.child("marked").getValue(t);
+    }
+
+    public static String formatTime(Context context, String time) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(Long.parseLong(time));
 
-        String month = String.valueOf(calendar.get(Calendar.MONTH)).substring(0,2);
-        String day = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
-        String hour = String.valueOf(calendar.get(Calendar.HOUR));
-        String minute = String.valueOf(calendar.get(Calendar.MINUTE));
-        return month + "/" + day + ", " + hour + ":" + minute;
+        String month = context.getResources().getStringArray(R.array.months)[calendar.get(Calendar.MONTH)];
+        int dayNum = calendar.get(Calendar.DAY_OF_MONTH);
+        String day = (dayNum / 10 >= 1) ? String.valueOf(dayNum) : "0" + dayNum;
+        int hourNum = calendar.get(Calendar.HOUR_OF_DAY);
+        String hour = (hourNum / 10 >= 1) ? String.valueOf(hourNum) : "0" + hourNum;
+        int minuteNum = calendar.get(Calendar.MINUTE);
+        String minute = (minuteNum / 10 >= 1) ? String.valueOf(minuteNum) : "0" + minuteNum;
+        return month + " " + day + ", " + hour + ":" + minute;
+    }
+
+    public abstract int getLayoutResource();
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getType() {
@@ -69,6 +94,14 @@ public class FeedPost {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getProfileImage() {
@@ -101,5 +134,21 @@ public class FeedPost {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public Map<String, Boolean> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Map<String, Boolean> likes) {
+        this.likes = likes;
+    }
+
+    public Map<String, Boolean> getMarked() {
+        return marked;
+    }
+
+    public void setMarked(Map<String, Boolean> marked) {
+        this.marked = marked;
     }
 }

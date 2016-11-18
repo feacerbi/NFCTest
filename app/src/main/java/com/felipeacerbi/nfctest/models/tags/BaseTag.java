@@ -1,18 +1,41 @@
 package com.felipeacerbi.nfctest.models.tags;
 
-import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
+import com.google.firebase.database.DataSnapshot;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class BaseTag {
 
-    String id;
-    BaseTagDB baseTagDB;
+    private String id;
+    private String pet;
 
     public BaseTag() {
     }
 
-    public BaseTag(String id, BaseTagDB baseTagDB) {
+    public BaseTag(String id) {
         this.id = id;
-        this.baseTagDB = baseTagDB;
+    }
+
+    public BaseTag(DataSnapshot dataSnapshot) {
+        fromMap(dataSnapshot);
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("pet", pet);
+
+        return result;
+    }
+
+    public void fromMap(Map<String, Object> map) {
+        id = (String) map.get("id");
+        pet = (String) map.get("pet");
+    }
+
+    public void fromMap(DataSnapshot dataSnapshot) {
+        id = dataSnapshot.getKey();
+        pet = dataSnapshot.child("pet").getValue(String.class);
     }
 
     public String getId() {
@@ -23,11 +46,11 @@ public abstract class BaseTag {
         this.id = id;
     }
 
-    public BaseTagDB getBaseTagDB() {
-        return baseTagDB;
+    public String getPet() {
+        return pet;
     }
 
-    public void setBaseTagDB(BaseTagDB baseTagDB) {
-        this.baseTagDB = baseTagDB;
+    public void setPet(String pet) {
+        this.pet = pet;
     }
 }

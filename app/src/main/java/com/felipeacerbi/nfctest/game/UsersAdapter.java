@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.models.User;
-import com.felipeacerbi.nfctest.firebasemodels.UserDB;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.DataSnapshot;
@@ -74,20 +73,20 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
             final User user = getUsers().get(position);
             final FirebaseDBHelper firebaseDBHelper = new FirebaseDBHelper(context);
 
-            holder.getNameField().setText(user.getUserDB().getName());
+            holder.getNameField().setText(user.getName());
 
             final DatabaseReference userReference = firebaseDBHelper.getUserReference(user.getUsername());
             userReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(final DataSnapshot dataSnapshot) {
-                    final UserDB dbUser = dataSnapshot.getValue(UserDB.class);
-                    holder.getOnlineField().setImageResource((dbUser.isOnline()) ?
+                    final User user = new User(dataSnapshot);
+                    holder.getOnlineField().setImageResource((user.isOnline()) ?
                             R.drawable.ic_signal_wifi_4_bar_black_24dp :
                             R.drawable.ic_signal_wifi_off_black_24dp);
-                    holder.getPlayingField().setImageAlpha((dbUser.isPlaying()) ?
+                    holder.getPlayingField().setImageAlpha((user.isPlaying()) ?
                             255 :
                             40);
-                    if(dbUser.isPlaying()) {
+                    if(user.isPlaying()) {
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -98,9 +97,9 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                String message = "Invite " + dbUser.getName() + " to play a game?";
-                                if(!dbUser.isOnline()) {
-                                    message = dbUser.getName() + " is offline, invite anyway?";
+                                String message = "Invite " + user.getName() + " to play a game?";
+                                if(!user.isOnline()) {
+                                    message = user.getName() + " is offline, invite anyway?";
                                 }
                                 AlertDialog.Builder playAlert = new AlertDialog.Builder(context);
                                 playAlert

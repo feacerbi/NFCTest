@@ -29,40 +29,44 @@
             android:textSize="18sp"
             android:text="Test media comment."/>
 
-        <ImageView
-            android:id="@+id/post_photo"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="4dp"
-            android:layout_below="@id/post_content"
-            android:visibility="invisible"
-            android:src="@mipmap/ic_launcher" />
-
         <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="4dp"
-            android:layout_below="@id/post_content">
-            <ProgressBar
-                android:id="@+id/post_media_progress"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_centerInParent="true" />
-        </RelativeLayout>
+            android:id="@+id/post_media_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/post_content"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp">
+            <ImageView
+                android:id="@+id/post_photo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="200dp"
+                android:visibility="gone"
+                android:scaleType="fitCenter"
+                android:src="@mipmap/ic_launcher" />
 
-        <MediaController
-            android:id="@+id/post_video"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:visibility="invisible"
-            android:layout_alignTop="@+id/post_photo"
-            android:layout_alignParentStart="true" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ProgressBar
+                    android:id="@+id/post_media_progress"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_centerInParent="true" />
+            </RelativeLayout>
+
+            <MediaController
+                android:id="@+id/post_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <include
             android:id="@+id/post_buttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/post_photo"
+            android:layout_below="@id/post_media_content"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             layout="@layout/post_buttons" />

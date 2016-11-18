@@ -25,6 +25,7 @@ public class Constants {
     public static final int POST_TYPE_MEDIA = 1;
 
     public static final String DATABASE_PETS_PATH = "pets/";
+    public static final String DATABASE_BUDDIES_PATH = "buddies/";
     public static final String DATABASE_GAMES_PATH = "games/";
     public static final String DATABASE_USERS_PATH = "users/";
     public static final String DATABASE_REQUESTS_PATH = "requests/";

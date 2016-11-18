@@ -5,7 +5,8 @@ import android.nfc.Tag;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.felipeacerbi.nfctest.firebasemodels.BaseTagDB;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NFCTag extends BaseTag implements Parcelable {
 
@@ -15,24 +16,15 @@ public class NFCTag extends BaseTag implements Parcelable {
     public NFCTag() {
     }
 
-    public NFCTag(Tag tag, NdefMessage[] ndefMessages) {
-        this.tag = tag;
-        this.ndefMessages = ndefMessages;
-    }
-
-    public NFCTag(String id, BaseTagDB baseTagDB) {
-        super(id, baseTagDB);
-    }
-
-    public NFCTag(String id, BaseTagDB baseTagDB, Tag tag, NdefMessage[] ndefMessages) {
-        super(id, baseTagDB);
-        this.tag = tag;
-        this.ndefMessages = ndefMessages;
+    public NFCTag(String id) {
+        super(id);
     }
 
     private NFCTag(Parcel in) {
-        id = in.readString();
-        baseTagDB = (BaseTagDB) in.readSerializable();
+        Map<String, Object> temp = new HashMap<>();
+        in.readMap(temp, Map.class.getClassLoader());
+        fromMap(temp);
+
         tag = in.readParcelable(Tag.class.getClassLoader());
         ndefMessages = in.createTypedArray(NdefMessage.CREATOR);
     }
@@ -49,6 +41,18 @@ public class NFCTag extends BaseTag implements Parcelable {
         }
     };
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeMap(toMap());
+        dest.writeParcelable(getTag(), flags);
+        dest.writeTypedArray(getNdefMessages(), flags);
+    }
+
     public Tag getTag() {
         return tag;
     }
@@ -63,18 +67,5 @@ public class NFCTag extends BaseTag implements Parcelable {
 
     public void setNdefMessages(NdefMessage[] ndefMessages) {
         this.ndefMessages = ndefMessages;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeSerializable(baseTagDB);
-        dest.writeParcelable(getTag(), flags);
-        dest.writeTypedArray(getNdefMessages(), flags);
     }
 }

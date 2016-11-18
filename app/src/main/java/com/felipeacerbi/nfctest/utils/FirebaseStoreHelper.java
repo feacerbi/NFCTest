@@ -151,8 +151,6 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         }
     }
 
-
-
     public void onSuccess(Object o) {
         if(checkUpload()) {
             // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
@@ -169,7 +167,7 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
             if(downloadProgress != null) {
                 downloadProgress.setText(R.string.finished);
             } else {
-                downloadProgressBar.setVisibility(View.INVISIBLE);
+                downloadProgressBar.setVisibility(View.GONE);
                 downloadImageView.setVisibility(View.VISIBLE);
             }
             downloadImageView.setImageBitmap(BitmapFactory.decodeFile(localFile.getAbsolutePath()));

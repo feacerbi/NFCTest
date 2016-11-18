@@ -119,7 +119,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_nfcmanager, menu);
+        getMenuInflater().inflate(R.menu.menu_tabs, menu);
         return true;
     }
 
@@ -131,6 +131,9 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.action_profile:
+                startActivity(new Intent(this, ProfileActivity.class));
+                return true;
             case R.id.action_tictactoe:
                 startActivity(new Intent(this, TicTacToeActivity.class));
                 return true;

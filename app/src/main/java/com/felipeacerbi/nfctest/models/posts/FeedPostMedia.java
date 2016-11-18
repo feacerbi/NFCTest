@@ -1,5 +1,8 @@
 package com.felipeacerbi.nfctest.models.posts;
 
+import com.felipeacerbi.nfctest.R;
+import com.google.firebase.database.DataSnapshot;
+
 import java.util.Map;
 
 public class FeedPostMedia extends FeedPost {
@@ -9,16 +12,22 @@ public class FeedPostMedia extends FeedPost {
     public FeedPostMedia() {
     }
 
-    public FeedPostMedia(int type, String user, String profileImage, String timestamp, String location, String text, Map<String, Boolean> likes, Map<String, Boolean> marked, String media) {
-        super(type, user, profileImage, timestamp, location, text, likes, marked);
-        this.media = media;
-    }
-
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> temp = super.toMap();
         temp.put("media", media);
         return temp;
+    }
+
+    @Override
+    public void fromMap(DataSnapshot dataSnapshot) {
+        super.fromMap(dataSnapshot);
+        media = dataSnapshot.child("media").getValue(String.class);
+    }
+
+    @Override
+    public int getLayoutResource() {
+        return R.layout.feed_card_media;
     }
 
     public String getMedia() {

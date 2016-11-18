@@ -23,8 +23,8 @@
     <string name="action_tic_tac_toe">#</string>
 
     <string name="web_client_id">80974609362-q48riru16h7108bcf4t0oo9mnqeearca.apps.googleusercontent.com</string>
-	
-	<string name="ok">OK</string>
+
+    <string name="ok">OK</string>
     <string name="permission_camera_rationale">Access to the camera is needed for detection</string>
     <string name="no_camera_permission">This application cannot run because it does not have the camera permission.  The application will now exit.</string>
     <string name="low_storage_error">Face detector dependencies cannot be downloaded due to low device storage</string>
@@ -72,4 +72,5 @@
     <string name="no_gallery">No Gallery app</string>
     <string name="allow_write_storage">Please allow write storage permission</string>
     <string name="profile_picture">Profile picture</string>
+    <string name="action_profile">Profile</string>
 </resources>

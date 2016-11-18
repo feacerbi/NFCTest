@@ -11,12 +11,6 @@ public class Path {
     public Path() {
     }
 
-    public Path(Location from, Location to, String duration) {
-        this.from = from;
-        this.to = to;
-        this.duration = duration;
-    }
-
     public Location getFrom() {
         return from;
     }

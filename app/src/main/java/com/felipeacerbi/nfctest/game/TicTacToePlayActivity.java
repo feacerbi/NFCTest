@@ -12,7 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
-import com.felipeacerbi.nfctest.firebasemodels.UserDB;
+import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.firebase.database.DataSnapshot;
@@ -141,8 +141,8 @@ public class TicTacToePlayActivity extends AppCompatActivity implements View.OnC
         onlineMonitor = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                UserDB userDB = dataSnapshot.getValue(UserDB.class);
-                if(!userDB.isPlaying()) {
+                User user = new User(dataSnapshot);
+                if(!user.isPlaying()) {
                     disconnect();
                     finish();
                     Toast.makeText(TicTacToePlayActivity.this, R.string.opponent_left, Toast.LENGTH_SHORT).show();
