@@ -29,7 +29,6 @@ public abstract class BaseTag {
     }
 
     public void fromMap(Map<String, Object> map) {
-        id = (String) map.get("id");
         pet = (String) map.get("pet");
     }
 

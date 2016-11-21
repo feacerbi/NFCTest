@@ -4,6 +4,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 
@@ -46,6 +48,7 @@ public class FirebaseNotificationService extends com.google.firebase.messaging.F
                             .setWhen(System.currentTimeMillis())
                             .setContentIntent(getNewGameIntent(request))
                             .setDeleteIntent(getCancelIntent(request))
+                            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .addAction(R.drawable.nfc_logo_ok, getString(R.string.accept), getNewGameIntent(request))
                             .addAction(R.drawable.nfc_logo_fail, getString(R.string.refuse), getCancelIntent(request));
 

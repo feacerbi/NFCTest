@@ -2,8 +2,8 @@
 <resources>
     <string-array name="tab_titles">
         <item>FEED</item>
-        <item>READ</item>
-        <item>WRITE</item>
+        <item>BUDDIES</item>
+        <item>NONE</item>
     </string-array>
 
     <array name="fab_icons">

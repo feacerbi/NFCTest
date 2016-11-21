@@ -72,9 +72,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".game.TicTacToeActivity" />
         </activity>
+
         <activity android:name=".activities.BarcodeCaptureActivity" />
 
-        <activity android:name=".activities.ProfileActivity" />
+        <activity android:name=".activities.ProfileActivity"
+            android:label="Profile"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".services.FirebaseNotificationService">
             <intent-filter>

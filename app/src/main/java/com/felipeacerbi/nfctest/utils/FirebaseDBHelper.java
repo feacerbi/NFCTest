@@ -3,11 +3,15 @@ package com.felipeacerbi.nfctest.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.game.UsersAdapter;
+import com.felipeacerbi.nfctest.models.Pet;
 import com.felipeacerbi.nfctest.models.User;
+import com.felipeacerbi.nfctest.models.tags.BaseTag;
+import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -108,12 +112,23 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
 
     public void registerUser() {
         // Insert user on DB
-        User user = new User(getLoginName(),
-                getAppIDToken(),
-                getUserName(),
+
+        Map<String, Object> childUpdates = new HashMap<>();
+
+        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                + getLoginName() + "/"
+                + Constants.DATABASE_IDTOKEN_CHILD,
+                getAppIDToken());
+        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                + getLoginName() + "/"
+                + Constants.DATABASE_NAME_CHILD,
+                getUserName());
+        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                + getLoginName() + "/"
+                + Constants.DATABASE_EMAIL_CHILD,
                 getEmail());
 
-        getCurrentUserReference().setValue(user.toMap());
+        getDatabase().updateChildren(childUpdates);
     }
 
     public void showResultUsers(final String search, final RecyclerView recyclerView) {
@@ -151,6 +166,99 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
 
     public DatabaseReference getPetReference(String petId) {
         return getPetsReference().child(petId);
+    }
+
+    public void addPet(final BaseTag tag, final boolean isNew) {
+        getTagsReference().orderByKey().equalTo(tag.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean found = false;
+                BaseTag foundTag = tag;
+
+                for (DataSnapshot tagSnapshot: dataSnapshot.getChildren()) {
+                    found = true;
+                    foundTag = tagSnapshot.getValue(BaseTag.class);
+                }
+
+                if(isNew) {
+                    addNewPet(foundTag, found);
+                    Toast.makeText(context, "Buddy added successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    if(found) {
+                        addFollowPet(foundTag);
+                        Toast.makeText(context, "New following added", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Pet not found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void addNewPet(BaseTag tag, boolean exists) {
+        String petId;
+        if(exists) {
+            petId = tag.getPet();
+        } else {
+            petId = getPetsReference().push().getKey();
+        }
+        tag.setPet(petId);
+
+        Pet pet = new Pet(petId, tag.getId(), "Rex", 1);
+
+        Map<String, Object> childUpdates = new HashMap<>();
+
+        childUpdates.put(Constants.DATABASE_USERS_CHILD + "/" // Add TAG to current user
+                        + getLoginName() + "/"
+                        + Constants.DATABASE_BUDDIES_CHILD + "/"
+                        + petId,
+                        true);
+        if(exists) {
+            childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
+                            + petId + "/"
+                            + Constants.DATABASE_USERS_CHILD + "/"
+                            + getLoginName(),
+                    true);
+        } else {
+            childUpdates.put(Constants.DATABASE_TAGS_CHILD + "/" // Add current user to TAG
+                            + tag.getId(),
+                    tag.toMap());
+            childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
+                            + petId,
+                    pet.toMap());
+        }
+
+        getDatabase().updateChildren(childUpdates);
+    }
+
+    private void addFollowPet(BaseTag tag) {
+        getTagReference(tag.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String petId = dataSnapshot.child(Constants.DATABASE_PET_CHILD).getValue(String.class);
+
+                // Map<String, Object> tagValues = tag.toMap();
+                Map<String, Object> childUpdates = new HashMap<>();
+
+                childUpdates.put(Constants.DATABASE_USERS_CHILD + "/" // Add TAG to current user
+                                + getLoginName() + "/"
+                                + Constants.DATABASE_FOLLOWING_CHILD + "/"
+                                + petId,
+                                true);
+
+                getDatabase().updateChildren(childUpdates);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     public DatabaseReference getGamesReference() {

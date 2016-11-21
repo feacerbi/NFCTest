@@ -4,7 +4,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class User {
@@ -16,7 +15,7 @@ public class User {
     private boolean online = false;
     private boolean playing = false;
     private Map<String, Boolean> pets = new HashMap<>();
-    private Map<String, Boolean> added = new HashMap<>();
+    private Map<String, Boolean> following = new HashMap<>();
 
     public User() {
     }
@@ -56,7 +55,7 @@ public class User {
         playing = dataSnapshot.child("playing").getValue(Boolean.class);
         GenericTypeIndicator<Map<String, Boolean>> t = new GenericTypeIndicator<Map<String, Boolean>>() {};
         pets = dataSnapshot.child("pets").getValue(t);
-        added = dataSnapshot.child("added").getValue(t);
+        following = dataSnapshot.child("following").getValue(t);
     }
 
     public String getUsername() {
@@ -115,11 +114,11 @@ public class User {
         this.pets = pets;
     }
 
-    public Map<String, Boolean> getAdded() {
-        return added;
+    public Map<String, Boolean> getFollowing() {
+        return following;
     }
 
-    public void setAdded(Map<String, Boolean> added) {
-        this.added = added;
+    public void setFollowing(Map<String, Boolean> following) {
+        this.following = following;
     }
 }

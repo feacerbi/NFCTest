@@ -32,6 +32,7 @@ public class Pet implements Serializable {
         this.tag = tag;
         this.name = name;
         this.type = type;
+        users = new HashMap<>();
     }
 
     public Map<String, Object> toMap() {

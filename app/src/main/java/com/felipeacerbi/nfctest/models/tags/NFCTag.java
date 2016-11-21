@@ -4,6 +4,7 @@ import android.nfc.NdefMessage;
 import android.nfc.Tag;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +22,8 @@ public class NFCTag extends BaseTag implements Parcelable {
     }
 
     private NFCTag(Parcel in) {
+        setId(in.readString());
+
         Map<String, Object> temp = new HashMap<>();
         in.readMap(temp, Map.class.getClassLoader());
         fromMap(temp);
@@ -48,6 +51,7 @@ public class NFCTag extends BaseTag implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getId());
         dest.writeMap(toMap());
         dest.writeParcelable(getTag(), flags);
         dest.writeTypedArray(getNdefMessages(), flags);

@@ -25,7 +25,6 @@ public class Constants {
     public static final int POST_TYPE_MEDIA = 1;
 
     public static final String DATABASE_PETS_PATH = "pets/";
-    public static final String DATABASE_BUDDIES_PATH = "buddies/";
     public static final String DATABASE_GAMES_PATH = "games/";
     public static final String DATABASE_USERS_PATH = "users/";
     public static final String DATABASE_REQUESTS_PATH = "requests/";
@@ -33,8 +32,9 @@ public class Constants {
     public static final String DATABASE_POSTS_PATH = "posts/";
     public static final String DATABASE_COMMENTS_PATH = "comments/";
 
+    public static final String DATABASE_BUDDIES_CHILD = "buddies/";
+    public static final String DATABASE_FOLLOWING_CHILD = "following/";
     public static final String DATABASE_PET_CHILD = "pet";
-    public static final String DATABASE_PETS_CHILD = "pets";
     public static final String DATABASE_USERS_CHILD = "users";
     public static final String DATABASE_TAGS_CHILD = "tags";
     public static final String DATABASE_NAME_CHILD = "name";

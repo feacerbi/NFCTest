@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
@@ -121,47 +122,19 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    public void addNewTag(BaseTag tag) {
-        String petId = firebaseDBHelper.getPetsReference().push().getKey();
-        tag.setPet(petId);
-        
-        Pet pet = new Pet(petId, tag.getId(), "Rex", 1);
-        pet.getUsers().put(firebaseDBHelper.getLoginName(), true);
-
-        // Map<String, Object> tagValues = tag.toMap();
-        Map<String, Object> childUpdates = new HashMap<>();
-
-        /* childUpdates.put(Constants.DATABASE_TAGS_CHILD // Set TAG Info
-                + tag.getId(),
-                tagValues); */
-        childUpdates.put(Constants.DATABASE_TAGS_CHILD + "/" // Add current user to TAG
-                + tag.getId(),
-                tag.toMap());
-        childUpdates.put(Constants.DATABASE_USERS_CHILD + "/" // Add TAG to current user
-                + firebaseDBHelper.getLoginName() + "/"
-                + Constants.DATABASE_BUDDIES_PATH + "/"
-                + petId,
-                true);
-        childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
-                + petId,
-                pet.toMap());
-
-        firebaseDBHelper.getDatabase().updateChildren(childUpdates);
-    }
-
     public void setNFCFields(NFCTag nfcTag) {
         tagValue.setText(nfcTag.getTag().toString());
         tagMessages.setText(NFCUtils.decodePayload(nfcTag.getNdefMessages()[0]));
         tagId.setText(nfcTag.getId());
 
-        addNewTag(nfcTag);
+        firebaseDBHelper.addPet(nfcTag, false);
     }
 
     public void setQRFields(QRCodeTag qrCodeTag) {
         tagValue.setText(R.string.barcode_success);
         tagId.setText(qrCodeTag.getId());
 
-        addNewTag(qrCodeTag);
+        firebaseDBHelper.addPet(qrCodeTag, false);
     }
 
     public void clearFields() {
@@ -241,11 +214,13 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 animateFab();
                 break;
             case R.id.fabNFC:
+                animateFab();
                 // Start the activity to wait for Tag interactivity
                 Intent startReadIntent = new Intent(getActivity(), WaitTagActivity.class);
                 startActivityForResult(startReadIntent, Constants.START_WAIT_READ_TAG_INTENT);
                 break;
             case R.id.fabQR:
+                animateFab();
                 // Launch barcode activity.
                 Intent intent = new Intent(getActivity(), BarcodeCaptureActivity.class);
                 startActivityForResult(intent, Constants.RC_BARCODE_CAPTURE);

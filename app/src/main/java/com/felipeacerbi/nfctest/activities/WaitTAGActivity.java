@@ -133,8 +133,9 @@ public class WaitTagActivity extends AppCompatActivity {
 
                 // Retrieve Tag id.
                 byte[] tagId = nfcIntent.getByteArrayExtra(NfcAdapter.EXTRA_ID);
-                if(tagId != null)
-                nfcTag.setId(NFCUtils.byteArrayToHexString(tagId));
+                if(tagId != null) {
+                    nfcTag.setId(NFCUtils.byteArrayToHexString(tagId));
+                }
 
             } else if(NfcAdapter.ACTION_TECH_DISCOVERED.equals(nfcIntent.getAction())) {
                 Toast.makeText(this, R.string.nfctag_not_formatted, Toast.LENGTH_SHORT).show();
