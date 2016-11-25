@@ -26,7 +26,7 @@
                 android:layout_below="@id/post_header"
                 android:textSize="25sp"
                 android:layout_margin="15dp"
-                android:text="Test post description."/>
+                android:text=""/>
 
         <include
             android:id="@+id/post_buttons"

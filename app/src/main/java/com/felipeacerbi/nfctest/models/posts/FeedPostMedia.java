@@ -12,6 +12,10 @@ public class FeedPostMedia extends FeedPost {
     public FeedPostMedia() {
     }
 
+    public FeedPostMedia(DataSnapshot dataSnapshot) {
+        fromMap(dataSnapshot);
+    }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> temp = super.toMap();

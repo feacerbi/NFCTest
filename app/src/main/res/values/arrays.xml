@@ -2,7 +2,7 @@
 <resources>
     <string-array name="tab_titles">
         <item>FEED</item>
-        <item>BUDDIES</item>
+        <item>PETS</item>
         <item>NONE</item>
     </string-array>
 

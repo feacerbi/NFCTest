@@ -18,6 +18,6 @@ public class FeedFragmentAll extends FeedFragment {
 
     @Override
     public Query getQuery(FirebaseDBHelper firebaseDBHelper) {
-        return firebaseDBHelper.getPostsReference();
+        return firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_FEED_CHILD).orderByKey().limitToLast(20);
     }
 }

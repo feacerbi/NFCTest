@@ -1,11 +1,14 @@
 package com.felipeacerbi.nfctest.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.felipeacerbi.nfctest.activities.PetProfileActivity;
+import com.felipeacerbi.nfctest.activities.ProfileActivity;
 import com.felipeacerbi.nfctest.models.Pet;
 import com.felipeacerbi.nfctest.models.PetViewHolder;
 import com.felipeacerbi.nfctest.models.posts.FeedPost;
@@ -25,11 +28,13 @@ import com.google.firebase.database.ValueEventListener;
 
 public class PetsAdapter extends FirebaseRecyclerAdapter {
 
+    private final Context context;
     private FirebaseDBHelper firebaseDBHelper;
     private FirebaseStoreHelper firebaseStoreHelper;
 
     public PetsAdapter(Context context, final Class modelClass, int modelLayout, Class viewHolderClass, Query ref) {
         super(modelClass, modelLayout, viewHolderClass, ref);
+        this.context = context;
         firebaseDBHelper = new FirebaseDBHelper(context);
         firebaseStoreHelper = new FirebaseStoreHelper();
     }
@@ -39,14 +44,23 @@ public class PetsAdapter extends FirebaseRecyclerAdapter {
         DatabaseReference petRef = getRef(position);
         String petKey = petRef.getKey();
 
-        firebaseDBHelper.getPetReference(petKey).addListenerForSingleValueEvent(new ValueEventListener() {
+        firebaseDBHelper.getPetReference(petKey).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Pet pet = new Pet(dataSnapshot);
+                final Pet pet = new Pet(dataSnapshot);
 
                 PetViewHolder petViewHolder = (PetViewHolder) viewHolder;
                 petViewHolder.getNameField().setText(pet.getName());
-                petViewHolder.getAgeField().setText(pet.getAge() + " years");
+                petViewHolder.getInfosField().setText(pet.getInfos());
+
+                petViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        context.startActivity(
+                                new Intent(context, PetProfileActivity.class)
+                                .putExtra(Constants.PET_EXTRA, pet));
+                    }
+                });
 
                 firebaseStoreHelper.downloadImage(
                         pet.getProfileImage(),

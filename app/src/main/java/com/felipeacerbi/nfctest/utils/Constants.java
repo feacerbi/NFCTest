@@ -19,7 +19,6 @@ public class Constants {
     public static final String LOGIN_ANONYMOUS = "anonymous";
     public static final String PLAYER_ONE = "one";
     public static final String PLAYER_TWO = "two";
-    public static final String NFC_TAG_EXTRA = "nfc_tag";
 
     public static final int POST_TYPE_TEXT = 0;
     public static final int POST_TYPE_MEDIA = 1;
@@ -32,10 +31,16 @@ public class Constants {
     public static final String DATABASE_POSTS_PATH = "posts/";
     public static final String DATABASE_COMMENTS_PATH = "comments/";
 
-    public static final String DATABASE_BUDDIES_CHILD = "buddies/";
-    public static final String DATABASE_FOLLOWING_CHILD = "following/";
+    public static final String STORAGE_IMAGES_PATH = "images/";
+
+    public static final String DATABASE_FEED_CHILD = "feed";
+    public static final String DATABASE_BUDDIES_CHILD = "buddies";
+    public static final String DATABASE_FOLLOWING_CHILD = "following";
+    public static final String DATABASE_FOLLOWERS_CHILD = "followers";
+    public static final String DATABASE_POSTS_CHILD = "posts";
     public static final String DATABASE_PET_CHILD = "pet";
     public static final String DATABASE_USERS_CHILD = "users";
+    public static final String DATABASE_OWNERS_CHILD = "owners";
     public static final String DATABASE_TAGS_CHILD = "tags";
     public static final String DATABASE_NAME_CHILD = "name";
     public static final String DATABASE_EMAIL_CHILD = "email";
@@ -44,9 +49,11 @@ public class Constants {
     public static final String DATABASE_IDTOKEN_CHILD = "idToken";
     public static final String DATABASE_PLACES_CHILD = "places";
     public static final String DATABASE_LIKES_CHILD = "likes";
+    public static final String DATABASE_COMMENTS_CHILD = "comments";
     public static final String DATABASE_CURRENT_TURN_CHILD = "currentTurn";
     public static final String DATABASE_TYPE_CHILD = "type";
 
-    public static final String STORAGE_IMAGES_PATH = "images/";
+    public static final String NFC_TAG_EXTRA = "nfc_tag";
+    public static final String PET_EXTRA = "petId";
 
 }

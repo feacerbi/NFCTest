@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,9 @@ import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.activities.BarcodeCaptureActivity;
 import com.felipeacerbi.nfctest.activities.WaitTagActivity;
+import com.felipeacerbi.nfctest.adapters.PetsAdapter;
 import com.felipeacerbi.nfctest.models.Pet;
+import com.felipeacerbi.nfctest.models.PetViewHolder;
 import com.felipeacerbi.nfctest.models.tags.BaseTag;
 import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.felipeacerbi.nfctest.R;
@@ -30,6 +33,7 @@ import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
 import com.felipeacerbi.nfctest.utils.NFCUtils;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.firebase.database.Query;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +43,6 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     // Firebase Helper instance
     private FirebaseDBHelper firebaseDBHelper;
 
-    private TextView tagValue;
-    private TextView tagId;
-    private TextView tagMessages;
-    private TextView userNameField;
-    private TextView userEmailField;
     private FloatingActionButton fab;
     private FloatingActionButton fabNFC;
     private FloatingActionButton fabQR;
@@ -52,12 +51,12 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     private Animation rotateForwardAnimation;
     private Animation rotateBackAnimation;
     private boolean isFabOpen = false;
-    private ImageView downloadedImage;
-    private FirebaseStoreHelper firebaseStoreHelper;
-    private TextView downloadProgress;
-    private ProgressBar downloadProgressBar;
 
     public static String downloadFilePath = "fail";
+    private RecyclerView buddiesList;
+    private RecyclerView followingList;
+    private PetsAdapter buddiesAdapter;
+    private PetsAdapter followingAdapter;
 
     public NFCReadFragment() {
     }
@@ -83,9 +82,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                         Snackbar.LENGTH_LONG).show();
                 // Set text fields with Tag information
                 if(data.getExtras() != null) {
-                    setNFCFields((NFCTag) data.getExtras().getParcelable(Constants.NFC_TAG_EXTRA));
-                } else {
-                    clearFields();
+                    firebaseDBHelper.addPet((NFCTag) data.getExtras().getParcelable(Constants.NFC_TAG_EXTRA), false);
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
@@ -102,16 +99,13 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                             Snackbar.LENGTH_LONG).show();
                     Barcode barcode = data.getParcelableExtra(BarcodeCaptureActivity.BarcodeObject);
                     if(barcode != null) {
-                        setQRFields(new QRCodeTag(barcode.displayValue));
-                    } else {
-                        clearFields();
+                        firebaseDBHelper.addPet(new QRCodeTag(barcode.displayValue), false);
                     }
                 } else {
                     Snackbar.make(
                             getActivity().findViewById(R.id.nfc_read_layout),
                             R.string.qrcode_read_fail,
                             Snackbar.LENGTH_LONG).show();
-                    tagValue.setText(R.string.barcode_failure);
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
@@ -120,32 +114,6 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                         Snackbar.LENGTH_LONG).show();
             }
         }
-    }
-
-    public void setNFCFields(NFCTag nfcTag) {
-        tagValue.setText(nfcTag.getTag().toString());
-        tagMessages.setText(NFCUtils.decodePayload(nfcTag.getNdefMessages()[0]));
-        tagId.setText(nfcTag.getId());
-
-        firebaseDBHelper.addPet(nfcTag, false);
-    }
-
-    public void setQRFields(QRCodeTag qrCodeTag) {
-        tagValue.setText(R.string.barcode_success);
-        tagId.setText(qrCodeTag.getId());
-
-        firebaseDBHelper.addPet(qrCodeTag, false);
-    }
-
-    public void clearFields() {
-        tagValue.setText("");
-        tagMessages.setText("");
-        tagId.setText("");
-    }
-
-    public void setUserInfo() {
-        userNameField.setText(firebaseDBHelper.getUserName());
-        userEmailField.setText(firebaseDBHelper.getEmail());
     }
 
     public void animateFab() {
@@ -170,22 +138,29 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseDBHelper = new FirebaseDBHelper(getActivity());
-        firebaseStoreHelper = new FirebaseStoreHelper();
-        setUserInfo();
+
+        buddiesAdapter = new PetsAdapter(
+                getActivity(),
+                Boolean.class,
+                R.layout.pet_item,
+                PetViewHolder.class,
+                getQuery(Constants.DATABASE_BUDDIES_CHILD));
+
+        followingAdapter = new PetsAdapter(
+                getActivity(),
+                Boolean.class,
+                R.layout.pet_item,
+                PetViewHolder.class,
+                getQuery(Constants.DATABASE_FOLLOWING_CHILD));
+
+        buddiesList.setAdapter(buddiesAdapter);
+        followingList.setAdapter(followingAdapter);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_read_nfc, container, false);
-
-        tagValue = (TextView) rootView.findViewById(R.id.tag_value);
-        tagMessages = (TextView) rootView.findViewById(R.id.tag_messages_value);
-        tagId = (TextView) rootView.findViewById(R.id.tag_id_value);
-
-        // Get User info bar
-        userNameField = (TextView) rootView.findViewById(R.id.user_name);
-        userEmailField = (TextView) rootView.findViewById(R.id.user_email);
 
         fabNFC = (FloatingActionButton) getActivity().findViewById(R.id.fabNFC);
         fabQR = (FloatingActionButton) getActivity().findViewById(R.id.fabQR);
@@ -198,13 +173,14 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
         rotateForwardAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_forward);
         rotateBackAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.rotate_backwards);
 
-        downloadProgressBar = (ProgressBar) rootView.findViewById(R.id.download_progress_bar);
-        downloadProgress = (TextView) rootView.findViewById(R.id.download_message);
-        downloadedImage = (ImageView) rootView.findViewById(R.id.downloaded_image);
-        Button downloadButton = (Button) rootView.findViewById(R.id.download_image_button);
-        downloadButton.setOnClickListener(this);
+        buddiesList = (RecyclerView) rootView.findViewById(R.id.buddies_list);
+        followingList = (RecyclerView) rootView.findViewById(R.id.following_list);
 
         return rootView;
+    }
+
+    public Query getQuery(String child) {
+        return firebaseDBHelper.getCurrentUserReference().child(child).orderByKey();
     }
 
     @Override
@@ -225,10 +201,18 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
                 Intent intent = new Intent(getActivity(), BarcodeCaptureActivity.class);
                 startActivityForResult(intent, Constants.RC_BARCODE_CAPTURE);
                 break;
-            case R.id.download_image_button:
-                firebaseStoreHelper.downloadImage(downloadFilePath, firebaseDBHelper.getLoginName(), downloadedImage, downloadProgressBar, downloadProgress);
-                break;
             default:
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        if(buddiesAdapter != null) {
+            buddiesAdapter.cleanup();
+        }
+        if(followingAdapter != null) {
+            followingAdapter.cleanup();
+        }
+        super.onDestroy();
     }
 }

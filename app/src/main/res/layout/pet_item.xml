@@ -34,14 +34,14 @@
         android:layout_centerVertical="true">
 
         <TextView
-            android:id="@+id/post_title"
+            android:id="@+id/pet_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:text=""/>
 
         <TextView
-            android:id="@+id/post_date_time"
+            android:id="@+id/pet_infos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16sp"

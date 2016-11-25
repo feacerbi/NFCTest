@@ -3,7 +3,6 @@ package com.felipeacerbi.nfctest.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.felipeacerbi.nfctest.R;
@@ -11,7 +10,6 @@ import com.felipeacerbi.nfctest.game.UsersAdapter;
 import com.felipeacerbi.nfctest.models.Pet;
 import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.models.tags.BaseTag;
-import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -177,7 +175,7 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
 
                 for (DataSnapshot tagSnapshot: dataSnapshot.getChildren()) {
                     found = true;
-                    foundTag = tagSnapshot.getValue(BaseTag.class);
+                    foundTag = new BaseTag(tagSnapshot);
                 }
 
                 if(isNew) {
@@ -209,7 +207,7 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         }
         tag.setPet(petId);
 
-        Pet pet = new Pet(petId, tag.getId(), "Rex", 1);
+        Pet pet = new Pet(petId, tag.getId(), "Rex", "5", "Border Collie", "fail");
 
         Map<String, Object> childUpdates = new HashMap<>();
 
@@ -221,35 +219,48 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         if(exists) {
             childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
                             + petId + "/"
-                            + Constants.DATABASE_USERS_CHILD + "/"
+                            + Constants.DATABASE_OWNERS_CHILD + "/"
                             + getLoginName(),
-                    true);
+                            true);
         } else {
+            pet.getOwners().put(getLoginName(), true);
             childUpdates.put(Constants.DATABASE_TAGS_CHILD + "/" // Add current user to TAG
                             + tag.getId(),
-                    tag.toMap());
+                            tag.toMap());
             childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
                             + petId,
-                    pet.toMap());
+                            pet.toMap());
         }
 
         getDatabase().updateChildren(childUpdates);
     }
 
-    private void addFollowPet(BaseTag tag) {
-        getTagReference(tag.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void addFollowPet(final BaseTag tag) {
+
+        getPetReference(tag.getPet()).child(Constants.DATABASE_POSTS_CHILD).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String petId = dataSnapshot.child(Constants.DATABASE_PET_CHILD).getValue(String.class);
-
-                // Map<String, Object> tagValues = tag.toMap();
                 Map<String, Object> childUpdates = new HashMap<>();
 
-                childUpdates.put(Constants.DATABASE_USERS_CHILD + "/" // Add TAG to current user
+                childUpdates.put(Constants.DATABASE_USERS_PATH + "/" // Add TAG to current user
                                 + getLoginName() + "/"
                                 + Constants.DATABASE_FOLLOWING_CHILD + "/"
-                                + petId,
+                                + tag.getPet(),
+                                 true);
+
+                childUpdates.put(Constants.DATABASE_PETS_PATH + "/" // Add TAG to current user
+                                + tag.getPet() + "/"
+                                + Constants.DATABASE_FOLLOWERS_CHILD + "/"
+                                + getLoginName(),
                                 true);
+
+                for (DataSnapshot post : dataSnapshot.getChildren()) {
+                    childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                                    + getLoginName() + "/"
+                                    + Constants.DATABASE_FEED_CHILD + "/"
+                                    + post.getKey(),
+                                     post.getValue());
+                }
 
                 getDatabase().updateChildren(childUpdates);
             }

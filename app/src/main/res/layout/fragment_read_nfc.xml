@@ -1,110 +1,66 @@
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nfc_read_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".fragments.NFCReadFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <TextView
-            android:id="@+id/tag_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:text="TAG" />
 
         <TextView
-            android:id="@+id/tag_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tag_title"
-            android:text="Test TAG" />
-
-        <TextView
-            android:id="@+id/tag_messages"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tag_value"
-            android:layout_marginTop="16dp"
-            android:textSize="16sp"
-            android:text="TAG Messages" />
-
-        <TextView
-            android:id="@+id/tag_messages_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tag_messages"
-            android:text="Test TAG message" />
-
-        <TextView
-            android:id="@+id/tag_id"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tag_messages_value"
-            android:layout_marginTop="16dp"
-            android:textSize="16sp"
-            android:text="TAG ID" />
-
-        <TextView
-            android:id="@+id/tag_id_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/tag_id"
-            android:text="Test ID" />
-
-        <TextView
-            android:id="@+id/user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:textSize="16sp"
-            android:layout_below="@id/tag_id_value"
-            android:text="Test Name" />
-
-        <TextView
-            android:id="@+id/user_email"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/user_name"
-            android:textSize="16sp"
-            android:text="test@test.com" />
-
-        <Button
-            android:id="@+id/download_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_below="@id/user_email"
-            android:text="Download"/>
-
-        <ProgressBar
-            android:id="@+id/download_progress_bar"
+            android:id="@+id/list_title_up"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:progress="0"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_below="@id/download_image_button"/>
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/buddies_list_title"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/buddies_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_title_up"
+            android:scrollbars="vertical"
+            app:layoutManager="LinearLayoutManager"
+            tools:context=".fragments.NFCReadFragment" >
+        </android.support.v7.widget.RecyclerView>
 
         <TextView
-            android:id="@+id/download_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/download_progress_bar"
-            android:text="0%"/>
-
-        <ImageView
-            android:id="@+id/downloaded_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/buddies_list"
             android:layout_marginTop="10dp"
-            android:layout_below="@id/download_message"
-            android:src="@mipmap/ic_launcher"/>
+            android:layout_marginBottom="10dp"
+            android:alpha="0.2"
+            android:background="#000000"/>
+
+        <TextView
+            android:id="@+id/list_title_down"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/separator"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/following_list_title"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/following_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/list_title_down"
+            android:scrollbars="vertical"
+            app:layoutManager="LinearLayoutManager"
+            tools:context=".fragments.NFCReadFragment" >
+        </android.support.v7.widget.RecyclerView>
     </RelativeLayout>
 
 </android.support.v4.widget.NestedScrollView>

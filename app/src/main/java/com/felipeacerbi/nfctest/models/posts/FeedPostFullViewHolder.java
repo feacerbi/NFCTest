@@ -11,7 +11,7 @@ import com.felipeacerbi.nfctest.R;
 
 public class FeedPostFullViewHolder extends RecyclerView.ViewHolder {
 
-    private TextView userField;
+    private TextView petField;
     private TextView timeField;
     private TextView likeButton;
     private TextView commentButton;
@@ -31,7 +31,7 @@ public class FeedPostFullViewHolder extends RecyclerView.ViewHolder {
 
         profilePicture = (ImageView) itemView.findViewById(R.id.profile_picture);
         profilePictureProgress = (ProgressBar) itemView.findViewById(R.id.profile_picture_progress);
-        userField = (TextView) itemView.findViewById(R.id.post_title);
+        petField = (TextView) itemView.findViewById(R.id.post_title);
         timeField = (TextView) itemView.findViewById(R.id.post_date_time);
         likeButton = (TextView) itemView.findViewById(R.id.like_button);
         commentButton = (TextView) itemView.findViewById(R.id.comment_button);
@@ -44,8 +44,8 @@ public class FeedPostFullViewHolder extends RecyclerView.ViewHolder {
         contentProgress = (ProgressBar) itemView.findViewById(R.id.post_media_progress);
     }
 
-    public TextView getUserField() {
-        return userField;
+    public TextView getPetField() {
+        return petField;
     }
 
     public TextView getTimeField() {

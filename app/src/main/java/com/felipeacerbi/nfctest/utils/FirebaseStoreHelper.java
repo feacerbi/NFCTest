@@ -54,17 +54,18 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         return storage.getReference(Constants.STORAGE_IMAGES_PATH);
     }
 
-    public void uploadImage(File file, String user, ProgressBar progressBar, TextView progress) {
+    public UploadTask uploadImage(File file, String user, ProgressBar progressBar, TextView progress) {
         Uri uri = Uri.fromFile(file);
 
         uploadProgressBar = progressBar;
         uploadProgress = progress;
 
-        currentUploadTask = getUserImagesReference(user).child(file.getName()).putFile(uri);
         currentUploadTask.addOnFailureListener(this)
                 .addOnPausedListener(this)
                 .addOnProgressListener(this)
                 .addOnSuccessListener(this);
+
+        return currentUploadTask = getUserImagesReference(user).child(file.getName()).putFile(uri);
     }
 
     public void downloadImage(String fileName, String user, ImageView imageView, ProgressBar progressBar, TextView progress) {
@@ -79,8 +80,8 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         try {
             localFile = File.createTempFile("temp", "jpg");
             currentDownloadTask = getUserImagesReference(user).child(fileName).getFile(localFile);
-            currentDownloadTask.addOnSuccessListener(this)
-                    .addOnFailureListener(this)
+            currentDownloadTask.addOnFailureListener(this)
+                    .addOnPausedListener(this)
                     .addOnProgressListener(this)
                     .addOnSuccessListener(this);
         } catch (IOException e) {

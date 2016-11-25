@@ -5,7 +5,7 @@ import com.google.firebase.database.DataSnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class BaseTag {
+public class BaseTag {
 
     private String id;
     private String pet;

@@ -9,13 +9,12 @@ import com.google.firebase.database.GenericTypeIndicator;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public abstract class FeedPost {
 
     private String id;
     private int type;
-    private String user;
+    private String pet;
     private String name;
     private String profileImage;
     private String timestamp;
@@ -27,10 +26,14 @@ public abstract class FeedPost {
     public FeedPost() {
     }
 
+    public FeedPost(DataSnapshot dataSnapshot) {
+        fromMap(dataSnapshot);
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> result = new HashMap<>();
         result.put("type", type);
-        result.put("user", user);
+        result.put("pet", pet);
         result.put("name", name);
         result.put("profileImage", profileImage);
         result.put("timestamp", timestamp);
@@ -45,7 +48,7 @@ public abstract class FeedPost {
     public void fromMap(DataSnapshot dataSnapshot) {
         id = dataSnapshot.getKey();
         type = dataSnapshot.child("type").getValue(Integer.class);
-        user = dataSnapshot.child("user").getValue(String.class);
+        pet = dataSnapshot.child("pet").getValue(String.class);
         name = dataSnapshot.child("name").getValue(String.class);
         profileImage = dataSnapshot.child("profileImage").getValue(String.class);
         timestamp = dataSnapshot.child("timestamp").getValue(String.class);
@@ -88,12 +91,12 @@ public abstract class FeedPost {
         this.type = type;
     }
 
-    public String getUser() {
-        return user;
+    public String getPet() {
+        return pet;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setPet(String pet) {
+        this.pet = pet;
     }
 
     public String getName() {

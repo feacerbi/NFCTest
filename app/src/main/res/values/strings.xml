@@ -43,7 +43,7 @@
     <string name="qrcode_read_success">QR Code read successfully</string>
     <string name="qrcode_read_fail">QR Code read fail</string>
     <string name="qrcode_read_canceled">QR Code read canceled</string>
-    <string name="no_users">No users found</string>
+    <string name="no_users">No owners found</string>
     <string name="google_signin_fail">Google Sign In failed</string>
     <string name="firebase_auth_fail">Authentication failed.</string>
     <string name="camera_parmission_denied">Permission denied</string>
@@ -73,4 +73,13 @@
     <string name="allow_write_storage">Please allow write storage permission</string>
     <string name="profile_picture">Profile picture</string>
     <string name="action_profile">Profile</string>
+    <string name="buddies_list_title">BUDDIES</string>
+    <string name="following_list_title">FOLLOWING</string>
+    <string name="pet_name_hint">Name</string>
+    <string name="pet_picture_title">Profile Picture</string>
+    <string name="upload_button_text">Upload</string>
+    <string name="pet_breed_hint">Breed</string>
+    <string name="pet_age_hint">Age</string>
+    <string name="photo">Photo</string>
+    <string name="write_something">Write something</string>
 </resources>

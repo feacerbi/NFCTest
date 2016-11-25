@@ -82,7 +82,7 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         } else if(requestCode == Constants.GET_IMAGE_FROM_PICKER) {
             if (resultCode == Activity.RESULT_OK) {
                 String path = getBitmapPath(data);
-                firebaseStoreHelper.uploadImage(new File(path), firebaseDBHelper.getLoginName(), uploadProgressBar, uploadProgress);
+                firebaseStoreHelper.uploadImage(new File(path), "-KXG849lebtS6ZNbWmOK", uploadProgressBar, uploadProgress);
             }
         }
     }

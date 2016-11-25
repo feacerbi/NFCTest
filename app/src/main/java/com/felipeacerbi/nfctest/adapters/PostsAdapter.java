@@ -18,6 +18,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PostsAdapter extends FirebaseRecyclerAdapter {
 
     private FirebaseDBHelper firebaseDBHelper;
@@ -39,7 +42,7 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
 
     @Override
     protected Object parseSnapshot(DataSnapshot snapshot) {
-        switch (snapshot.child("type").getValue(Integer.class)) {
+        switch (snapshot.child(Constants.DATABASE_TYPE_CHILD).getValue(Integer.class)) {
             case Constants.POST_TYPE_TEXT:
                 return snapshot.getValue(FeedPostText.class);
             case Constants.POST_TYPE_MEDIA:
@@ -57,16 +60,16 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
         firebaseDBHelper = new FirebaseDBHelper(context);
         firebaseStoreHelper = new FirebaseStoreHelper();
 
-        FeedPost post = (FeedPost) model;
+        final FeedPost post = (FeedPost) model;
         final FeedPostFullViewHolder postViewHolder = (FeedPostFullViewHolder) viewHolder;
 
-        postViewHolder.getUserField().setText(post.getName());
+        postViewHolder.getPetField().setText(post.getName());
         postViewHolder.getTimeField().setText(FeedPost.formatTime(context, post.getTimestamp()));
         postViewHolder.getContentText().setText(post.getText());
 
         firebaseStoreHelper.downloadImage(
                 post.getProfileImage(),
-                post.getUser(),
+                post.getPet(),
                 postViewHolder.getProfilePicture(),
                 postViewHolder.getProfilePictureProgress(),
                 null);
@@ -74,10 +77,43 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
         postViewHolder.getLikeButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                firebaseDBHelper.getPostReference(postKey)
-                        .child(Constants.DATABASE_LIKES_CHILD)
-                        .child(firebaseDBHelper.getLoginName())
-                        .setValue(true);
+                firebaseDBHelper.getPetReference(post.getPet()).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Map<String, Object> childUpdates = new HashMap<>();
+
+                        childUpdates.put(Constants.DATABASE_POSTS_PATH + "/"
+                                        + postKey + "/"
+                                        + Constants.DATABASE_LIKES_CHILD + "/"
+                                        + firebaseDBHelper.getLoginName(),
+                                         true);
+
+                        for(DataSnapshot follower : dataSnapshot.child(Constants.DATABASE_FOLLOWERS_CHILD).getChildren()) {
+                            childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                                            + follower.getKey() + "/"
+                                            + Constants.DATABASE_FEED_CHILD + "/"
+                                            + postKey + "/"
+                                            + Constants.DATABASE_LIKES_CHILD + "/"
+                                            + firebaseDBHelper.getLoginName(),
+                                            true);
+                        }
+
+                        childUpdates.put(Constants.DATABASE_USERS_CHILD + "/"
+                                        + firebaseDBHelper.getLoginName() + "/"
+                                        + Constants.DATABASE_POSTS_PATH + "/"
+                                        + postKey + "/"
+                                        + Constants.DATABASE_LIKES_CHILD + "/"
+                                        + firebaseDBHelper.getLoginName(),
+                                        true);
+
+                        firebaseDBHelper.getDatabase().updateChildren(childUpdates);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
             }
         });
 
@@ -95,10 +131,11 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
                     }
                 });
 
+
+        /* TODO Add user comment
         postViewHolder.getCommentButton().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO Add user comment
             }
         });
 
@@ -115,6 +152,7 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
 
                     }
                 });
+         */
 
         if(post.getType() == Constants.POST_TYPE_MEDIA) {
             FeedPostMedia postMedia = (FeedPostMedia) model;
@@ -122,7 +160,7 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
             FirebaseStoreHelper firebaseStoreHelper2 = new FirebaseStoreHelper();
             firebaseStoreHelper2.downloadImage(
                     postMedia.getMedia(),
-                    postMedia.getUser(),
+                    postMedia.getPet(),
                     postViewHolder.getContentPicture(),
                     postViewHolder.getContentProgress(),
                     null);

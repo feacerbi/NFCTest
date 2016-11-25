@@ -6,6 +6,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,11 +16,19 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
 import com.felipeacerbi.nfctest.R;
+import com.felipeacerbi.nfctest.adapters.PetsAdapter;
+import com.felipeacerbi.nfctest.adapters.PostsAdapter;
+import com.felipeacerbi.nfctest.fragments.FeedFragment;
+import com.felipeacerbi.nfctest.models.Pet;
+import com.felipeacerbi.nfctest.models.PetViewHolder;
+import com.felipeacerbi.nfctest.models.posts.FeedPostFullViewHolder;
+import com.felipeacerbi.nfctest.models.posts.FeedPostText;
 import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.felipeacerbi.nfctest.models.tags.QRCodeTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.firebase.database.Query;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,6 +42,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private Animation rotateForwardAnimation;
     private Animation rotateBackAnimation;
     private boolean isFabOpen = false;
+    private RecyclerView petsList;
+    private PetsAdapter petsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +53,19 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         firebaseDBHelper = new FirebaseDBHelper(this);
 
         setToolbar();
+
+        petsAdapter = new PetsAdapter(
+                this,
+                Boolean.class,
+                R.layout.pet_item,
+                PetViewHolder.class,
+                getQuery(firebaseDBHelper));
+
+        petsList.setAdapter(petsAdapter);
+    }
+
+    private Query getQuery(FirebaseDBHelper firebaseDBHelper) {
+        return firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_BUDDIES_CHILD).orderByKey();
     }
 
     @Override
@@ -58,6 +83,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         closeAnimation = AnimationUtils.loadAnimation(this, R.anim.fab_close);
         rotateForwardAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_forward);
         rotateBackAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_backwards);
+
+        petsList = (RecyclerView) findViewById(R.id.buddies_list);
     }
 
     @Override
@@ -70,7 +97,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 firebaseDBHelper.addPet((NFCTag) data.getExtras().getParcelable(Constants.NFC_TAG_EXTRA), true);
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
-                        findViewById(R.id.activity_profile),
+                        findViewById(R.id.buddies_list),
                         R.string.tag_read_cancel,
                         Snackbar.LENGTH_LONG).show();
             }
@@ -81,13 +108,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     firebaseDBHelper.addPet(new QRCodeTag(barcode.displayValue), true);
                 } else {
                     Snackbar.make(
-                            findViewById(R.id.activity_profile),
+                            findViewById(R.id.buddies_list),
                             R.string.qrcode_read_fail,
                             Snackbar.LENGTH_LONG).show();
                 }
             } else if (resultCode == Activity.RESULT_CANCELED) {
                 Snackbar.make(
-                        findViewById(R.id.activity_profile),
+                        findViewById(R.id.buddies_list),
                         R.string.qrcode_read_canceled,
                         Snackbar.LENGTH_LONG).show();
             }
@@ -155,5 +182,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             fabQR.setClickable(true);
             isFabOpen = true;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(petsAdapter != null) {
+            petsAdapter.cleanup();
+        }
+        super.onDestroy();
     }
 }
