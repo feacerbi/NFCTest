@@ -24,14 +24,12 @@ import java.util.Map;
 public class PostsAdapter extends FirebaseRecyclerAdapter {
 
     private FirebaseDBHelper firebaseDBHelper;
-    private FirebaseStoreHelper firebaseStoreHelper;
     private Context context;
 
     public PostsAdapter(Context context, Class modelClass, int modelLayout, Class viewHolderClass, Query ref) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         this.context = context;
         firebaseDBHelper = new FirebaseDBHelper(context);
-        firebaseStoreHelper = new FirebaseStoreHelper();
     }
 
     @Override
@@ -58,7 +56,6 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
         final String postKey = postRef.getKey();
 
         firebaseDBHelper = new FirebaseDBHelper(context);
-        firebaseStoreHelper = new FirebaseStoreHelper();
 
         final FeedPost post = (FeedPost) model;
         final FeedPostFullViewHolder postViewHolder = (FeedPostFullViewHolder) viewHolder;
@@ -67,6 +64,7 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
         postViewHolder.getTimeField().setText(FeedPost.formatTime(context, post.getTimestamp()));
         postViewHolder.getContentText().setText(post.getText());
 
+        FirebaseStoreHelper firebaseStoreHelper = new FirebaseStoreHelper();
         firebaseStoreHelper.downloadImage(
                 post.getProfileImage(),
                 post.getPet(),
@@ -98,8 +96,8 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
                                             true);
                         }
 
-                        childUpdates.put(Constants.DATABASE_USERS_CHILD + "/"
-                                        + firebaseDBHelper.getLoginName() + "/"
+                        childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
+                                        + post.getPet() + "/"
                                         + Constants.DATABASE_POSTS_PATH + "/"
                                         + postKey + "/"
                                         + Constants.DATABASE_LIKES_CHILD + "/"
@@ -157,8 +155,8 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
         if(post.getType() == Constants.POST_TYPE_MEDIA) {
             FeedPostMedia postMedia = (FeedPostMedia) model;
 
-            FirebaseStoreHelper firebaseStoreHelper2 = new FirebaseStoreHelper();
-            firebaseStoreHelper2.downloadImage(
+            FirebaseStoreHelper firebaseStoreHelperMedia = new FirebaseStoreHelper();
+            firebaseStoreHelperMedia.downloadImage(
                     postMedia.getMedia(),
                     postMedia.getPet(),
                     postViewHolder.getContentPicture(),

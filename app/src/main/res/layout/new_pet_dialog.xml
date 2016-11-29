@@ -12,7 +12,7 @@
         <AutoCompleteTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/pet_name_hint"
+            android:hint="Name"
             android:inputType="textCapWords"
             android:maxLines="1" />
 
@@ -27,7 +27,7 @@
         <AutoCompleteTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/pet_breed_hint"
+            android:hint="Breed"
             android:inputType="textCapWords"
             android:maxLines="1" />
 
@@ -42,7 +42,7 @@
         <AutoCompleteTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/pet_age_hint"
+            android:hint="Age"
             android:inputType="textCapWords"
             android:maxLines="1" />
 
@@ -54,7 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/pet_age"
         android:layout_marginTop="16dp"
-        android:text="@string/pet_picture_title"/>
+        android:text="Photo"/>
 
     <ProgressBar
         android:id="@+id/upload_progress_bar"
@@ -65,12 +65,13 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_below="@id/pet_picture_title"/>
 
-    <Button
+    <ImageView
         android:id="@+id/upload_image_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:layout_below="@id/upload_progress_bar"
-        android:text="@string/upload_button_text"/>
+        android:background="#000000"
+        android:src="@drawable/ic_camera_alt_white_24dp"/>
 
 </RelativeLayout>

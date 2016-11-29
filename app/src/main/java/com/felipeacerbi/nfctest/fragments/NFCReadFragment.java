@@ -141,7 +141,7 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
 
         buddiesAdapter = new PetsAdapter(
                 getActivity(),
-                Boolean.class,
+                String.class,
                 R.layout.pet_item,
                 PetViewHolder.class,
                 getQuery(Constants.DATABASE_BUDDIES_CHILD));

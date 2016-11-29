@@ -38,6 +38,12 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter implements TabLay
         tabTitles = context.getResources().getStringArray(R.array.tab_titles);
     }
 
+    public void selectTab(int position) {
+        Fragment fragment = fm.getFragments().get(position + 1);
+        fab.setImageResource(fabIcons.getResourceId(position, 0));
+        fab.setOnClickListener((View.OnClickListener) fragment);
+    }
+
     @Override
     public Fragment getItem(int position) {
         // getItem is called to instantiate the fragment for the given page.
@@ -67,9 +73,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter implements TabLay
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
         int position = tab.getPosition();
-        Fragment fragment = fm.getFragments().get(position + 1);
-        fab.setImageResource(fabIcons.getResourceId(position, 0));
-        fab.setOnClickListener((View.OnClickListener) fragment);
+        selectTab(position);
     }
 
     @Override

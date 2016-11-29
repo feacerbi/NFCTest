@@ -1,5 +1,6 @@
 package com.felipeacerbi.nfctest.models;
 
+import com.google.android.gms.common.api.BooleanResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 
@@ -14,7 +15,7 @@ public class User {
     private String email;
     private boolean online = false;
     private boolean playing = false;
-    private Map<String, Boolean> pets = new HashMap<>();
+    private Map<String, String> pets = new HashMap<>();
     private Map<String, Boolean> following = new HashMap<>();
 
     public User() {
@@ -53,9 +54,10 @@ public class User {
         email = dataSnapshot.child("email").getValue(String.class);
         online = dataSnapshot.child("online").getValue(Boolean.class);
         playing = dataSnapshot.child("playing").getValue(Boolean.class);
-        GenericTypeIndicator<Map<String, Boolean>> t = new GenericTypeIndicator<Map<String, Boolean>>() {};
+        GenericTypeIndicator<Map<String, String>> t = new GenericTypeIndicator<Map<String, String>>() {};
         pets = dataSnapshot.child("pets").getValue(t);
-        following = dataSnapshot.child("following").getValue(t);
+        GenericTypeIndicator<Map<String, Boolean>> t2 = new GenericTypeIndicator<Map<String, Boolean>>() {};
+        following = dataSnapshot.child("following").getValue(t2);
     }
 
     public String getUsername() {
@@ -106,11 +108,11 @@ public class User {
         this.playing = playing;
     }
 
-    public Map<String, Boolean> getPets() {
+    public Map<String, String> getPets() {
         return pets;
     }
 
-    public void setPets(Map<String, Boolean> pets) {
+    public void setPets(Map<String, String> pets) {
         this.pets = pets;
     }
 

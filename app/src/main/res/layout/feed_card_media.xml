@@ -40,14 +40,15 @@
                 android:id="@+id/post_photo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxHeight="200dp"
-                android:visibility="gone"
-                android:scaleType="fitCenter"
+                android:visibility="invisible"
+                android:scaleType="centerInside"
+                android:adjustViewBounds="true"
                 android:src="@mipmap/ic_launcher" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true">
                 <ProgressBar
                     android:id="@+id/post_media_progress"
                     android:layout_width="80dp"

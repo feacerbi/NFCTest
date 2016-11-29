@@ -15,12 +15,16 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,9 +52,11 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class FeedFragment extends Fragment implements View.OnClickListener, OnSuccessListener<UploadTask.TaskSnapshot>, OnFailureListener {
 
@@ -60,11 +66,10 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
     private RecyclerView cardsList;
     private LayoutManagerType currentLayoutManagerType;
     private PostsAdapter postsAdapter;
-    private FirebaseStoreHelper firebaseStoreHelper;
     private ProgressBar progressBar;
     private TextView progress;
-    private Pet chosenPet;
     private String postFilePath;
+    private Pet currentPet;
 
     private enum LayoutManagerType {
         GRID_LAYOUT_MANAGER,
@@ -78,7 +83,6 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseDBHelper = new FirebaseDBHelper(getActivity());
-        firebaseStoreHelper = new FirebaseStoreHelper();
 
         postsAdapter = new PostsAdapter(
                 getActivity(),
@@ -130,14 +134,31 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        fab.setOnClickListener(this);
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.fab:
-                firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_BUDDIES_CHILD)
+                firebaseDBHelper.getCurrentUserReference()
+                        .child(Constants.DATABASE_BUDDIES_CHILD)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        choosePetAndPost();
+                        GenericTypeIndicator<Map<String, String>> t = new GenericTypeIndicator<Map<String, String>>() {};
+                        Map<String, String> buddies = dataSnapshot.getValue(t);
+                        if(buddies != null && !buddies.isEmpty()) {
+                            if(buddies.size() > 1) {
+                                choosePetAndPost(buddies);
+                            } else {
+                                createPostDialog(buddies.keySet().toArray()[0].toString());
+                            }
+                        } else {
+                            Toast.makeText(getActivity(), "You have no buddies yet", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                     @Override
@@ -152,65 +173,68 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
         }
     }
 
-    public void choosePetAndPost() {
-        firebaseDBHelper.getPetsReference().orderByChild(firebaseDBHelper.getLoginName()).equalTo(true)
+    public void choosePetAndPost(final Map<String, String> buddies) {
+        String names[] = new String[buddies.size()];
+        names = buddies.values().toArray(names);
+
+        // Create buddies list dialog
+        AlertDialog.Builder buddiesDialog = new AlertDialog.Builder(getActivity());
+        buddiesDialog.setItems(names, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                createPostDialog(buddies.keySet().toArray()[i].toString());
+            }
+        })
+                .setTitle("Select Buddy")
+                .create()
+                .show();
+    }
+
+    public void createPostDialog(String petId) {
+        firebaseDBHelper.getPetReference(petId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        final List<Pet> pets = new ArrayList<>();
-                        String petNames[] = new String[(int) dataSnapshot.getChildrenCount()];
+                        currentPet = new Pet(dataSnapshot);
 
-                        int i = 0;
-                        for(DataSnapshot petSnapshot : dataSnapshot.getChildren()) {
-                            pets.add(petSnapshot.getValue(Pet.class));
-                            petNames[i] = pets.get(i).toString();
-                            i++;
-                        }
+                        LayoutInflater inflater = getActivity().getLayoutInflater();
+                        View dialogView = inflater.inflate(R.layout.new_post_dialog, null);
 
-                        AlertDialog.Builder buddiesDialog = new AlertDialog.Builder(getActivity());
-                        buddiesDialog.setItems(petNames, new DialogInterface.OnClickListener() {
+                        AlertDialog.Builder postDialog = new AlertDialog.Builder(getActivity());
+                        postDialog.setView(dialogView);
+
+                        final AutoCompleteTextView content = (AutoCompleteTextView) dialogView.findViewById(R.id.post_content);
+                        progressBar = (ProgressBar) dialogView.findViewById(R.id.upload_progress_bar);
+                        progress = (TextView) dialogView.findViewById(R.id.upload_message);
+                        ImageView uploadButton = (ImageView) dialogView.findViewById(R.id.upload_image_button);
+                        setUploadButton(uploadButton);
+
+                        postDialog.setPositiveButton("Post", new DialogInterface.OnClickListener() {
                             @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                chosenPet = pets.get(i);
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (postFilePath != null && !postFilePath.equals("")) {
+                                    FeedPostMedia feedPost = new FeedPostMedia();
+                                    feedPost.setType(Constants.POST_TYPE_MEDIA);
+                                    feedPost.setMedia(postFilePath);
 
-                                LayoutInflater inflater = getActivity().getLayoutInflater();
-                                View dialogView = inflater.inflate(R.layout.new_post_dialog, null);
+                                    addNewPost(feedPost, currentPet, content.getText().toString());
+                                } else {
+                                    FeedPostText feedPostText = new FeedPostText();
+                                    feedPostText.setType(Constants.POST_TYPE_TEXT);
 
-                                AlertDialog.Builder postDialog = new AlertDialog.Builder(getActivity());
-                                postDialog.setView(dialogView);
-
-                                final TextView content = (TextView) dialogView.findViewById(R.id.post_content);
-                                progressBar = (ProgressBar) dialogView.findViewById(R.id.upload_progress_bar);
-                                progress = (TextView) dialogView.findViewById(R.id.upload_message);
-                                Button uploadButton = (Button) dialogView.findViewById(R.id.upload_image_button);
-                                setUploadButton(uploadButton);
-
-                                postDialog.setPositiveButton("Post", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if (postFilePath != null && !postFilePath.equals("")) {
-                                            FeedPostMedia feedPost = new FeedPostMedia();
-                                            feedPost.setType(Constants.POST_TYPE_MEDIA);
-                                            feedPost.setMedia(postFilePath);
-
-                                            addNewPost(feedPost, content.getText().toString());
-                                        } else {
-                                            FeedPostText feedPostText = new FeedPostText();
-                                            feedPostText.setType(Constants.POST_TYPE_TEXT);
-
-                                            addNewPost(feedPostText, content.getText().toString());
-                                        }
-                                    }
-                                })
-                                        .setTitle("New Post")
-                                        .create()
-                                        .show();
+                                    addNewPost(feedPostText, currentPet, content.getText().toString());
+                                }
                             }
                         })
-                                .setTitle("Select Buddy")
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Toast.makeText(getActivity(), "Post cancelled", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .setTitle("New Post")
                                 .create()
                                 .show();
-
                     }
 
                     @Override
@@ -220,11 +244,11 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
                 });
     }
 
-    private void addNewPost(final FeedPost feedPost, String content) {
-        feedPost.setPet(chosenPet.getId());
-        feedPost.setName(chosenPet.getName());
+    private void addNewPost(final FeedPost feedPost, Pet pet, String content) {
+        feedPost.setPet(pet.getId());
+        feedPost.setName(pet.getName());
         feedPost.setTimestamp(String.valueOf(Calendar.getInstance().getTimeInMillis()));
-        feedPost.setProfileImage(chosenPet.getProfileImage());
+        feedPost.setProfileImage(pet.getProfileImage());
         feedPost.setText(content);
 
         firebaseDBHelper.getPetReference(feedPost.getPet()).child(Constants.DATABASE_FOLLOWERS_CHILD)
@@ -263,7 +287,7 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
                 });
     }
 
-    private void setUploadButton(Button uploadButton) {
+    private void setUploadButton(ImageView uploadButton) {
         uploadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -291,6 +315,7 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
 
         if (!ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            Toast.makeText(getActivity(), "Permission Should", Toast.LENGTH_SHORT).show();
             ActivityCompat.requestPermissions(getActivity(), permissions, Constants.WRITE_EXTERNAL_STORAGE_PERMISSION);
         } else {
             Toast.makeText(getActivity(), R.string.allow_write_storage, Toast.LENGTH_SHORT).show();
@@ -300,12 +325,13 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        FirebaseStoreHelper firebaseStoreHelper = new FirebaseStoreHelper();
 
         if(requestCode == Constants.GET_IMAGE_FROM_PICKER) {
             if (resultCode == Activity.RESULT_OK) {
                 UploadTask uploadTask = firebaseStoreHelper.uploadImage(
                         new File(getBitmapPath(data)),
-                        chosenPet.getId(),
+                        currentPet.getId(),
                         progressBar,
                         progress);
                 uploadTask.addOnSuccessListener(this);
@@ -330,6 +356,7 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Toast.makeText(getActivity(), "Permission Result", Toast.LENGTH_SHORT).show();
 
         if(requestCode == Constants.WRITE_EXTERNAL_STORAGE_PERMISSION) {
             if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {

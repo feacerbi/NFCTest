@@ -215,7 +215,7 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
                         + getLoginName() + "/"
                         + Constants.DATABASE_BUDDIES_CHILD + "/"
                         + petId,
-                        true);
+                        pet.getName());
         if(exists) {
             childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
                             + petId + "/"

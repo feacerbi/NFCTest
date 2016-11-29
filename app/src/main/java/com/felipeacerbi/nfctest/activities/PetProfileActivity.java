@@ -38,8 +38,6 @@ public class PetProfileActivity extends AppCompatActivity {
             pet = (Pet) petProfileIntent.getSerializableExtra(Constants.PET_EXTRA);
         }
 
-        setToolbar();
-
         postsAdapter = new PostsAdapter(
                 this,
                 FeedPost.class,
@@ -59,12 +57,6 @@ public class PetProfileActivity extends AppCompatActivity {
         super.onContentChanged();
 
         postsList = (RecyclerView) findViewById(R.id.pet_posts_list);
-    }
-
-    public void setToolbar() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(firebaseDBHelper.getUserName());
-        setSupportActionBar(toolbar);
     }
 
     @Override

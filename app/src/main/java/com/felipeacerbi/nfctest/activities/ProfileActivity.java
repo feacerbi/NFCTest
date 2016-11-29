@@ -56,7 +56,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         petsAdapter = new PetsAdapter(
                 this,
-                Boolean.class,
+                String.class,
                 R.layout.pet_item,
                 PetViewHolder.class,
                 getQuery(firebaseDBHelper));

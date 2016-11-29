@@ -30,13 +30,11 @@ public class PetsAdapter extends FirebaseRecyclerAdapter {
 
     private final Context context;
     private FirebaseDBHelper firebaseDBHelper;
-    private FirebaseStoreHelper firebaseStoreHelper;
 
     public PetsAdapter(Context context, final Class modelClass, int modelLayout, Class viewHolderClass, Query ref) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         this.context = context;
         firebaseDBHelper = new FirebaseDBHelper(context);
-        firebaseStoreHelper = new FirebaseStoreHelper();
     }
 
     @Override
@@ -62,6 +60,7 @@ public class PetsAdapter extends FirebaseRecyclerAdapter {
                     }
                 });
 
+                FirebaseStoreHelper firebaseStoreHelper = new FirebaseStoreHelper();
                 firebaseStoreHelper.downloadImage(
                         pet.getProfileImage(),
                         pet.getId(),

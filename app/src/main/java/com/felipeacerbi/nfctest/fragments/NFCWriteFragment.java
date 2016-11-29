@@ -44,7 +44,6 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     private FirebaseDBHelper firebaseDBHelper;
 
     private EditText tagMessages;
-    private FirebaseStoreHelper firebaseStoreHelper;
     private ProgressBar uploadProgressBar;
     private TextView uploadProgress;
 
@@ -62,6 +61,7 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        FirebaseStoreHelper firebaseStoreHelper = new FirebaseStoreHelper();
 
         // Handle response from WaitTagActivity
         if(requestCode == Constants.START_WAIT_WRITE_TAG_INTENT) {
@@ -135,7 +135,6 @@ public class NFCWriteFragment extends Fragment implements View.OnClickListener {
         super.onViewCreated(view, savedInstanceState);
         firebaseDBHelper = new FirebaseDBHelper(getActivity());
         firebaseDBHelper.registerUser();
-        firebaseStoreHelper = new FirebaseStoreHelper();
     }
 
     @Override

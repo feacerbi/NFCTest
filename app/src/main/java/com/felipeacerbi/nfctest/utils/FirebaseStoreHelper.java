@@ -1,5 +1,6 @@
 package com.felipeacerbi.nfctest.utils;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.annotation.NonNull;
@@ -60,13 +61,15 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         uploadProgressBar = progressBar;
         uploadProgress = progress;
 
+        currentUploadTask = getUserImagesReference(user).child(file.getName()).putFile(uri);
         currentUploadTask.addOnFailureListener(this)
                 .addOnPausedListener(this)
                 .addOnProgressListener(this)
                 .addOnSuccessListener(this);
 
-        return currentUploadTask = getUserImagesReference(user).child(file.getName()).putFile(uri);
+        return currentUploadTask;
     }
+
 
     public void downloadImage(String fileName, String user, ImageView imageView, ProgressBar progressBar, TextView progress) {
         downloadImageView = imageView;
@@ -171,7 +174,8 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
                 downloadProgressBar.setVisibility(View.GONE);
                 downloadImageView.setVisibility(View.VISIBLE);
             }
-            downloadImageView.setImageBitmap(BitmapFactory.decodeFile(localFile.getAbsolutePath()));
+            Bitmap image = BitmapFactory.decodeFile(localFile.getAbsolutePath());
+            downloadImageView.setImageBitmap(image);
         }
     }
 }

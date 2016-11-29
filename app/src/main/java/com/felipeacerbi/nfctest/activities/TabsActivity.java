@@ -37,6 +37,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private Toolbar toolbar;
+    private SectionsPagerAdapter sectionsPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this, fab);
+        sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), this, fab);
 
         // Set up the ViewPager with the sections adapter.
         viewPager = (ViewPager) findViewById(R.id.container);
