@@ -52,7 +52,6 @@ public class NFCReadFragment extends Fragment implements View.OnClickListener {
     private Animation rotateBackAnimation;
     private boolean isFabOpen = false;
 
-    public static String downloadFilePath = "fail";
     private RecyclerView buddiesList;
     private RecyclerView followingList;
     private PetsAdapter buddiesAdapter;

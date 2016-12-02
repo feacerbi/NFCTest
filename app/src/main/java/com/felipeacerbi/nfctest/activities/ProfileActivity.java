@@ -6,7 +6,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -14,21 +13,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.adapters.PetsAdapter;
-import com.felipeacerbi.nfctest.adapters.PostsAdapter;
-import com.felipeacerbi.nfctest.fragments.FeedFragment;
+import com.felipeacerbi.nfctest.dialogs.EditProfileDialog;
+import com.felipeacerbi.nfctest.dialogs.UserDialog;
 import com.felipeacerbi.nfctest.models.Pet;
 import com.felipeacerbi.nfctest.models.PetViewHolder;
-import com.felipeacerbi.nfctest.models.posts.FeedPostFullViewHolder;
-import com.felipeacerbi.nfctest.models.posts.FeedPostText;
+import com.felipeacerbi.nfctest.models.User;
 import com.felipeacerbi.nfctest.models.tags.NFCTag;
 import com.felipeacerbi.nfctest.models.tags.QRCodeTag;
 import com.felipeacerbi.nfctest.utils.Constants;
 import com.felipeacerbi.nfctest.utils.FirebaseDBHelper;
+import com.felipeacerbi.nfctest.utils.FirebaseStoreHelper;
 import com.google.android.gms.vision.barcode.Barcode;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -44,6 +47,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private boolean isFabOpen = false;
     private RecyclerView petsList;
     private PetsAdapter petsAdapter;
+    private ValueEventListener profileListener;
+    private ImageView userPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,25 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         firebaseDBHelper = new FirebaseDBHelper(this);
 
-        setToolbar();
+        profileListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = new User(dataSnapshot);
+
+                toolbar.setTitle(user.getName());
+
+                FirebaseStoreHelper firebaseStoreHelper = new FirebaseStoreHelper();
+                firebaseStoreHelper.downloadImage(user.getProfilePicture(),
+                        firebaseDBHelper.getLoginName(),
+                        userPhoto,
+                        null, null);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
 
         petsAdapter = new PetsAdapter(
                 this,
@@ -66,6 +89,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     private Query getQuery(FirebaseDBHelper firebaseDBHelper) {
         return firebaseDBHelper.getCurrentUserReference().child(Constants.DATABASE_BUDDIES_CHILD).orderByKey();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setToolbar();
     }
 
     @Override
@@ -85,6 +114,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         rotateBackAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_backwards);
 
         petsList = (RecyclerView) findViewById(R.id.buddies_list);
+
+        ImageView editPhoto = (ImageView) findViewById(R.id.edit_photo);
+        editPhoto.setOnClickListener(this);
+        userPhoto = (ImageView) findViewById(R.id.user_photo);
+
     }
 
     @Override
@@ -161,6 +195,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 // Launch barcode activity.
                 Intent intent = new Intent(this, BarcodeCaptureActivity.class);
                 startActivityForResult(intent, Constants.RC_BARCODE_CAPTURE);
+                break;
+            case R.id.edit_photo:
+                UserDialog userDialog = UserDialog.newInstance(new User());
+                userDialog.show(getSupportFragmentManager(), "editUser");
                 break;
         }
 

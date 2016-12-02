@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.TabsActivity">
 
-    <item
-        android:id="@+id/action_tictactoe"
-        android:title="@string/action_tic_tac_toe"
-        app:showAsAction="ifRoom" />
+    <!--<item-->
+        <!--android:id="@+id/action_tictactoe"-->
+        <!--android:title="@string/action_tic_tac_toe"-->
+        <!--app:showAsAction="ifRoom" />-->
 
     <item android:id="@+id/action_profile"
         android:title="@string/action_profile"

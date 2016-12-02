@@ -16,7 +16,17 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:actionModeBackground">@color/colorAccent</item>
+        <item name="colorControlActivated">@color/noColor</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlayNoColor" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:actionModeBackground">@color/noColor</item>
+        <item name="colorControlActivated">@color/noColor</item>
+    </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 

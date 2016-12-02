@@ -4,6 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <include
+        android:id="@+id/post_header"
+        layout="@layout/post_header" />
+
     <LinearLayout
         android:id="@+id/actions_bar"
         android:layout_width="match_parent"
@@ -33,7 +37,7 @@
             android:layout_height="30dp"
             android:layout_margin="16dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_pets_black_24dp"/>
+            android:src="@drawable/ic_add_pet_black_24dp"/>
     </LinearLayout>
 
     <ProgressBar
@@ -64,6 +68,7 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_below="@id/post_header"
         android:layout_above="@id/upload_message">
 
         <AutoCompleteTextView

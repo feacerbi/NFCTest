@@ -45,7 +45,6 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
         setContentView(R.layout.activity_tabs);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         
         checkFirebase();
 
@@ -135,9 +134,9 @@ public class TabsActivity extends AppCompatActivity implements GoogleApiClient.O
             case R.id.action_profile:
                 startActivity(new Intent(this, ProfileActivity.class));
                 return true;
-            case R.id.action_tictactoe:
-                startActivity(new Intent(this, TicTacToeActivity.class));
-                return true;
+//            case R.id.action_tictactoe:
+//                startActivity(new Intent(this, TicTacToeActivity.class));
+//                return true;
             case R.id.action_settings:
                 return true;
             case R.id.action_sign_out:

@@ -93,7 +93,7 @@ public class WaitTagActivity extends AppCompatActivity {
 
             // Prepare response Intent
             Intent returnIntent = new Intent();
-            returnIntent.putExtra(Constants.NFC_TAG_EXTRA, nfcTag);
+            returnIntent.putExtra(Constants.NFC_TAG_EXTRA, (Parcelable) nfcTag);
 
             // NFC Tag read and created
             setResult(Activity.RESULT_OK, returnIntent);

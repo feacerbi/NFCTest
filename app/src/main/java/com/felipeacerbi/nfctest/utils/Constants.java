@@ -52,8 +52,19 @@ public class Constants {
     public static final String DATABASE_COMMENTS_CHILD = "comments";
     public static final String DATABASE_CURRENT_TURN_CHILD = "currentTurn";
     public static final String DATABASE_TYPE_CHILD = "type";
+    public static final String DATABASE_AGE_CHILD = "age";
+    public static final String DATABASE_GENDER_CHILD = "gender";
+    public static final String DATABASE_DESCRIPTION_CHILD = "description";
+    public static final String DATABASE_PROFILE_PICTURE_CHILD = "profilePicture";
 
+    public static final String BASE_TAG_EXTRA = "base_tag";
     public static final String NFC_TAG_EXTRA = "nfc_tag";
     public static final String PET_EXTRA = "petId";
+    public static final String IS_EDIT_EXTRA = "isEdit";
+    public static final String USER_EXTRA = "user";
+
+    public static final int MALE = 0;
+    public static final int FEMALE = 1;
+
 
 }

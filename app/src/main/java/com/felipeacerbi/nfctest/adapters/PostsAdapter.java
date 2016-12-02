@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.felipeacerbi.nfctest.models.Pet;
 import com.felipeacerbi.nfctest.models.posts.FeedPost;
 import com.felipeacerbi.nfctest.models.posts.FeedPostFullViewHolder;
 import com.felipeacerbi.nfctest.models.posts.FeedPostMedia;
@@ -19,12 +20,14 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PostsAdapter extends FirebaseRecyclerAdapter {
 
     private FirebaseDBHelper firebaseDBHelper;
     private Context context;
+    private Pet currentPet;
 
     public PostsAdapter(Context context, Class modelClass, int modelLayout, Class viewHolderClass, Query ref) {
         super(modelClass, modelLayout, viewHolderClass, ref);
@@ -51,6 +54,25 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
     }
 
     @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder viewHolder, final int position) {
+        final FeedPost item = (FeedPost) getItem(position);
+        firebaseDBHelper.getPetReference(item.getPet()).addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        currentPet = new Pet(dataSnapshot);
+                        populateViewHolder(viewHolder, item, position);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
+    }
+
+    @Override
     protected void populateViewHolder(RecyclerView.ViewHolder viewHolder, Object model, int position) {
         DatabaseReference postRef = getRef(position);
         final String postKey = postRef.getKey();
@@ -60,13 +82,13 @@ public class PostsAdapter extends FirebaseRecyclerAdapter {
         final FeedPost post = (FeedPost) model;
         final FeedPostFullViewHolder postViewHolder = (FeedPostFullViewHolder) viewHolder;
 
-        postViewHolder.getPetField().setText(post.getName());
+        postViewHolder.getPetField().setText(currentPet.getName());
         postViewHolder.getTimeField().setText(FeedPost.formatTime(context, post.getTimestamp()));
         postViewHolder.getContentText().setText(post.getText());
 
         FirebaseStoreHelper firebaseStoreHelper = new FirebaseStoreHelper();
         firebaseStoreHelper.downloadImage(
-                post.getProfileImage(),
+                currentPet.getProfileImage(),
                 post.getPet(),
                 postViewHolder.getProfilePicture(),
                 postViewHolder.getProfilePictureProgress(),

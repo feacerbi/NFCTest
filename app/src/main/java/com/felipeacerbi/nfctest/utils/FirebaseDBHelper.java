@@ -2,9 +2,11 @@ package com.felipeacerbi.nfctest.utils;
 
 import android.content.Context;
 import android.net.Uri;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 
+import com.felipeacerbi.nfctest.dialogs.PetDialog;
 import com.felipeacerbi.nfctest.R;
 import com.felipeacerbi.nfctest.game.UsersAdapter;
 import com.felipeacerbi.nfctest.models.Pet;
@@ -129,6 +131,31 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         getDatabase().updateChildren(childUpdates);
     }
 
+    public void updateUser(User user) {
+        // Insert user on DB
+
+        Map<String, Object> childUpdates = new HashMap<>();
+
+        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                        + getLoginName() + "/"
+                        + Constants.DATABASE_AGE_CHILD,
+                        user.getAge());
+        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                        + getLoginName() + "/"
+                        + Constants.DATABASE_GENDER_CHILD,
+                        user.getGender());
+        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                        + getLoginName() + "/"
+                        + Constants.DATABASE_DESCRIPTION_CHILD,
+                        user.getDescription());
+        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                        + getLoginName() + "/"
+                        + Constants.DATABASE_PROFILE_PICTURE_CHILD,
+                        user.getProfilePicture());
+
+        getDatabase().updateChildren(childUpdates);
+    }
+
     public void showResultUsers(final String search, final RecyclerView recyclerView) {
         DatabaseReference users = getUsersReference();
         users.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -179,7 +206,12 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
                 }
 
                 if(isNew) {
-                    addNewPet(foundTag, found);
+                    if(found) {
+                        addNewPet(foundTag, null, true);
+                    } else {
+                        PetDialog petDialog = PetDialog.newInstance(foundTag, false);
+                        petDialog.show(((AppCompatActivity) context).getSupportFragmentManager(), "newPet");
+                    }
                     Toast.makeText(context, "Buddy added successfully", Toast.LENGTH_SHORT).show();
                 } else {
                     if(found) {
@@ -198,37 +230,34 @@ public class FirebaseDBHelper extends FirebaseInstanceIdService {
         });
     }
 
-    private void addNewPet(BaseTag tag, boolean exists) {
-        String petId;
-        if(exists) {
-            petId = tag.getPet();
-        } else {
-            petId = getPetsReference().push().getKey();
+    public void addNewPet(BaseTag tag, Pet pet, Boolean exists) {
+        if(!exists && pet != null) {
+            tag.setPet(pet.getId());
+            tag.setPetName(pet.getName());
+            pet.setTag(tag.getId());
         }
-        tag.setPet(petId);
-
-        Pet pet = new Pet(petId, tag.getId(), "Rex", "5", "Border Collie", "fail");
 
         Map<String, Object> childUpdates = new HashMap<>();
 
         childUpdates.put(Constants.DATABASE_USERS_CHILD + "/" // Add TAG to current user
                         + getLoginName() + "/"
                         + Constants.DATABASE_BUDDIES_CHILD + "/"
-                        + petId,
-                        pet.getName());
+                        + tag.getPet(),
+                        tag.getPetName());
         if(exists) {
             childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
-                            + petId + "/"
+                            + tag.getPet() + "/"
                             + Constants.DATABASE_OWNERS_CHILD + "/"
                             + getLoginName(),
                             true);
-        } else {
+        } else if(pet != null) {
             pet.getOwners().put(getLoginName(), true);
             childUpdates.put(Constants.DATABASE_TAGS_CHILD + "/" // Add current user to TAG
                             + tag.getId(),
                             tag.toMap());
+
             childUpdates.put(Constants.DATABASE_PETS_PATH + "/"
-                            + petId,
+                            + tag.getPet(),
                             pet.toMap());
         }
 

@@ -15,8 +15,6 @@ public abstract class FeedPost {
     private String id;
     private int type;
     private String pet;
-    private String name;
-    private String profileImage;
     private String timestamp;
     private String location;
     private String text;
@@ -34,8 +32,6 @@ public abstract class FeedPost {
         Map<String, Object> result = new HashMap<>();
         result.put("type", type);
         result.put("pet", pet);
-        result.put("name", name);
-        result.put("profileImage", profileImage);
         result.put("timestamp", timestamp);
         result.put("location", location);
         result.put("text", text);
@@ -49,8 +45,6 @@ public abstract class FeedPost {
         id = dataSnapshot.getKey();
         type = dataSnapshot.child("type").getValue(Integer.class);
         pet = dataSnapshot.child("pet").getValue(String.class);
-        name = dataSnapshot.child("name").getValue(String.class);
-        profileImage = dataSnapshot.child("profileImage").getValue(String.class);
         timestamp = dataSnapshot.child("timestamp").getValue(String.class);
         location = dataSnapshot.child("location").getValue(String.class);
         text = dataSnapshot.child("text").getValue(String.class);
@@ -97,22 +91,6 @@ public abstract class FeedPost {
 
     public void setPet(String pet) {
         this.pet = pet;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getProfileImage() {
-        return profileImage;
-    }
-
-    public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
     }
 
     public String getTimestamp() {

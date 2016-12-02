@@ -76,8 +76,12 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         downloadProgressBar = progressBar;
         downloadProgress = progress;
         if(downloadProgress == null) {
-            downloadProgressBar.setVisibility(View.VISIBLE);
-            downloadImageView.setVisibility(View.INVISIBLE);
+            if(downloadProgressBar != null) {
+                downloadProgressBar.setVisibility(View.VISIBLE);
+                downloadImageView.setVisibility(View.INVISIBLE);
+            } else if(downloadImageView != null) {
+                downloadImageView.setImageResource(R.mipmap.ic_launcher);
+            }
         }
 
         try {
@@ -117,23 +121,14 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
         // Handle unsuccessful uploads
         e.printStackTrace();
         if(checkDownload()) {
-            try {
-                localFile = File.createTempFile("temp", "jpg");
-                currentDownloadTask = getImagesReference().child("ic_launcher.png").getFile(localFile);
-                currentDownloadTask.addOnSuccessListener(this)
-                        .addOnFailureListener(this)
-                        .addOnProgressListener(this)
-                        .addOnSuccessListener(this);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
+            downloadImageView.setImageResource(R.mipmap.ic_launcher);
         }
     }
 
     @Override
     public void onPaused(Object o) {
         // Handle Pause
-        if(checkUpload()) {
+        if(checkUpload() && uploadProgress != null) {
             uploadProgress.setText(R.string.paused);
         } else if(checkDownload() && downloadProgress != null) {
             downloadProgress.setText(R.string.paused);
@@ -142,12 +137,12 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
 
     @Override
     public void onProgress(Object o) {
-        if(checkUpload()) {
+        if(checkUpload() && uploadProgress != null && uploadProgressBar != null) {
             UploadTask.TaskSnapshot taskSnapshot = (UploadTask.TaskSnapshot) o;
             int progress = (int) ((((double) taskSnapshot.getBytesTransferred()) / ((double) taskSnapshot.getTotalByteCount())) * 100);
             uploadProgressBar.setProgress(progress);
             uploadProgress.setText(progress + "%");
-        } else if(checkDownload() && downloadProgress != null) {
+        } else if(checkDownload() && downloadProgress != null && downloadProgressBar != null) {
             FileDownloadTask.TaskSnapshot taskSnapshot = (FileDownloadTask.TaskSnapshot) o;
             int progress = (int) ((((double) taskSnapshot.getBytesTransferred()) / ((double) taskSnapshot.getTotalByteCount())) * 100);
             downloadProgressBar.setProgress(progress);
@@ -161,7 +156,7 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
             UploadTask.TaskSnapshot taskSnapshot = (UploadTask.TaskSnapshot) o;
             Uri downloadUrl = taskSnapshot.getDownloadUrl();
             if(downloadUrl != null) {
-                NFCReadFragment.downloadFilePath = downloadUrl.getLastPathSegment().substring(downloadUrl.getLastPathSegment().lastIndexOf("/"));
+                //NFCReadFragment.downloadFilePath = downloadUrl.getLastPathSegment().substring(downloadUrl.getLastPathSegment().lastIndexOf("/"));
                 uploadProgress.setText(R.string.finished);
             } else {
                 uploadProgress.setText(R.string.fail);
@@ -170,8 +165,8 @@ public class FirebaseStoreHelper implements OnFailureListener, OnSuccessListener
             //FileDownloadTask.TaskSnapshot taskSnapshot = (FileDownloadTask.TaskSnapshot) o;
             if(downloadProgress != null) {
                 downloadProgress.setText(R.string.finished);
-            } else {
-                downloadProgressBar.setVisibility(View.GONE);
+            } else if(downloadProgressBar != null){
+                downloadProgressBar.setVisibility(View.INVISIBLE);
                 downloadImageView.setVisibility(View.VISIBLE);
             }
             Bitmap image = BitmapFactory.decodeFile(localFile.getAbsolutePath());

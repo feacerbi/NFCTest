@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class FeedFragment extends Fragment implements View.OnClickListener, OnSuccessListener<UploadTask.TaskSnapshot>, OnFailureListener {
+public abstract class FeedFragment extends Fragment implements View.OnClickListener, OnSuccessListener<UploadTask.TaskSnapshot> {
 
     // Firebase Helper instance
     private FirebaseDBHelper firebaseDBHelper;
@@ -100,6 +100,7 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
         View rootView = inflater.inflate(R.layout.fragment_feed, container, false);
 
         fab = (FloatingActionButton) getActivity().findViewById(R.id.fab);
+        fab.setOnClickListener(this);
 
         cardsList = (RecyclerView) rootView.findViewById(R.id.cards_list);
         cardsList.setHasFixedSize(true);
@@ -131,12 +132,6 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
         setRecyclerViewLayoutManager(currentLayoutManagerType);
 
         return rootView;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        fab.setOnClickListener(this);
     }
 
     @Override
@@ -207,6 +202,14 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
                         progressBar = (ProgressBar) dialogView.findViewById(R.id.upload_progress_bar);
                         progress = (TextView) dialogView.findViewById(R.id.upload_message);
                         ImageView uploadButton = (ImageView) dialogView.findViewById(R.id.upload_image_button);
+
+                        ImageView profilePicture = (ImageView) dialogView.findViewById(R.id.profile_picture);
+                        ProgressBar profileProgress = (ProgressBar) dialogView.findViewById(R.id.profile_picture_progress);
+                        TextView petName = (TextView) dialogView.findViewById(R.id.post_title);
+                        TextView time = (TextView) dialogView.findViewById(R.id.post_date_time);
+                        time.setVisibility(View.GONE);
+
+                        setHeader(profilePicture, profileProgress, petName);
                         setUploadButton(uploadButton);
 
                         postDialog.setPositiveButton("Post", new DialogInterface.OnClickListener() {
@@ -232,7 +235,6 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
                                         Toast.makeText(getActivity(), "Post cancelled", Toast.LENGTH_SHORT).show();
                                     }
                                 })
-                                .setTitle("New Post")
                                 .create()
                                 .show();
                     }
@@ -244,11 +246,21 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
                 });
     }
 
+    private void setHeader(ImageView profilePicture, ProgressBar profileProgress, TextView petName) {
+        FirebaseStoreHelper firebaseStoreHelper = new FirebaseStoreHelper();
+        firebaseStoreHelper.downloadImage(
+                currentPet.getProfileImage(),
+                currentPet.getId(),
+                profilePicture,
+                profileProgress,
+                null);
+
+        petName.setText(currentPet.getName());
+    }
+
     private void addNewPost(final FeedPost feedPost, Pet pet, String content) {
         feedPost.setPet(pet.getId());
-        feedPost.setName(pet.getName());
         feedPost.setTimestamp(String.valueOf(Calendar.getInstance().getTimeInMillis()));
-        feedPost.setProfileImage(pet.getProfileImage());
         feedPost.setText(content);
 
         firebaseDBHelper.getPetReference(feedPost.getPet()).child(Constants.DATABASE_FOLLOWERS_CHILD)
@@ -276,6 +288,12 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
                                         + postKey,
                                         feedPost.toMap());
 
+                        childUpdates.put(Constants.DATABASE_USERS_PATH + "/"
+                                        + firebaseDBHelper.getLoginName() + "/"
+                                        + Constants.DATABASE_FEED_CHILD + "/"
+                                        + postKey,
+                                        feedPost.toMap());
+
                         firebaseDBHelper.getDatabase().updateChildren(childUpdates);
 
                     }
@@ -285,6 +303,8 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
 
                     }
                 });
+
+        postFilePath = null;
     }
 
     private void setUploadButton(ImageView uploadButton) {
@@ -346,11 +366,6 @@ public abstract class FeedFragment extends Fragment implements View.OnClickListe
         if(downloadUrl != null) {
             postFilePath = downloadUrl.getLastPathSegment().substring(downloadUrl.getLastPathSegment().lastIndexOf("/"));
         }
-    }
-
-    @Override
-    public void onFailure(@NonNull Exception e) {
-        postFilePath = null;
     }
 
     @Override
